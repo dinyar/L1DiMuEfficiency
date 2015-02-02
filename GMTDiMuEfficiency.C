@@ -64,13 +64,13 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
 
   // Create ntuple
   std::vector<std::string> varList;
+  varList.push_back("N");
   varList.push_back("Eta");
   varList.push_back("Phi");
   varList.push_back("pT");
   std::ostringstream ntupleContStream;
   std::vector<std::string> contDict;
-  ntupleContStream << "N_GMT:Qual1_GMT:Qual2_GMT:SubsysID1_GMT:SubsysID2_GMT";
-  contDict.push_back("N_GMT");
+  ntupleContStream << "Qual1_GMT:Qual2_GMT:SubsysID1_GMT:SubsysID2_GMT";
   contDict.push_back("Qual1_GMT");
   contDict.push_back("Qual2_GMT");
   contDict.push_back("SubsysID1_GMT");
@@ -137,7 +137,6 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
 
         fillNtuple(recoMu1, recoMu2, gmtMu1, gmtMu2, diMuMatch, contDict, ntupleValues);
 
-
         ntuple->Fill(ntupleValues);
       }
     }
@@ -147,6 +146,11 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
 
 void GMTDiMuEfficiency::fillNtuple(int recoMu1, int recoMu2, int gmtMu1, int gmtMu2, std::pair<bool, bool> diMuMatch, std::vector<std::string> contDict, Float_t ntupleValues[])
 {
+  if (contDict[varIt] == "N_reco") {
+    ntupleValues[varIt] = recoMuon_->nMuons;
+    // std::cout << "Filling N: " << recoMuon_->nMuons << std::endl;
+  }
+
   for (size_t varIt = 0; varIt < contDict.size(); ++varIt) {
     if (contDict[varIt] == "pT1_reco") {
       ntupleValues[varIt] = recoMuon_->pt[recoMu1];

@@ -1,13 +1,17 @@
+#/usr/bin/python
+
 from ROOT import *
 
 gROOT.Reset()
 
 etaScalePos= [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.75,1.8,1.85,1.9,1.95,2.,2.05,2.1,2.15,2.2,2.25,2.3,2.35,2.4];
-etaScale= [];
+etaScale= [None] * 63
 for i in range(31):
     etaScale[i]    = -etaScalePos[31-i]
     etaScale[32+i] = etaScalePos[i+1]
 etaScale[31]=0;
+
+DiMuNtuple.root
 
 
 hist_effVsDr       = TH1D("hist_effVsDr", "Efficiency vs. deltaR", 200, 0, 10)
