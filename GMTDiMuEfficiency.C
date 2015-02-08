@@ -64,13 +64,14 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
 
   // Create ntuple
   std::vector<std::string> varList;
-  varList.push_back("N");
   varList.push_back("Eta");
   varList.push_back("Phi");
   varList.push_back("pT");
   std::ostringstream ntupleContStream;
   std::vector<std::string> contDict;
-  ntupleContStream << "Qual1_GMT:Qual2_GMT:SubsysID1_GMT:SubsysID2_GMT";
+  ntupleContStream << "N_reco:N_GMT:Qual1_GMT:Qual2_GMT:SubsysID1_GMT:SubsysID2_GMT";
+  contDict.push_back("N_reco");
+  contDict.push_back("N_GMT");
   contDict.push_back("Qual1_GMT");
   contDict.push_back("Qual2_GMT");
   contDict.push_back("SubsysID1_GMT");
@@ -99,6 +100,12 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
   }
   std::cout << nevents << " to process ..." << std::endl;
 
+  // DEBUG:
+  int fails = 0;
+  int skips = 0;
+  int eventsRun = 0;
+  int filledTuples = 0;
+
   //loop over the events
   for (Long64_t i=0; i<nevents; i++) {
     //load the i-th event
@@ -114,21 +121,26 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
     }
 
     //user code here
+    ++eventsRun;
 
     if(recoMuon_->nMuons < 2) {
+      ++skips;
       continue; // Only interested in dimuon events
     }
     Float_t ntupleValues[contDict.size()];
 
     for(int recoMu1 = 0; recoMu1 < recoMuon_->nMuons; ++recoMu1) {
       if(!glmucuts(recoMu1)) {
+        ++fails;
         continue;
       }
       // TODO: Once I fill two muons as di-muons can I 'reuse' the first one again?
       for(int recoMu2 = recoMu1+1; recoMu2 < recoMuon_->nMuons; ++recoMu2) {
         if(!glmucuts(recoMu2)) {
+          ++fails;
           continue;
         }
+        ++filledTuples;
 
         // std::cout << "glmucuts for mu2: " << glmucuts(recoMu2) << std::endl;
         // TODO: Allow pT cuts for individual muons
@@ -142,16 +154,19 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
     }
   }
   out->Write();
+
+  std::cout << "Number of events run over: " << eventsRun << " filled rows in ntuple: " << filledTuples << std::endl;
+  std::cout <<"Number of skipped events due to less than one reco muon: " << skips << std::endl;
+  std::cout << "Number of skipped muons due to glmuon cuts: " << fails << std::endl;
 }
 
 void GMTDiMuEfficiency::fillNtuple(int recoMu1, int recoMu2, int gmtMu1, int gmtMu2, std::pair<bool, bool> diMuMatch, std::vector<std::string> contDict, Float_t ntupleValues[])
 {
-  if (contDict[varIt] == "N_reco") {
-    ntupleValues[varIt] = recoMuon_->nMuons;
-    // std::cout << "Filling N: " << recoMuon_->nMuons << std::endl;
-  }
-
   for (size_t varIt = 0; varIt < contDict.size(); ++varIt) {
+    if (contDict[varIt] == "N_reco") {
+      ntupleValues[varIt] = recoMuon_->nMuons;
+      // std::cout << "Filling N: " << recoMuon_->nMuons << std::endl;
+    }
     if (contDict[varIt] == "pT1_reco") {
       ntupleValues[varIt] = recoMuon_->pt[recoMu1];
       // std::cout << "Filling pT1: " << recoMuon_->pt[recoMu1] << std::endl;
@@ -459,12 +474,40 @@ std::pair<bool, bool> GMTDiMuEfficiency::matchDiMuons(int iRecoMu1, int iRecoMu2
 }
 
 bool GMTDiMuEfficiency::glmucuts(int imu){
+
+  return (recoMuon_->type[imu] == 0);
+
   bool condextrap=false; // true if valid extrapolations exist in relevant eta ranges
-  if (fabs(recoMuon_->eta[imu]<1.0) && recoMuon_->sa_phi_mb2[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "zeroth" << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
+  if (fabs(recoMuon_->eta[imu])<1.0 && recoMuon_->sa_phi_mb2[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "first" << std::endl;
+    std::cout << fabs(recoMuon_->eta[imu]<1.0) << " " << recoMuon_->sa_phi_mb2[imu] << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
   if (recoMuon_->eta[imu]>= 1.0 && recoMuon_->eta[imu]<= 1.2 && recoMuon_->sa_phi_mb2[imu]>-9999 && recoMuon_->sa_phi_me2_p[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "second" << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
   if (recoMuon_->eta[imu]<=-1.0 && recoMuon_->eta[imu]>=-1.2 && recoMuon_->sa_phi_mb2[imu]>-9999 && recoMuon_->sa_phi_me2_n[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "third" << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
   if (recoMuon_->eta[imu]>1.2 && recoMuon_->sa_phi_me2_p[imu]>-9999) condextrap=true;
-  if (recoMuon_->eta[imu]<-1.2 && recoMuon_->sa_phi_me2_n[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "fourth" << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
+  if (recoMuon_->eta[imu]<-1.2 && recoMuon_->eta[imu]>= -6 && recoMuon_->sa_phi_me2_n[imu]>-9999) condextrap=true;
+  if (recoMuon_->eta[imu] < -10 && condextrap) {
+    std::cout << "fifth" << std::endl;
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << condextrap << std::endl;
+  }
 
   bool condpca = false; // true if muon has small extrapolation to IP
   Double_t rr = sqrt(recoMuon_->tr_imp_point_x[imu]*recoMuon_->tr_imp_point_x[imu]+
@@ -475,6 +518,10 @@ bool GMTDiMuEfficiency::glmucuts(int imu){
   bool hastrackertrack = ((recoMuon_->howmanytypes[imu]>>4)&0x3); // this is new, means has tight muon (?)
 
   bool cond = (condextrap && condpca && hastrackertrack);
+  // DEBUG
+  if (recoMuon_->eta[imu] < -10 && cond) {
+    std::cout << "eta: " << recoMuon_->eta[imu] << " phi extrapolation: " << recoMuon_->sa_phi_me2_n[imu] << " phi: " << recoMuon_->phi[imu] << " pT: " << recoMuon_->pt[imu] << " pass: " << cond << std::endl;
+  }
   return cond;
 }
 
