@@ -1,4 +1,4 @@
-#/usr/bin/python
+#!/usr/bin/python
 
 from ROOT import *
 
@@ -65,7 +65,6 @@ f = TFile.Open("DiMuNtuple.root")
 
 ntuple = f.Get("ntuple")
 
-# generateEfficiencyHist(efficiencyList["dEta"])
 for varList in efficiencyList:
     generateEfficiencyHist(varList)
 

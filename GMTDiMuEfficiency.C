@@ -127,7 +127,6 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
       ++skips;
       continue; // Only interested in dimuon events
     }
-    Float_t ntupleValues[contDict.size()];
 
     for(int recoMu1 = 0; recoMu1 < recoMuon_->nMuons; ++recoMu1) {
       if(!glmucuts(recoMu1)) {
@@ -141,6 +140,8 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
           continue;
         }
         ++filledTuples;
+
+        Float_t ntupleValues[contDict.size()];
 
         // std::cout << "glmucuts for mu2: " << glmucuts(recoMu2) << std::endl;
         // TODO: Allow pT cuts for individual muons
