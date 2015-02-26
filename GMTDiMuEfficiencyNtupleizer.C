@@ -6,7 +6,7 @@
 #include "TFile.h"
 
 // --------------------------------------------------------------------
-//                       GMTDiMuEfficiency macro definition
+//                       GMTDiMuEfficiencyNtupleizer macro definition
 // --------------------------------------------------------------------
 
 #define PHI 0
@@ -25,14 +25,13 @@ int Nsys = 5;
 const TString msystem[6]={"DT","RPCb","CSC","RPCf","GMT","Reco"};
 Double_t pig = acos(-1.);
 
-class GMTDiMuEfficiency : public L1Ntuple
-{
+class GMTDiMuEfficiencyNtupleizer : public L1Ntuple {
   public :
 
   //constructor
-  GMTDiMuEfficiency(std::string filename) : L1Ntuple(filename) {}
-  GMTDiMuEfficiency() {}
-  ~GMTDiMuEfficiency() {}
+  GMTDiMuEfficiencyNtupleizer(std::string filename) : L1Ntuple(filename) {}
+  GMTDiMuEfficiencyNtupleizer() {}
+  ~GMTDiMuEfficiencyNtupleizer() {}
 
   //main function macro : arguments can be adpated to your need
   void run(Long64_t nevents);
@@ -57,7 +56,7 @@ class GMTDiMuEfficiency : public L1Ntuple
 // --------------------------------------------------------------------
 //                             run function
 // --------------------------------------------------------------------
-void GMTDiMuEfficiency::run(Long64_t nevents)
+void GMTDiMuEfficiencyNtupleizer::run(Long64_t nevents)
 {
 
   toggleBranches();
@@ -161,7 +160,7 @@ void GMTDiMuEfficiency::run(Long64_t nevents)
   std::cout << "Number of skipped muons due to glmuon cuts: " << fails << std::endl;
 }
 
-void GMTDiMuEfficiency::fillNtuple(int recoMu1, int recoMu2, int gmtMu1, int gmtMu2, std::pair<bool, bool> diMuMatch, std::vector<std::string> contDict, Float_t ntupleValues[])
+void GMTDiMuEfficiencyNtupleizer::fillNtuple(int recoMu1, int recoMu2, int gmtMu1, int gmtMu2, std::pair<bool, bool> diMuMatch, std::vector<std::string> contDict, Float_t ntupleValues[])
 {
   for (size_t varIt = 0; varIt < contDict.size(); ++varIt) {
     if (contDict[varIt] == "N_reco") {
@@ -268,7 +267,7 @@ void GMTDiMuEfficiency::fillNtuple(int recoMu1, int recoMu2, int gmtMu1, int gmt
   }
 }
 
-double GMTDiMuEfficiency::dphi(int iRecoMu, int iL1Mu, int iL1Sys)
+double GMTDiMuEfficiencyNtupleizer::dphi(int iRecoMu, int iL1Mu, int iL1Sys)
 {
   if (recoMuon_->type[iRecoMu] != 0) {
     return -9999;
@@ -305,7 +304,7 @@ double GMTDiMuEfficiency::dphi(int iRecoMu, int iL1Mu, int iL1Sys)
   if (newphisep>1000) return -999;
   return newphisep;
 }
-double GMTDiMuEfficiency::deta(int iRecoMu, int iL1Mu, int iL1Sys)
+double GMTDiMuEfficiencyNtupleizer::deta(int iRecoMu, int iL1Mu, int iL1Sys)
 {
   if (recoMuon_->type[iRecoMu] != 0) {
     return -9999; // not a global
@@ -321,7 +320,7 @@ double GMTDiMuEfficiency::deta(int iRecoMu, int iL1Mu, int iL1Sys)
   if (newetasep>1000) return -999;
   return newetasep;
 }
-double GMTDiMuEfficiency::bestL1match(int iRecoMu, int &iL1Mu, int iL1Sys, float ptcut, int exclMu)
+double GMTDiMuEfficiencyNtupleizer::bestL1match(int iRecoMu, int &iL1Mu, int iL1Sys, float ptcut, int exclMu)
 {
   Double_t bestdeltar = 9999; int cand=9999;
   if (iL1Sys==DT) {
@@ -383,7 +382,7 @@ double GMTDiMuEfficiency::bestL1match(int iRecoMu, int &iL1Mu, int iL1Sys, float
   iL1Mu=cand;
   return bestdeltar;
 }
-double GMTDiMuEfficiency::dRreco(int iRecoMu1, int iRecoMu2)
+double GMTDiMuEfficiencyNtupleizer::dRreco(int iRecoMu1, int iRecoMu2)
 {
   double dR = -9999;
   if (recoMuon_->type[iRecoMu1] != 0) {
@@ -402,7 +401,7 @@ double GMTDiMuEfficiency::dRreco(int iRecoMu1, int iRecoMu2)
   dR = sqrt(ddphi*ddphi + ddeta*ddeta);
   return dR;
 }
-muSysEnum GMTDiMuEfficiency::whichSubsystem(int mu)
+muSysEnum GMTDiMuEfficiencyNtupleizer::whichSubsystem(int mu)
 {
   muSysEnum muSys;
   if(gmt_->IdxDTBX[mu] != -1 && gmt_->IdxRPCb[mu] != -1) {
@@ -446,7 +445,7 @@ muSysEnum GMTDiMuEfficiency::whichSubsystem(int mu)
 
   return muSys;
 }
-std::pair<bool, bool> GMTDiMuEfficiency::matchDiMuons(int iRecoMu1, int iRecoMu2, int &L1Mu1, int &L1Mu2, int iL1Sys, float ptcut, float dRmax)
+std::pair<bool, bool> GMTDiMuEfficiencyNtupleizer::matchDiMuons(int iRecoMu1, int iRecoMu2, int &L1Mu1, int &L1Mu2, int iL1Sys, float ptcut, float dRmax)
 {
   int cand11, cand12, cand21, cand22;
   float dR11, dR12, dR21, dR22, dR1, dR2, dRtot1, dRtot2;
@@ -474,7 +473,7 @@ std::pair<bool, bool> GMTDiMuEfficiency::matchDiMuons(int iRecoMu1, int iRecoMu2
 
 }
 
-bool GMTDiMuEfficiency::glmucuts(int imu){
+bool GMTDiMuEfficiencyNtupleizer::glmucuts(int imu){
 
   return (recoMuon_->type[imu] == 0);
 
@@ -526,7 +525,7 @@ bool GMTDiMuEfficiency::glmucuts(int imu){
   return cond;
 }
 
-void GMTDiMuEfficiency::toggleBranches()
+void GMTDiMuEfficiencyNtupleizer::toggleBranches()
 {
       //Select only needed branches:
     fChain->SetBranchStatus("*",0);
