@@ -82,15 +82,15 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     for gmtVar, ugmtVar in zip(gmt_content_list, ugmt_content_list):
         if gmtVar == "N":
             gmt_content.append(evt.gmt.N)
-        elif gmtVar == "pT1":
+        elif gmtVar == "pT1" and (evt.gmt.N > 0):
             gmt_content.append(evt.gmt.Pt[leadingGmtMu])
-        elif gmtVar == "eta1":
+        elif gmtVar == "eta1" and (evt.gmt.N > 0):
             gmt_content.append(evt.gmt.Eta[leadingGmtMu])
-        elif gmtVar == "phi1":
+        elif gmtVar == "phi1" and (evt.gmt.N > 0):
             gmt_content.append(evt.gmt.Phi[leadingGmtMu])
-        elif gmtVar == "qual1":
+        elif gmtVar == "qual1" and (evt.gmt.N > 0):
             gmt_content.append(evt.gmt.Qual[leadingGmtMu])
-        elif gmtVar == "ch1":
+        elif gmtVar == "ch1" and (evt.gmt.N > 0):
             gmt_content.append(evt.gmt.Cha[leadingGmtMu])
         elif (gmtVar == "pT2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Pt[trailingGmtMu])
@@ -108,20 +108,20 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         # CAVEAT: This works only as long as uGMT doesn't perform cancel out
         if ugmtVar == "N":
             ugmt_content.append(evt.ugmt.n)
-        elif ugmtVar == "pT1":
+        elif ugmtVar == "pT1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.pt[leadingUGmtMu])
-        elif ugmtVar == "eta1":
+        elif ugmtVar == "eta1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.eta[leadingUGmtMu])
-        elif ugmtVar == "phi1":
+        elif ugmtVar == "phi1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu])
-        elif ugmtVar == "ch1":
+        elif ugmtVar == "ch1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.ch[leadingUGmtMu])
-        elif ugmtVar == "trkAddr1":
+        elif ugmtVar == "trkAddr1" and (evt.ugmt.n > 0):
             tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
             tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
             ugmt_content.append(trkAddr)
-        elif ugmtVar == "tfType1":
+        elif ugmtVar == "tfType1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
         elif (ugmtVar == "ch1_gen"):
             if evt.gen.id[leadingMu] > 0:
