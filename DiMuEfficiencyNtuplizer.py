@@ -103,7 +103,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         elif (gmtVar == "ch2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Cha[trailingGmtMu])
         else:
-            gmt_content.append(-999)
+            gmt_content.append(-11)
 
         # CAVEAT: This works only as long as uGMT doesn't perform cancel out
         if ugmtVar == "N":
@@ -154,7 +154,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
                 # Anti muon
                 ugmt_content.append(1)
         else:
-            ugmt_content.append(-999)
+            ugmt_content.append(-11)
 
     return gmt_content, ugmt_content
 
