@@ -11,6 +11,12 @@ import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
 
+def getGenMuons(evt):
+    if evt.gen.pt[0] > evt.gen.pt[1]:
+        return 0, 1
+    else:
+        return 1, 0
+
 def getGmtMuons(evt):
     leadingPt = 0
     trailingPt = 0
@@ -65,6 +71,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         return [], []
 
     # Find muons with highest pT
+    leadingMu, trailingMu = getGenMuons(evt)
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
@@ -115,6 +122,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif ugmtVar == "tfType1":
             ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
+        elif (ugmtVar == "ch1_gen"):
+            ugmt_content.append(evt.gen.ch[leadingMu])
         elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
         elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
@@ -131,6 +140,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif (ugmtVar == "tfType2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
+        elif (ugmtVar == "ch2_gen"):
+            ugmt_content.append(evt.gen.ch[trailingMu])
         else:
             ugmt_content.append(-999)
 
@@ -166,6 +177,8 @@ def generate_content_lists():
     ugmt.append("trkAddr2")
     ugmt.append("tfType1")
     ugmt.append("tfType2")
+    ugmt.append("ch1_gen")
+    ugmt.append("ch2_gen")
 
     return gmt, ugmt
 
