@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import sys
 import os
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                "../L1TriggerDPG/L1Ntuples/macros/python"))
 from ToolBox import parse_options_and_init_log
 # have to do this first or ROOT masks the -h messages
 opts, parser = parse_options_and_init_log()
 
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                "../L1TriggerDPG/L1Ntuples/macros/python"))
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
