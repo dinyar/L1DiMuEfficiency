@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+from array import array
 from ToolBox import parse_options_and_init_log
 # have to do this first or ROOT masks the -h messages
 opts, parser = parse_options_and_init_log()
@@ -76,8 +77,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
-    gmt_content = []
-    ugmt_content = []
+    gmt_content = array('f')
+    ugmt_content = array('f')
     for gmtVar, ugmtVar in zip(gmt_content_list, ugmt_content_list):
         if gmtVar == "N":
             gmt_content.append(evt.gmt.N)
@@ -90,7 +91,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         elif gmtVar == "qual1":
             gmt_content.append(evt.gmt.Qual[leadingGmtMu])
         elif gmtVar == "ch1":
-            gmt_content.append(evt.gmt.Ch[leadingGmtMu])
+            gmt_content.append(evt.gmt.Cha[leadingGmtMu])
         elif (gmtVar == "pT2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Pt[trailingGmtMu])
         elif (gmtVar == "eta2") and (evt.gmt.N > 1):
@@ -100,7 +101,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         elif (gmtVar == "qual2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Qual[trailingGmtMu])
         elif (gmtVar == "ch2") and (evt.gmt.N > 1):
-            gmt_content.append(evt.gmt.Ch[trailingGmtMu])
+            gmt_content.append(evt.gmt.Cha[trailingGmtMu])
         else:
             gmt_content.append(-999)
 
