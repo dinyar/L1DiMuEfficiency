@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                "../L1Ntuples/macros/python"))
 from ToolBox import parse_options_and_init_log
 # have to do this first or ROOT masks the -h messages
 opts, parser = parse_options_and_init_log()
 
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                "../L1Ntuples/macros/python"))
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
@@ -16,6 +16,7 @@ def getGenMuons(evt):
         return 0, 1
     else:
         return 1, 0
+
 
 def getGmtMuons(evt):
     leadingPt = 0
@@ -118,12 +119,17 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
             tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
-
             ugmt_content.append(trkAddr)
         elif ugmtVar == "tfType1":
             ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
         elif (ugmtVar == "ch1_gen"):
-            ugmt_content.append(evt.gen.ch[leadingMu])
+            if evt.gen.id[leadingMu] > 0:
+                # Muon
+                ugmt_content.append(-1)
+            else:
+                # Anti muon
+                ugmt_content.append(1)
+
         elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
         elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
@@ -136,12 +142,16 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
             tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
-
             ugmt_content.append(trkAddr)
         elif (ugmtVar == "tfType2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
         elif (ugmtVar == "ch2_gen"):
-            ugmt_content.append(evt.gen.ch[trailingMu])
+            if evt.gen.id[trailingMu] > 0:
+                # Muon
+                ugmt_content.append(-1)
+            else:
+                # Anti muon
+                ugmt_content.append(1)
         else:
             ugmt_content.append(-999)
 
@@ -197,7 +207,6 @@ def main():
     gmt_content_list, ugmt_content_list = generate_content_lists()
     gmt_content_string = ':'.join(gmt_content_list)
     ugmt_content_string = ':'.join(ugmt_content_list)
-
 
     gmt_ntuple_fname = "GMTDimuonNtuple.root"
     gmt_f = root.TFile(gmt_ntuple_fname, 'recreate')
