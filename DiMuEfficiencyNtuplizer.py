@@ -6,7 +6,7 @@ from ToolBox import parse_options_and_init_log
 opts, parser = parse_options_and_init_log()
 
 sys.path.append(os.path.join(os.path.dirname(__file__),
-                "../L1Ntuples/macros/python"))
+                "../L1TriggerDPG/L1Ntuples/macros/python"))
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
@@ -78,7 +78,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
 
     gmt_content = []
     ugmt_content = []
-    for gmtVar, ugmtVar in gmt_content_list, ugmt_content_list:
+    for gmtVar, ugmtVar in zip(gmt_content_list, ugmt_content_list):
         if gmtVar == "N":
             gmt_content.append(evt.gmt.N)
         elif gmtVar == "pT1":
