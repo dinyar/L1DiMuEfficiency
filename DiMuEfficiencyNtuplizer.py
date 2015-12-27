@@ -78,8 +78,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
     gmt_content = array('f')
-    ugmt_content = array('f')
-    for gmtVar, ugmtVar in zip(gmt_content_list, ugmt_content_list):
+    for gmtVar in ugmt_content_list:
         if gmtVar == "N":
             gmt_content.append(evt.gmt.N)
         elif gmtVar == "pT1" and (evt.gmt.N > 0):
@@ -105,6 +104,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         else:
             gmt_content.append(-11)
 
+    ugmt_content = array('f')
+    for ugmtVar in ugmt_content_list:
         # CAVEAT: This works only as long as uGMT doesn't perform cancel out
         if ugmtVar == "N":
             ugmt_content.append(evt.ugmt.n)
@@ -132,7 +133,6 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             else:
                 # Anti muon
                 ugmt_content.append(1)
-
         elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
         elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
