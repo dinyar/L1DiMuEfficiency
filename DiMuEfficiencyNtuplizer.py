@@ -114,6 +114,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(evt.ugmt.eta[leadingUGmtMu])
         elif ugmtVar == "phi1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu])
+        elif ugmtVar == "qual1" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.qual[leadingUGmtMu])
         elif ugmtVar == "ch1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.ch[leadingUGmtMu])
         elif ugmtVar == "trkAddr1" and (evt.ugmt.n > 0):
@@ -137,6 +139,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(evt.ugmt.eta[trailingUGmtMu])
         elif (ugmtVar == "phi2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu])
+        elif (ugmtVar == "qual2") and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.qual[trailingUGmtMu])
         elif (ugmtVar == "ch2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.ch[trailingUGmtMu])
         elif (ugmtVar == "trkAddr2") and (evt.ugmt.n > 1):
