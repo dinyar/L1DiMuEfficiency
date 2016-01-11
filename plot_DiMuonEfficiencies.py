@@ -112,14 +112,23 @@ efficiencyList.append([["mu2_genPt", ""],
 
 
 # TODO: Get these via argparse
-gmt_ntuple_file = "GMTDimuonNtuple.root"
-ugmt_ntuple_file = "uGMTDimuonNtuple.root"
-gmt_ntuple_name = "gmt_ntuple"
-ugmt_ntuple_name = "ugmt_ntuple"
-
-dataset_gmt = "GMT"
-dataset_ugmt = "uGMT"
+ntuple_files = []
+ntuple_files.append("GMTDimuonNtuple.root")
+ntuple_files.append("uGMTDimuonNtuple.root")
+ntuple_names = []
+ntuple_names.append("gmt_ntuple")
+ntuple_names.append("ugmt_ntuple")
+datasets = []
+datasets.append("GMT")
+datasets.append("uGMT")
+distribution_labels = []
+distribution_labels.append(["Gen muons", "GMT muons"])
+distribution_labels.append(["Gen muons", "uGMT muons"])
+line_colours = []
+line_colours.append(38)
+line_colours.append(46)
 
 for varList in efficiencyList:
-    generateCombinedEfficiencyHist(varList, gmt_ntuple_file, ugmt_ntuple_file,
-    dataset_gmt, dataset_ugmt, gmt_ntuple_name, ugmt_ntuple_name)
+    generateCombinedEfficiencyHist(varList, ntuple_files, datasets,
+                                   ntuple_names, distribution_labels,
+                                   line_colours)
