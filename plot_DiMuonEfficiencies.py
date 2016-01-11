@@ -8,81 +8,100 @@ from CreateHistograms import *
 gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
+# Cut dicts
+gmtCuts = {}
+genCuts = {}
+gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
+# TODO: Try different distance cut for each track finder/area.
+gmtCuts["diMu-pt1_separated"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.1))", "diMu-pt1_separated"]
+# TODO: Have cuts to only look at certain track finders
+genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-pt1"]
+
 efficiencyList = []
 # TODO: Axis labels, think about more descriptive title.
 # TODO: Can combine/infer stuff: Efficiency implies GMT/reco;
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
-efficiencyList.append(["deltaEta_reco", binningDict["distNarrow"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5"]])
-efficiencyList.append(["deltaEta_reco", binningDict["distNarrow"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-brl"]])
-efficiencyList.append(["deltaEta_reco", binningDict["distNarrow"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-ovl"]])
-efficiencyList.append(["deltaEta_reco", binningDict["distNarrow"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-fwd"]])
-efficiencyList.append(["deltaPhi_reco", binningDict["distNarrow"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5"]])
-efficiencyList.append(["deltaPhi_reco", binningDict["distNarrow"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-brl"]])
-efficiencyList.append(["deltaPhi_reco", binningDict["distNarrow"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-ovl"]])
-efficiencyList.append(["deltaPhi_reco", binningDict["distNarrow"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-fwd"]])
-efficiencyList.append(["deltaR_reco", binningDict["distNarrow"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5"]])
-efficiencyList.append(["deltaR_reco", binningDict["distNarrow"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-brl"]])
-efficiencyList.append(["deltaR_reco", binningDict["distNarrow"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-ovl"]])
-efficiencyList.append(["deltaR_reco", binningDict["distNarrow"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-gmtPt5"], cutDict["diMu-recoPt5-fwd"]])
-efficiencyList.append(["mu1_recoEta", binningDict["etaFine"], "Eta1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
-efficiencyList.append(["mu2_recoEta", binningDict["etaFine"], "Eta2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
-efficiencyList.append(["mu1_recoPhi", binningDict["phiFine"], "Phi1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
-efficiencyList.append(["mu2_recoPhi", binningDict["phiFine"], "Phi2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
-efficiencyList.append(["mu1_recoPt", binningDict["ptFine"], "pT1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
-efficiencyList.append(["mu2_recoPt", binningDict["ptFine"], "pT2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"]])
+# Current emulators compared with each other (i.e. uGMT without cancel out system!)
+efficiencyList.append(["deltaEta_gen", binningDict["distNarrow"],
+                       "abs(eta1_gen-eta2_gen)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"], 
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["deltaPhi_gen", binningDict["distNarrow"],
+                       "abs(phi1_gen-phi2_gen)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"], 
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["deltaR_gen", binningDict["distNarrow"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genEta", binningDict["etaFine"], "eta1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genEta", binningDict["etaFine"], "eta2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genPhi", binningDict["phiFine"], "phi1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genPhi", binningDict["phiFine"], "phi2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genPt", binningDict["ptFine"], "pT1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genPt", binningDict["ptFine"], "pT2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+
+# Basic coordinate-based cancel-out
+efficiencyList.append(["deltaEta_gen", binningDict["distNarrow"],
+                       "abs(eta1_gen-eta2_gen)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["deltaPhi_gen", binningDict["distNarrow"],
+                       "abs(phi1_gen-phi2_gen)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["deltaR_gen", binningDict["distNarrow"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genEta", binningDict["etaFine"],
+                       "eta1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genEta", binningDict["etaFine"],
+                       "eta2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genPhi", binningDict["phiFine"],
+                       "phi1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genPhi", binningDict["phiFine"],
+                       "phi2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu1_genPt", binningDict["ptFine"],
+                       "pT1_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append(["mu2_genPt", binningDict["ptFine"],
+                       "pT2_gen",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1_separated"],
+                       genCuts["diMu-pt1"]])
 # TODO: Add invariant mass calculation.
-# TODO: Add 2-D hist showing efficiency for pT of both muons.
-
-effStackList = []
-effStackList.append(["mu1_recoEta", binningDict["etaFine"], "Eta1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-effStackList.append(["mu2_recoEta", binningDict["etaFine"], "Eta2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu2"]])
-effStackList.append(["mu1_recoPhi", binningDict["phiFine"], "Phi1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-effStackList.append(["mu2_recoPhi", binningDict["phiFine"], "Phi2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu2"]])
-effStackList.append(["mu1_recoPt", binningDict["ptFine"], "pT1_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-effStackList.append(["mu2_recoPt", binningDict["ptFine"], "pT2_reco", cutDict["diMu-gmtPt1"], cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu2"]])
 
 
-rateList = []
-rateList.append(["deltaEta_reco", binningDict["distWide"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-recoPt5"]])
-rateList.append(["deltaEta_reco", binningDict["distWide"], "abs(Eta1_reco-Eta2_reco)", cutDict["diMu-gmtPt5"]])
-rateList.append(["deltaPhi_reco", binningDict["distWide"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-recoPt5"]])
-rateList.append(["deltaPhi_reco", binningDict["distWide"], "abs(Phi1_reco-Phi2_reco)", cutDict["diMu-gmtPt5"]])
-rateList.append(["deltaR_reco", binningDict["distWide"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-recoPt5"]])
-rateList.append(["deltaR_reco", binningDict["distWide"], "sqrt((Eta1_reco-Eta2_reco)**2+(Phi1_reco-Phi2_reco)**2)", cutDict["diMu-gmtPt5"]])
-rateList.append(["mu1_recoPt", binningDict["ptFine"], "pT1_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu2_recoPt", binningDict["ptFine"], "pT2_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu1_recoPt", binningDict["ptFine"], "pT1_reco", cutDict["diMu-gmtPt1"]])
-rateList.append(["mu2_recoPt", binningDict["ptFine"], "pT2_reco", cutDict["diMu-gmtPt1"]])
-rateList.append(["mu1_recoEta", binningDict["etaFine"], "Eta1_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu2_recoEta", binningDict["etaFine"], "Eta2_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu1_recoEta", binningDict["etaFine"], "Eta1_reco", cutDict["diMu-gmtPt1"]])
-rateList.append(["mu2_recoEta", binningDict["etaFine"], "Eta2_reco", cutDict["diMu-gmtPt1"]])
-rateList.append(["mu1_recoPhi", binningDict["phiFine"], "Phi1_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu2_recoPhi", binningDict["phiFine"], "Phi2_reco", cutDict["diMu-recoPt1"]])
-rateList.append(["mu1_recoPhi", binningDict["phiFine"], "Phi1_reco", cutDict["diMu-gmtPt1"]])
-rateList.append(["mu2_recoPhi", binningDict["phiFine"], "Phi2_reco", cutDict["diMu-gmtPt1"]])
+# TODO: Get these via argparse
+gmt_ntuple_file = "GMTDimuonNtuple.root"
+ugmt_ntuple_file = "uGMTDimuonNtuple.root"
+gmt_ntuple_name = "gmt_ntuple"
+ugmt_ntuple_name = "ugmt_ntuple"
 
-rateStackList = []
-rateStackList.append(["mu1_recoPt", binningDict["ptFine"], "pT1_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-rateStackList.append(["mu2_recoPt", binningDict["ptFine"], "pT2_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-rateStackList.append(["mu1_recoEta", binningDict["etaFine"], "Eta1_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-rateStackList.append(["mu2_recoEta", binningDict["etaFine"], "Eta2_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-rateStackList.append(["mu1_recoPhi", binningDict["phiFine"], "Phi1_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-rateStackList.append(["mu2_recoPhi", binningDict["phiFine"], "Phi2_reco", cutDict["diMu-recoPt1"], stackCutDict["subsystems_mu1"]])
-
-
-f = TFile.Open("DiMuNtuple.root")
-
-ntuple = f.Get("ntuple")
+dataset_gmt = "GMT"
+dataset_ugmt = "uGMT"
 
 for varList in efficiencyList:
-    generateEfficiencyHist(varList)
-
-for varList in effStackList:
-    generateEfficiencyStack(varList)
-
-for varList in rateList:
-    generateRateHist(varList)
-
-for varList in rateStackList:
-    generateRateStack(varList)
+    generateCombinedEfficiencyHist(varList, gmt_ntuple_file, ugmt_ntuple_file,
+    dataset_gmt, dataset_ugmt, gmt_ntuple_name, ugmt_ntuple_name)

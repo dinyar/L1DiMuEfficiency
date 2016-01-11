@@ -78,7 +78,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
     gmt_content = array('f')
-    for gmtVar in ugmt_content_list:
+    for gmtVar in gmt_content_list:
         if gmtVar == "N":
             gmt_content.append(evt.gmt.N)
         elif gmtVar == "pT1" and (evt.gmt.N > 0):
@@ -101,6 +101,18 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             gmt_content.append(evt.gmt.Qual[trailingGmtMu])
         elif (gmtVar == "ch2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Cha[trailingGmtMu])
+        elif (gmtVar == "pT1_gen"):
+            gmt_content.append(evt.gen.pt[leadingMu])
+        elif (gmtVar == "pT2_gen"):
+            gmt_content.append(evt.gen.pt[trailingMu])
+        elif (gmtVar == "eta1_gen"):
+            gmt_content.append(evt.gen.eta[leadingMu])
+        elif (gmtVar == "eta2_gen"):
+            gmt_content.append(evt.gen.eta[trailingMu])
+        elif (gmtVar == "phi1_gen"):
+            gmt_content.append(evt.gen.phi[leadingMu])
+        elif (gmtVar == "phi2_gen"):
+            gmt_content.append(evt.gen.phi[trailingMu])
         else:
             gmt_content.append(-11)
 
@@ -126,13 +138,6 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif ugmtVar == "tfType1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
-        elif (ugmtVar == "ch1_gen"):
-            if evt.gen.id[leadingMu] > 0:
-                # Muon
-                ugmt_content.append(-1)
-            else:
-                # Anti muon
-                ugmt_content.append(1)
         elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
         elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
@@ -150,6 +155,25 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif (ugmtVar == "tfType2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
+        elif (ugmtVar == "pT1_gen"):
+            ugmt_content.append(evt.gen.pt[leadingMu])
+        elif (ugmtVar == "pT2_gen"):
+            ugmt_content.append(evt.gen.pt[trailingMu])
+        elif (ugmtVar == "eta1_gen"):
+            ugmt_content.append(evt.gen.eta[leadingMu])
+        elif (ugmtVar == "eta2_gen"):
+            ugmt_content.append(evt.gen.eta[trailingMu])
+        elif (ugmtVar == "phi1_gen"):
+            ugmt_content.append(evt.gen.phi[leadingMu])
+        elif (ugmtVar == "phi2_gen"):
+            ugmt_content.append(evt.gen.phi[trailingMu])
+        elif (ugmtVar == "ch1_gen"):
+            if evt.gen.id[leadingMu] > 0:
+                # Muon
+                ugmt_content.append(-1)
+            else:
+                # Anti muon
+                ugmt_content.append(1)
         elif (ugmtVar == "ch2_gen"):
             if evt.gen.id[trailingMu] > 0:
                 # Muon
@@ -176,6 +200,12 @@ def generate_content_lists():
     gmt.append("qual2")
     gmt.append("ch1")
     gmt.append("ch2")
+    gmt.append("pT1_gen")
+    gmt.append("pT2_gen")
+    gmt.append("eta1_gen")
+    gmt.append("eta2_gen")
+    gmt.append("phi1_gen")
+    gmt.append("phi2_gen")
     ugmt = []
     ugmt.append("N")
     ugmt.append("pT1")
@@ -192,6 +222,12 @@ def generate_content_lists():
     ugmt.append("trkAddr2")
     ugmt.append("tfType1")
     ugmt.append("tfType2")
+    ugmt.append("pT1_gen")
+    ugmt.append("pT2_gen")
+    ugmt.append("eta1_gen")
+    ugmt.append("eta2_gen")
+    ugmt.append("phi1_gen")
+    ugmt.append("phi2_gen")
     ugmt.append("ch1_gen")
     ugmt.append("ch2_gen")
 
