@@ -154,6 +154,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif ugmtVar == "tfType1" and (evt.ugmt.n > 0):
             ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
+        elif (ugmtVar == "tfProcessor1") and (evt.ugmt.n > 0):
+            tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
+            processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
+            ugmt_content.append(processor)
         elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
         elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
@@ -171,6 +176,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             ugmt_content.append(trkAddr)
         elif (ugmtVar == "tfType2") and (evt.ugmt.n > 1):
             ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
+        elif (ugmtVar == "tfProcessor2") and (evt.ugmt.n > 1):
+            tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
+            processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
+            ugmt_content.append(processor)
         elif (ugmtVar == "pT1_gen"):
             ugmt_content.append(evt.gen.pt[leadingMu])
         elif (ugmtVar == "pT2_gen"):
@@ -247,6 +257,8 @@ def generate_content_lists():
     ugmt.append("trkAddr2")
     ugmt.append("tfType1")
     ugmt.append("tfType2")
+    ugmt.append("tfProcessor1")
+    ugmt.append("tfProcessor2")
     ugmt.append("pT1_gen")
     ugmt.append("pT2_gen")
     ugmt.append("eta1_gen")
