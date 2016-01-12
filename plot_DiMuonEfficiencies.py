@@ -64,43 +64,43 @@ efficiencyList = []
 # TODO: Can combine/infer stuff: Efficiency implies GMT/reco;
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
 # Current emulators compared with each other (i.e. uGMT without cancel out system!)
-efficiencyList.append([["deltaEta_gen", ""],
+efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
                        binningDict["distNarrow"],
                        "abs(eta1_gen-eta2_gen)",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["deltaPhi_gen", ""],
+efficiencyList.append([["deltaPhi_gen", "#Delta#phi(#mu^{-}#mu^{+})"],
                        binningDict["distNarrow"],
                        "abs(phi1_gen-phi2_gen)",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["deltaR_gen", ""],
+efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distNarrow"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu1_genEta", ""],
+efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
                        binningDict["etaFine"], "eta1_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu2_genEta", ""],
+efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
                        binningDict["etaFine"], "eta2_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu1_genPhi", ""],
+efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
                        binningDict["phiFine"], "phi1_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu2_genPhi", ""],
+efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
                        binningDict["phiFine"], "phi2_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu1_genPt", ""],
+efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
                        binningDict["ptFine"], "pT1_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["mu2_genPt", ""],
+efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
                        binningDict["ptFine"], "pT2_gen",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["jPsi_genEta", ""],
+efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
                        binningDict["etaFine"], "eta_jpsi",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["jPsi_genPhi", ""],
+efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
                        binningDict["phiFine"], "phi_jpsi",
                        genCuts["diMu-pt1"]])
-efficiencyList.append([["jPsi_genPt", ""],
+efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["ptFine"], "pT_jpsi",
                        genCuts["diMu-pt1"]])
 
