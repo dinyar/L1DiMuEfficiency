@@ -55,7 +55,7 @@ gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
 # TODO: Try different distance cut for each track finder/area.
 # TODO: Try different distance cuts for phi/eta
 gmtCuts["diMu-pt1_separatedFar"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.1))", "diMu-pt1_separatedFar"]
-gmtCuts["diMu-pt1_separatedFarFix"] = ["((pT1 > 1) && (pT2 > 1) && !((sqrt((eta1-eta2)**2+(phi1-phi2)**2) < 0.1) && " + cancel_requirement + ")", "diMu-pt1_separatedFarFix"]
+gmtCuts["diMu-pt1_separatedFarFix"] = ["((pT1 > 1) && (pT2 > 1) && !((sqrt((eta1-eta2)**2+(phi1-phi2)**2) < 0.1) && " + cancel_requirement + "))", "diMu-pt1_separatedFarFix"]
 gmtCuts["diMu-pt1_separatedNear"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.01))", "diMu-pt1_separatedNear"]
 # TODO: Have cuts to only look at certain track finders
 
