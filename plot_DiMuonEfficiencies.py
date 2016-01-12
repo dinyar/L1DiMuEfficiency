@@ -61,6 +61,18 @@ efficiencyList.append([["mu2_genPt", ""],
                        binningDict["ptFine"], "pT2_gen",
                        gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
                        genCuts["diMu-pt1"]])
+efficiencyList.append([["jPsi_genEta", ""],
+                       binningDict["etaFine"], "eta_jpsi",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append([["jPsi_genPhi", ""],
+                       binningDict["phiFine"], "phi_jpsi",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
+efficiencyList.append([["jPsi_genPt", ""],
+                       binningDict["ptFine"], "pT_jpsi",
+                       gmtCuts["diMu-pt1"], gmtCuts["diMu-pt1"],
+                       genCuts["diMu-pt1"]])
 
 # Basic coordinate-based cancel-out
 efficiencyList.append([["deltaEta_gen", ""],
