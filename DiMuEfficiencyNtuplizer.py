@@ -77,6 +77,16 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
+    # Compute properties of J/Psi particle
+    mu1 = root.TLorentzVector()
+    mu2 = root.TLorentzVector()
+    mu1.SetPxPyPzE(evt.gen.px[leadingMu], evt.gen.py[leadingMu],
+                   evt.gen.pz[leadingMu], evt.gen.e[leadingMu])
+    mu2.SetPxPyPzE(evt.gen.px[trailingMu], evt.gen.py[trailingMu],
+                   evt.gen.pz[trailingMu], evt.gen.e[trailingMu])
+    jPsi = root.TLorentzVector()
+    jPsi = mu1 + mu2
+
     gmt_content = array('f')
     for gmtVar in gmt_content_list:
         if gmtVar == "N":
@@ -113,6 +123,12 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             gmt_content.append(evt.gen.phi[leadingMu])
         elif (gmtVar == "phi2_gen"):
             gmt_content.append(evt.gen.phi[trailingMu])
+        elif (gmtVar == "pT_jpsi"):
+            gmt_content.append(jPsi.Pt())
+        elif (gmtVar == "eta_jpsi"):
+            gmt_content.append(jPsi.Eta())
+        elif (gmtVar == "phi_jpsi"):
+            gmt_content.append(jPsi.Phi())
         else:
             gmt_content.append(-11)
 
@@ -181,6 +197,12 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             else:
                 # Anti muon
                 ugmt_content.append(1)
+        elif (ugmtVar == "pT_jpsi"):
+            ugmt_content.append(jPsi.Pt())
+        elif (ugmtVar == "eta_jpsi"):
+            ugmt_content.append(jPsi.Eta())
+        elif (ugmtVar == "phi_jpsi"):
+            ugmt_content.append(jPsi.Phi())
         else:
             ugmt_content.append(-11)
 
@@ -206,6 +228,9 @@ def generate_content_lists():
     gmt.append("eta2_gen")
     gmt.append("phi1_gen")
     gmt.append("phi2_gen")
+    gmt.append("pT_jpsi")
+    gmt.append("eta_jpsi")
+    gmt.append("phi_jpsi")
     ugmt = []
     ugmt.append("N")
     ugmt.append("pT1")
@@ -230,6 +255,9 @@ def generate_content_lists():
     ugmt.append("phi2_gen")
     ugmt.append("ch1_gen")
     ugmt.append("ch2_gen")
+    ugmt.append("pT_jpsi")
+    ugmt.append("eta_jpsi")
+    ugmt.append("phi_jpsi")
 
     return gmt, ugmt
 
