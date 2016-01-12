@@ -54,6 +54,7 @@ gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
 # TODO: Try different distance cut for each track finder/area.
 # TODO: Try different distance cuts for phi/eta
+# TODO: Try using charge for matching.
 gmtCuts["diMu-pt1_separatedFar"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.1))", "diMu-pt1_separatedFar"]
 gmtCuts["diMu-pt1_separatedFarFix"] = ["((pT1 > 1) && (pT2 > 1) && !((sqrt((eta1-eta2)**2+(phi1-phi2)**2) < 0.1) && " + cancel_requirement + "))", "diMu-pt1_separatedFarFix"]
 gmtCuts["diMu-pt1_separatedNear"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.01))", "diMu-pt1_separatedNear"]
@@ -65,15 +66,15 @@ efficiencyList = []
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
 # Current emulators compared with each other (i.e. uGMT without cancel out system!)
 efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
-                       binningDict["distWideFine"],
+                       binningDict["distWide"],
                        "abs(eta1_gen-eta2_gen)",
                        genCuts["diMu-pt1"]])
 efficiencyList.append([["deltaPhi_gen", "#Delta#phi(#mu^{-}#mu^{+})"],
-                       binningDict["distWideFine"],
+                       binningDict["distWide"],
                        "abs(phi1_gen-phi2_gen)",
                        genCuts["diMu-pt1"]])
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
-                       binningDict["distWideFine"],
+                       binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-pt1"]])
 efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
