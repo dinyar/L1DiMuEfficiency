@@ -138,4 +138,4 @@ gmt_cuts.append(gmtCuts["diMu-pt1_separatedNear"])
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
                                    distribution_labels, line_colours,
-                                   gmt_cuts)
+                                   gmt_cuts, "jPsi")
