@@ -61,10 +61,8 @@ gmtCuts["diMu-pt1_separatedNear"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta
 # TODO: Have cuts to only look at certain track finders
 
 efficiencyList = []
-# TODO: Axis labels, think about more descriptive title.
-# TODO: Can combine/infer stuff: Efficiency implies GMT/reco;
+# TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
-# Current emulators compared with each other (i.e. uGMT without cancel out system!)
 efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "abs(eta1_gen-eta2_gen)",
@@ -127,9 +125,9 @@ datasets.append("uGMT")
 distribution_labels = []
 distribution_labels.append(["Gen muons", "GMT muons"])
 distribution_labels.append(["Gen muons", "uGMT muons"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out loose"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out loose, w/ wedges"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out tight"])
+distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1"])
+distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1, w/ wedge comp"])
+distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01"])
 line_colours = []
 line_colours.append(38)
 line_colours.append(46)
