@@ -151,9 +151,9 @@ ccntuple_name = ["ugmt_ntuple"]
 ccdlabel = ["Gen muons", "uGMT muons"]
 cclc = [1]
 cccuts = []
-cccuts.append(gmt_cuts["bmtf"])
-cccuts.append(gmt_cuts["omtf"])
-cccuts.append(gmt_cuts["emtf"])
+cccuts.append(gmtCuts["bmtf"])
+cccuts.append(gmtCuts["omtf"])
+cccuts.append(gmtCuts["emtf"])
 chargeCheckList = []
 chargeCheckList.append([["mu1_ch", "ch"],
                        binningDict["charge"], "ch1",
