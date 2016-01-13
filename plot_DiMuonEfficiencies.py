@@ -212,11 +212,11 @@ ghostList.append([["mu1_gmtPt", "p_{T}(leading #mu_{GMT}) [GeV/c]"],
 
 
 singleMu_ntuples = []
-singleMu_ntuples.append("GMTDimuonNtuple.root")
-singleMu_ntuples.append("uGMTDimuonNtuple.root")
-singleMu_ntuples.append("uGMTDimuonNtuple.root")
-singleMu_ntuples.append("uGMTDimuonNtuple.root")
-singleMu_ntuples.append("uGMTDimuonNtuple.root")
+singleMu_ntuples.append("GMTSingleMuNtuple.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple.root")
 for varList in ghostList:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    distribution_labels, line_colours,
