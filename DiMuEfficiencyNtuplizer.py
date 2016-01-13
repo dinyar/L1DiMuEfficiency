@@ -67,6 +67,26 @@ def getUGmtMuons(evt):
 
     return leadingUGmtMu, trailingUGmtMu
 
+def getQualUGmtMuons(evt):
+    highQual = 0
+    lowQual = 0
+    highQualUGmtMu = -1
+    lowQualUGmtMu = -1
+    for i in range(0, evt.ugmt.n):
+        if evt.ugmt.bx[i] != 0:
+            continue
+
+        if evt.ugmt.qual[i] > highQual:
+            lowQual = highQual
+            lowQualUGmtMu = highQualUGmtMu
+            highQual = evt.ugmt.qual[i]
+            highQualUGmtMu = i
+        elif evt.ugmt.qual[i] > lowQual:
+            lowQual = evt.ugmt.qual[i]
+            lowQualUGmtMu = i
+
+    return highQualUGmtMu, lowQualUGmtMu
+
 
 def analyse(evt, gmt_content_list, ugmt_content_list):
     count = 0
@@ -85,6 +105,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         trailingMu = -1
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
+    highQualUGmtMu, lowQualUGmtMu = getQualUGmtMuons(evt)
 
     # Compute properties of J/Psi particle
     if NgenMu > 1:
@@ -193,6 +214,50 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
             tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
+        elif ugmtVar == "pT_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.pt[highQualUGmtMu])
+        elif ugmtVar == "eta_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.eta[highQualUGmtMu])
+        elif ugmtVar == "phi_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.phi[highQualUGmtMu])
+        elif ugmtVar == "qual_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.qual[highQualUGmtMu])
+        elif ugmtVar == "ch_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.ch[highQualUGmtMu])
+        elif ugmtVar == "trkAddr_qualHigh" and (evt.ugmt.n > 0):
+            tfType = evt.ugmt.tfLink[highQualUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[highQualUGmtMu].idx
+            trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
+            ugmt_content.append(trkAddr)
+        elif ugmtVar == "tfType_qualHigh" and (evt.ugmt.n > 0):
+            ugmt_content.append(evt.ugmt.tfLink[highQualUGmtMu].tf)
+        elif (ugmtVar == "tfProcessor_qualHigh") and (evt.ugmt.n > 0):
+            tfType = evt.ugmt.tfLink[highQualUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[highQualUGmtMu].idx
+            processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
+            ugmt_content.append(processor)
+        elif ugmtVar == "pT_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.pt[lowQualUGmtMu])
+        elif ugmtVar == "eta_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.eta[lowQualUGmtMu])
+        elif ugmtVar == "phi_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.phi[lowQualUGmtMu])
+        elif ugmtVar == "qual_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.qual[lowQualUGmtMu])
+        elif ugmtVar == "ch_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.ch[lowQualUGmtMu])
+        elif ugmtVar == "trkAddr_qualLow" and (evt.ugmt.n > 1):
+            tfType = evt.ugmt.tfLink[lowQualUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[lowQualUGmtMu].idx
+            trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
+            ugmt_content.append(trkAddr)
+        elif ugmtVar == "tfType_qualLow" and (evt.ugmt.n > 1):
+            ugmt_content.append(evt.ugmt.tfLink[lowQualUGmtMu].tf)
+        elif (ugmtVar == "tfProcessor_qualLow") and (evt.ugmt.n > 1):
+            tfType = evt.ugmt.tfLink[lowQualUGmtMu].tf
+            tfIdx = evt.ugmt.tfLink[lowQualUGmtMu].idx
+            processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
+            ugmt_content.append(processor)
         elif (ugmtVar == "pT1_gen"):
             ugmt_content.append(evt.gen.pt[leadingMu])
         elif (ugmtVar == "pT2_gen"):
@@ -284,6 +349,23 @@ def generate_content_lists():
         ugmt.append("pT_jpsi")
         ugmt.append("eta_jpsi")
         ugmt.append("phi_jpsi")
+    else:
+        ugmt.append("pT_qualHigh")
+        ugmt.append("eta_qualHigh")
+        ugmt.append("phi_qualHigh")
+        ugmt.append("qual_qualHigh")
+        ugmt.append("ch_qualHigh")
+        ugmt.append("trkAddr_qualHigh")
+        ugmt.append("tfType_qualHigh")
+        ugmt.append("tfProcessor_qualHigh")
+        ugmt.append("pT_qualLow")
+        ugmt.append("eta_qualLow")
+        ugmt.append("phi_qualLow")
+        ugmt.append("qual_qualLow")
+        ugmt.append("ch_qualLow")
+        ugmt.append("trkAddr_qualLow")
+        ugmt.append("tfType_qualLow")
+        ugmt.append("tfProcessor_qualLow")
 
     return gmt, ugmt
 
