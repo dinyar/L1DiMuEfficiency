@@ -180,15 +180,27 @@ for varList in chargeCheckList:
 
 ghostList = []
 ghostList.append([["deltaEta_GMT", "#Delta#eta(#mu#mu_{Ghost})"],
-                  binningDict["distWide"],
+                  binningDict["distVeryWide"],
                   "abs(eta1-eta2)",
                   genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
-                  binningDict["distWide"],
+                  binningDict["distVeryWide"],
+                  "abs(phi1-phi2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["deltaR_GMT-zoom", "#DeltaR(#mu#mu_{Ghost})"],
+                  binningDict["distNarrow"],
+                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["deltaEta_GMT-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
+                  binningDict["distNarrow"],
+                  "abs(eta1-eta2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["deltaPhi_GMT-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
+                  binningDict["distNarrow"],
                   "abs(phi1-phi2)",
                   genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaR_GMT", "#DeltaR(#mu#mu_{Ghost})"],
-                  binningDict["distWide"],
+                  binningDict["distVeryWide"],
                   "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
                   genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
