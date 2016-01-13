@@ -11,6 +11,9 @@ opts, parser = parse_options_and_init_log()
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
+# TODO: This should be passed in as command line option!
+NgenMu = 1
+
 
 def getGenMuons(evt):
     if evt.gen.pt[0] > evt.gen.pt[1]:
@@ -68,24 +71,31 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     for pdgId in evt.gen.id:
         if abs(pdgId) == 13:
             count += 1
-    if count != 2:
+    if count != NgenMu:
         print "Found {n} generated muons in event, not processing event.".format(n=count)
         return [], []
 
     # Find muons with highest pT
-    leadingMu, trailingMu = getGenMuons(evt)
+    if NgenMu > 1:
+        leadingMu, trailingMu = getGenMuons(evt)
+    else:
+        leadingMu = 0
+        trailingMu = -1
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
 
     # Compute properties of J/Psi particle
-    mu1 = root.TLorentzVector()
-    mu2 = root.TLorentzVector()
-    mu1.SetPxPyPzE(evt.gen.px[leadingMu], evt.gen.py[leadingMu],
-                   evt.gen.pz[leadingMu], evt.gen.e[leadingMu])
-    mu2.SetPxPyPzE(evt.gen.px[trailingMu], evt.gen.py[trailingMu],
-                   evt.gen.pz[trailingMu], evt.gen.e[trailingMu])
-    jPsi = root.TLorentzVector()
-    jPsi = mu1 + mu2
+    if NgenMu > 1:
+        mu1 = root.TLorentzVector()
+        mu2 = root.TLorentzVector()
+        mu1.SetPxPyPzE(evt.gen.px[leadingMu], evt.gen.py[leadingMu],
+                       evt.gen.pz[leadingMu], evt.gen.e[leadingMu])
+        mu2.SetPxPyPzE(evt.gen.px[trailingMu], evt.gen.py[trailingMu],
+                       evt.gen.pz[trailingMu], evt.gen.e[trailingMu])
+        jPsi = root.TLorentzVector()
+        jPsi = mu1 + mu2
+    else:
+        jPsi = -1
 
     gmt_content = array('f')
     for gmtVar in gmt_content_list:
@@ -233,14 +243,15 @@ def generate_content_lists():
     gmt.append("ch1")
     gmt.append("ch2")
     gmt.append("pT1_gen")
-    gmt.append("pT2_gen")
     gmt.append("eta1_gen")
-    gmt.append("eta2_gen")
     gmt.append("phi1_gen")
-    gmt.append("phi2_gen")
-    gmt.append("pT_jpsi")
-    gmt.append("eta_jpsi")
-    gmt.append("phi_jpsi")
+    if NgenMu > 1:
+        gmt.append("pT2_gen")
+        gmt.append("eta2_gen")
+        gmt.append("phi2_gen")
+        gmt.append("pT_jpsi")
+        gmt.append("eta_jpsi")
+        gmt.append("phi_jpsi")
     ugmt = []
     ugmt.append("N")
     ugmt.append("pT1")
@@ -260,16 +271,17 @@ def generate_content_lists():
     ugmt.append("tfProcessor1")
     ugmt.append("tfProcessor2")
     ugmt.append("pT1_gen")
-    ugmt.append("pT2_gen")
     ugmt.append("eta1_gen")
-    ugmt.append("eta2_gen")
     ugmt.append("phi1_gen")
-    ugmt.append("phi2_gen")
     ugmt.append("ch1_gen")
-    ugmt.append("ch2_gen")
-    ugmt.append("pT_jpsi")
-    ugmt.append("eta_jpsi")
-    ugmt.append("phi_jpsi")
+    if NgenMu > 1:
+        ugmt.append("pT2_gen")
+        ugmt.append("eta2_gen")
+        ugmt.append("phi2_gen")
+        ugmt.append("ch2_gen")
+        ugmt.append("pT_jpsi")
+        ugmt.append("eta_jpsi")
+        ugmt.append("phi_jpsi")
 
     return gmt, ugmt
 
