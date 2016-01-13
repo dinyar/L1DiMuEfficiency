@@ -109,12 +109,12 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        genCuts["diMu-pt1"], [0, 1.2]])
 
 # TODO: Get these via argparse
-ntuple_files = []
-ntuple_files.append("GMTDimuonNtuple.root")
-ntuple_files.append("uGMTDimuonNtuple.root")
-ntuple_files.append("uGMTDimuonNtuple.root")
-ntuple_files.append("uGMTDimuonNtuple.root")
-ntuple_files.append("uGMTDimuonNtuple.root")
+jpsi_ntuples = []
+jpsi_ntuples.append("GMTDimuonNtuple.root")
+jpsi_ntuples.append("uGMTDimuonNtuple.root")
+jpsi_ntuples.append("uGMTDimuonNtuple.root")
+jpsi_ntuples.append("uGMTDimuonNtuple.root")
+jpsi_ntuples.append("uGMTDimuonNtuple.root")
 ntuple_names = []
 ntuple_names.append("gmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
@@ -144,7 +144,7 @@ cuts.append(gmtCuts["diMu-pt1_separatedFarFix"])
 cuts.append(gmtCuts["diMu-pt1_separatedNear"])
 
 for varList in efficiencyList:
-    generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
+    generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
                                    distribution_labels, line_colours,
                                    cuts, "jPsi")
 
@@ -210,7 +210,14 @@ ghostList.append([["mu1_gmtPt", "p_{T}(leading #mu_{GMT}) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1",
                   genCuts["mu-pt1"], [0, 1.2]])
 
+
+singleMu_ntuples = []
+singleMu_ntuples.append("GMTDimuonNtuple.root")
+singleMu_ntuples.append("uGMTDimuonNtuple.root")
+singleMu_ntuples.append("uGMTDimuonNtuple.root")
+singleMu_ntuples.append("uGMTDimuonNtuple.root")
+singleMu_ntuples.append("uGMTDimuonNtuple.root")
 for varList in ghostList:
-    generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
+    generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    distribution_labels, line_colours,
                                    cuts, "singleMu")
