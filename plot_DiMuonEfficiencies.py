@@ -155,9 +155,9 @@ ccntuple_name.append("ugmt_ntuple")
 ccntuple_name.append("ugmt_ntuple")
 ccntuple_name.append("ugmt_ntuple")
 ccdlabel = []
-ccdlabel.append("Gen muons", "BMTF muons")
-ccdlabel.append("Gen muons", "OMTF muons")
-ccdlabel.append("Gen muons", "EMTF muons")
+ccdlabel.append(["Gen muons", "BMTF muons"])
+ccdlabel.append(["Gen muons", "OMTF muons"])
+ccdlabel.append(["Gen muons", "EMTF muons"])
 cclc = []
 cclc.append(30)
 cclc.append(36)
