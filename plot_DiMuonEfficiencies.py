@@ -49,7 +49,7 @@ cancel_requirement = '(' + cancel_requirement + ')'
 
 # Cut dicts
 genCuts = {}
-genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-pt1"]
+genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
 # TODO: Try different distance cut for each track finder/area.
