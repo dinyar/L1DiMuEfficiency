@@ -146,18 +146,22 @@ for varList in efficiencyList:
                                    cuts, "jPsi")
 
 
-ccntuple = ["uGMTDimuonNtuple.root"]
-ccntuple = ["uGMTDimuonNtuple.root"]
-ccntuple = ["uGMTDimuonNtuple.root"]
-ccntuple_name = ["ugmt_ntuple"]
-ccntuple_name = ["ugmt_ntuple"]
-ccntuple_name = ["ugmt_ntuple"]
-ccdlabel = ["Gen muons", "BMTF muons"]
-ccdlabel = ["Gen muons", "OMTF muons"]
-ccdlabel = ["Gen muons", "EMTF muons"]
-cclc = [30]
-cclc = [36]
-cclc = [48]
+ccntuple = []
+ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple_name = []
+ccntuple_name.append("ugmt_ntuple")
+ccntuple_name.append("ugmt_ntuple")
+ccntuple_name.append("ugmt_ntuple")
+ccdlabel = []
+ccdlabel.append("Gen muons", "BMTF muons")
+ccdlabel.append("Gen muons", "OMTF muons")
+ccdlabel.append("Gen muons", "EMTF muons")
+cclc = []
+cclc.append(30)
+cclc.append(36)
+cclc.append(48)
 cccuts = []
 cccuts.append(gmtCuts["bmtf"])
 cccuts.append(gmtCuts["omtf"])
