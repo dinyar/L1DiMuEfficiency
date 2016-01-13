@@ -124,9 +124,12 @@ ntuple_names.append("ugmt_ntuple")
 distribution_labels = []
 distribution_labels.append(["Gen muons", "GMT muons"])
 distribution_labels.append(["Gen muons", "uGMT muons"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1, w/ wedge comp"])
-distribution_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01"])
+distribution_labels.append(["Gen muons",
+                            "uGMT muons w/ cancel-out #DeltaR<0.1"])
+distribution_labels.append(["Gen muons",
+                            "uGMT muons w/ cancel-out #DeltaR<0.1, w/ wedge comp"])
+distribution_labels.append(["Gen muons",
+                            "uGMT muons w/ cancel-out #DeltaR<0.01"])
 line_colours = []
 line_colours.append(38)
 line_colours.append(46)
@@ -174,3 +177,40 @@ for varList in chargeCheckList:
     generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
                                    ccdlabel, cclc,
                                    cccuts, "charge_check")
+
+ghostList = []
+ghostList.append([["deltaEta_GMT", "#Delta#eta(#mu#mu_{Ghost})"],
+                  binningDict["distWide"],
+                  "abs(eta1-eta2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
+                  binningDict["distWide"],
+                  "abs(phi1-phi2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["deltaR_GMT", "#DeltaR(#mu#mu_{Ghost})"],
+                  binningDict["distWide"],
+                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_genEta", "#eta(#mu)"],
+                  binningDict["etaFineRestr"], "eta1_gen",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_gmtEta", "#eta(leading #mu_{GMT})"],
+                  binningDict["etaFineRestr"], "eta1",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_genPhi", "#phi(#mu)"],
+                  binningDict["phiFineRestr"], "phi1_gen",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_gmtPhi", "#phi(leading #mu_{GMT})"],
+                  binningDict["phiFineRestr"], "phi1",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
+                  binningDict["pt140Fine"], "pT1_gen",
+                  genCuts["mu-pt1"], [0, 1.2]])
+ghostList.append([["mu1_gmtPt", "p_{T}(leading #mu_{GMT}) [GeV/c]"],
+                  binningDict["pt140Fine"], "pT1",
+                  genCuts["mu-pt1"], [0, 1.2]])
+
+for varList in ghostList:
+    generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
+                                   distribution_labels, line_colours,
+                                   cuts, "singleMu")
