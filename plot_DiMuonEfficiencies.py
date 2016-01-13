@@ -133,17 +133,17 @@ line_colours.append(46)
 line_colours.append(30)
 line_colours.append(1)
 line_colours.append(8)
-gmt_cuts = []
-gmt_cuts.append(gmtCuts["diMu-pt1"])
-gmt_cuts.append(gmtCuts["diMu-pt1"])
-gmt_cuts.append(gmtCuts["diMu-pt1_separatedFar"])
-gmt_cuts.append(gmtCuts["diMu-pt1_separatedFarFix"])
-gmt_cuts.append(gmtCuts["diMu-pt1_separatedNear"])
+cuts = []
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1_separatedFar"])
+cuts.append(gmtCuts["diMu-pt1_separatedFarFix"])
+cuts.append(gmtCuts["diMu-pt1_separatedNear"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
                                    distribution_labels, line_colours,
-                                   gmt_cuts, "jPsi")
+                                   cuts, "jPsi")
 
 
 ccntuple = ["uGMTDimuonNtuple.root"]
