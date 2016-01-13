@@ -49,6 +49,7 @@ cancel_requirement = '(' + cancel_requirement + ')'
 
 # Cut dicts
 genCuts = {}
+genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
@@ -58,8 +59,12 @@ gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
 gmtCuts["diMu-pt1_separatedFar"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.1))", "diMu-pt1_separatedFar"]
 gmtCuts["diMu-pt1_separatedFarFix"] = ["((pT1 > 1) && (pT2 > 1) && !((sqrt((eta1-eta2)**2+(phi1-phi2)**2) < 0.1) && " + cancel_requirement + "))", "diMu-pt1_separatedFarFix"]
 gmtCuts["diMu-pt1_separatedNear"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.01))", "diMu-pt1_separatedNear"]
+gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
+gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
+gmtCuts["emtf"] = ["(tfType1==2)", "emtf"]
 # TODO: Have cuts to only look at certain track finders
 
+# TODO: Plot charge separately per TF.
 efficiencyList = []
 # TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
@@ -139,3 +144,21 @@ for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
                                    distribution_labels, line_colours,
                                    gmt_cuts, "jPsi")
+
+
+ccntuple = ["uGMTDimuonNtuple.root"]
+ccntuple_name = ["ugmt_ntuple"]
+ccdlabel = ["Gen muons", "uGMT muons"]
+cclc = [1]
+cccuts = []
+cccuts.append(gmt_cuts["bmtf"])
+cccuts.append(gmt_cuts["omtf"])
+cccuts.append(gmt_cuts["emtf"])
+chargeCheckList = []
+chargeCheckList.append([["mu1_ch", "ch"],
+                       binningDict["charge"], "ch1",
+                       genCuts["diMu-pt1"], [0, 1.2]])
+for varList in chargeCheckList:
+    generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
+                                   ccdlabel, cclc,
+                                   cccuts, "charge_check")
