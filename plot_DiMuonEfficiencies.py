@@ -66,42 +66,42 @@ efficiencyList = []
 efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "abs(eta1_gen-eta2_gen)",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["deltaPhi_gen", "#Delta#phi(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "abs(phi1_gen-phi2_gen)",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
                        binningDict["etaFineRestr"], "eta1_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
                        binningDict["etaFineRestr"], "eta2_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
                        binningDict["phiFineRestr"], "phi1_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
                        binningDict["phiFineRestr"], "phi2_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
                        binningDict["pt140Fine"], "pT1_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
                        binningDict["pt140Fine"], "pT2_gen",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
                        binningDict["etaFineRestr"], "eta_jpsi",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
                        binningDict["phiFineRestr"], "phi_jpsi",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
-                       genCuts["diMu-pt1"]])
+                       genCuts["diMu-pt1"], [0, 1.2]])
 
 # TODO: Get these via argparse
 ntuple_files = []
@@ -116,12 +116,6 @@ ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
-datasets = []
-datasets.append("GMT")
-datasets.append("uGMT")
-datasets.append("uGMT")
-datasets.append("uGMT")
-datasets.append("uGMT")
 distribution_labels = []
 distribution_labels.append(["Gen muons", "GMT muons"])
 distribution_labels.append(["Gen muons", "uGMT muons"])
@@ -142,6 +136,6 @@ gmt_cuts.append(gmtCuts["diMu-pt1_separatedFarFix"])
 gmt_cuts.append(gmtCuts["diMu-pt1_separatedNear"])
 
 for varList in efficiencyList:
-    generateCombinedEfficiencyHist(varList, ntuple_files, datasets,
-                                   ntuple_names, distribution_labels,
-                                   line_colours, gmt_cuts)
+    generateCombinedEfficiencyHist(varList, ntuple_files, ntuple_names,
+                                   distribution_labels, line_colours,
+                                   gmt_cuts)
