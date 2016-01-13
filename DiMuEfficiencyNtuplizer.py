@@ -13,6 +13,8 @@ from L1Analysis import L1Ana, L1Ntuple
 
 # TODO: This should be passed in as command line option!
 NgenMu = 1
+# ntupleName = "DimuonNtuple"
+ntupleName = "SingleMuNtuple"
 
 
 def getGenMuons(evt):
@@ -301,13 +303,14 @@ def main():
     gmt_content_string = ':'.join(gmt_content_list)
     ugmt_content_string = ':'.join(ugmt_content_list)
 
-    gmt_ntuple_fname = "GMTDimuonNtuple.root"
+    base_name = ntupleName + ".root"
+    gmt_ntuple_fname = "GMT" + base_name
     gmt_f = root.TFile(gmt_ntuple_fname, 'recreate')
     gmt_f.cd()
     flat_gmt_tuple = root.TNtuple("gmt_ntuple", "ntupledump",
                                   gmt_content_string)
 
-    ugmt_ntuple_fname = "uGMTDimuonNtuple.root"
+    ugmt_ntuple_fname = "uGMT" + base_name
     ugmt_f = root.TFile(ugmt_ntuple_fname, 'recreate')
     ugmt_f.cd()
     flat_ugmt_tuple = root.TNtuple("ugmt_ntuple", "ntupledump",
