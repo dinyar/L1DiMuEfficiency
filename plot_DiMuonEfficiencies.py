@@ -50,6 +50,7 @@ cancel_requirement = '(' + cancel_requirement + ')'
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
+genCuts["L1GenMu-pt1"] = ["((pT1_gen > 1) && (pT1 > 1))", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
@@ -178,48 +179,49 @@ for varList in chargeCheckList:
                                    cccuts, "charge_check")
 
 ghostList = []
+# TODO: If there is no L1 muon present deltaR etc are 0!
 ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
                   binningDict["etaFineRestr"], "eta1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                   binningDict["etaFineRestr"], "eta1",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genPhi", "#phi(#mu)"],
                   binningDict["phiFineRestr"], "phi1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                   binningDict["phiFineRestr"], "phi1",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1",
-                  genCuts["mu-pt1"], [0, 1.2]])
+                  genCuts["L1GenMu-pt1"], [0, 1.2]])
 
 singleMu_ntuples = []
 singleMu_ntuples.append("GMTSingleMuNtuple.root")
