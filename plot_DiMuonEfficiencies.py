@@ -233,3 +233,37 @@ for varList in ghostList:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    distribution_labels, line_colours,
                                    cuts, "singleMu")
+
+resolution_check_ntuple = []
+resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
+resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
+resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
+resolution_check_ntuple_name = []
+resolution_check_ntuple_name.append("ugmt_ntuple")
+resolution_check_ntuple_name.append("ugmt_ntuple")
+resolution_check_ntuple_name.append("ugmt_ntuple")
+resolution_check_dlabel = []
+resolution_check_dlabel.append(["All muons", "BMTF muons", "uGMT"])
+resolution_check_dlabel.append(["All muons", "OMTF muons", "uGMT"])
+resolution_check_dlabel.append(["All muons", "EMTF muons", "uGMT"])
+resolution_check_line_colour = []
+resolution_check_line_colour.append(30)
+resolution_check_line_colour.append(36)
+resolution_check_line_colour.append(48)
+resolution_check_cuts = []
+resolution_check_cuts.append(gmtCuts["bmtf"])
+resolution_check_cuts.append(gmtCuts["omtf"])
+resolution_check_cuts.append(gmtCuts["emtf"])
+resolutionCheckList = []
+resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
+                            binningDict["distSym"], "phi1-phi1_gen",
+                            genCuts["L1GenMu-pt1"], [0, 1.2]])
+resolutionCheckList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Gen})"],
+                            binningDict["distSym"], "eta1-eta1_gen",
+                            genCuts["L1GenMu-pt1"], [0, 1.2]])
+for varList in resolutionCheckList:
+    generateCombinedEfficiencyHist(varList, resolution_check_ntuple,
+                                   resolution_check_ntuple_name,
+                                   resolution_check_dlabel,
+                                   resolution_check_line_colour,
+                                   resolution_check_cuts, "resolution_check")
