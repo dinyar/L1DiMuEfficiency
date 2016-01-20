@@ -14,8 +14,16 @@ from L1Analysis import L1Ana, L1Ntuple
 
 # TODO: This should be passed in as command line option!
 NgenMu = 1
-# ntupleName = "DimuonNtuple"
-ntupleName = "SingleMuNtuple"
+if NgenMu == 1:
+    ntupleName = "SingleMuNtuple"
+elif NgenMu == 2:
+    ntupleName = "DimuonNtuple"
+cutList = []
+cutList.append(["-1", ""])
+cutList.append(["0.3", "-dR0_3"])
+cutList.append(["0.1", "-dR0_1"])
+cutList.append(["0.05", "-dR0_05"])
+cutList.append(["0.01", "-dR0_01"])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi):
@@ -190,7 +198,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
         if abs(pdgId) == 13:
             count += 1
     if count != NgenMu:
-        print "Found {n} generated muons in event, not processing event.".format(n=count)
+        print "Found {n} generated muons in event, skipping.".format(n=count)
         return [], []
 
     # Find muons with highest pT
@@ -243,23 +251,23 @@ def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
             gmt_content.append(evt.gmt.Qual[trailingGmtMu])
         elif (gmtVar == "ch2") and (evt.gmt.N > 1):
             gmt_content.append(evt.gmt.Cha[trailingGmtMu])
-        elif (gmtVar == "pT1_gen"):
+        elif gmtVar == "pT1_gen":
             gmt_content.append(evt.gen.pt[leadingMu])
-        elif (gmtVar == "pT2_gen"):
+        elif gmtVar == "pT2_gen":
             gmt_content.append(evt.gen.pt[trailingMu])
-        elif (gmtVar == "eta1_gen"):
+        elif gmtVar == "eta1_gen":
             gmt_content.append(evt.gen.eta[leadingMu])
-        elif (gmtVar == "eta2_gen"):
+        elif gmtVar == "eta2_gen":
             gmt_content.append(evt.gen.eta[trailingMu])
-        elif (gmtVar == "phi1_gen"):
+        elif gmtVar == "phi1_gen":
             gmt_content.append(evt.gen.phi[leadingMu])
-        elif (gmtVar == "phi2_gen"):
+        elif gmtVar == "phi2_gen":
             gmt_content.append(evt.gen.phi[trailingMu])
-        elif (gmtVar == "pT_jpsi"):
+        elif gmtVar == "pT_jpsi":
             gmt_content.append(jPsi.Pt())
-        elif (gmtVar == "eta_jpsi"):
+        elif gmtVar == "eta_jpsi":
             gmt_content.append(jPsi.Eta())
-        elif (gmtVar == "phi_jpsi"):
+        elif gmtVar == "phi_jpsi":
             gmt_content.append(jPsi.Phi())
         else:
             gmt_content.append(-11)
@@ -357,37 +365,37 @@ def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
             tfIdx = evt.ugmt.tfLink[trailingUGmtMu_q].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
-        elif (ugmtVar == "pT1_gen"):
+        elif ugmtVar == "pT1_gen":
             ugmt_content.append(evt.gen.pt[leadingMu])
-        elif (ugmtVar == "pT2_gen"):
+        elif ugmtVar == "pT2_gen":
             ugmt_content.append(evt.gen.pt[trailingMu])
-        elif (ugmtVar == "eta1_gen"):
+        elif ugmtVar == "eta1_gen":
             ugmt_content.append(evt.gen.eta[leadingMu])
-        elif (ugmtVar == "eta2_gen"):
+        elif ugmtVar == "eta2_gen":
             ugmt_content.append(evt.gen.eta[trailingMu])
-        elif (ugmtVar == "phi1_gen"):
+        elif ugmtVar == "phi1_gen":
             ugmt_content.append(evt.gen.phi[leadingMu])
-        elif (ugmtVar == "phi2_gen"):
+        elif ugmtVar == "phi2_gen":
             ugmt_content.append(evt.gen.phi[trailingMu])
-        elif (ugmtVar == "ch1_gen"):
+        elif ugmtVar == "ch1_gen":
             if evt.gen.id[leadingMu] > 0:
                 # Muon
                 ugmt_content.append(-1)
             else:
                 # Anti muon
                 ugmt_content.append(1)
-        elif (ugmtVar == "ch2_gen"):
+        elif ugmtVar == "ch2_gen":
             if evt.gen.id[trailingMu] > 0:
                 # Muon
                 ugmt_content.append(-1)
             else:
                 # Anti muon
                 ugmt_content.append(1)
-        elif (ugmtVar == "pT_jpsi"):
+        elif ugmtVar == "pT_jpsi":
             ugmt_content.append(jPsi.Pt())
-        elif (ugmtVar == "eta_jpsi"):
+        elif ugmtVar == "eta_jpsi":
             ugmt_content.append(jPsi.Eta())
-        elif (ugmtVar == "phi_jpsi"):
+        elif ugmtVar == "phi_jpsi":
             ugmt_content.append(jPsi.Phi())
         else:
             ugmt_content.append(-11)
@@ -483,18 +491,22 @@ def main():
     gmt_content_string = ':'.join(gmt_content_list)
     ugmt_content_string = ':'.join(ugmt_content_list)
 
-    base_name = ntupleName + ".root"
-    gmt_ntuple_fname = "GMT" + base_name
+    gmt_ntuple_fname = "GMT" + ntupleName + ".root"
     gmt_f = root.TFile(gmt_ntuple_fname, 'recreate')
     gmt_f.cd()
     flat_gmt_tuple = root.TNtuple("gmt_ntuple", "ntupledump",
                                   gmt_content_string)
 
-    ugmt_ntuple_fname = "uGMT" + base_name
-    ugmt_f = root.TFile(ugmt_ntuple_fname, 'recreate')
-    ugmt_f.cd()
-    flat_ugmt_tuple = root.TNtuple("ugmt_ntuple", "ntupledump",
-                                   ugmt_content_string)
+    ugmt_files = []
+    ugmt_ntuples = []
+    for cuts in cutList:
+        ugmt_ntuple_fname = "uGMT" + ntupleName + cuts[1] + ".root"
+        ugmt_f = root.TFile(ugmt_ntuple_fname, 'recreate')
+        ugmt_f.cd()
+        flat_ugmt_tuple = root.TNtuple("ugmt_ntuple", "ntupledump",
+                                       ugmt_content_string)
+        ugmt_files.append(ugmt_f)
+        ugmt_ntuples.append(flat_ugmt_tuple)
 
     start_evt = opts.start_event
     end_evt = opts.start_event+ntuple.nevents
@@ -504,19 +516,25 @@ def main():
         event = ntuple[i]
         if (i+1) % 1000 == 0:
             L1Ana.log.info("Processing event: {n}".format(n=i))
-        gmt_ntuple_values, ugmt_ntuple_values = analyse(event,
-                                                        gmt_content_list,
-                                                        ugmt_content_list)
 
+        for cuts, ugmt_file, ugmt_tuple in zip(cutList, ugmt_files,
+                                               ugmt_ntuples):
+            gmt_ntuple_values, ugmt_ntuple_values = analyse(event,
+                                                            gmt_content_list,
+                                                            ugmt_content_list,
+                                                            cuts[0])
+
+            ugmt_file.cd()
+            ugmt_tuple.Fill(ugmt_ntuple_values)
         gmt_f.cd()
         flat_gmt_tuple.Fill(gmt_ntuple_values)
-        ugmt_f.cd()
-        flat_ugmt_tuple.Fill(ugmt_ntuple_values)
 
     gmt_f.cd()
     gmt_f.Write()
-    ugmt_f.cd()
-    ugmt_f.Write()
+
+    for ugmt_file in ugmt_files:
+        ugmt_file.cd()
+        ugmt_file.Write()
 
 if __name__ == "__main__":
     main()
