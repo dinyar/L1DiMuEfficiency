@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+from math import sqrt
 from array import array
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 "../L1TriggerDPG/L1Ntuples/macros/python"))
@@ -15,6 +16,117 @@ from L1Analysis import L1Ana, L1Ntuple
 NgenMu = 1
 # ntupleName = "DimuonNtuple"
 ntupleName = "SingleMuNtuple"
+
+
+def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi):
+    dEta = wEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
+    dPhi = wPhi * abs(evt.ugmt.phi[mu1]-evt.ugmt.phi[mu2])
+
+    dR = sqrt(wEta * dEta**2 + wPhi * dPhi**2)
+
+    if dR > dRcut:
+        return 0
+    else:
+        return 1
+
+
+def findCancelMus(evt, mu1, mu2):
+    highPtMu = -1
+    lowQualMu = -1
+
+    if evt.ugmt.qual[mu1] <= evt.ugmt.qual[mu2]:
+        lowQualMu = mu1
+    else:
+        lowQualMu = mu2
+
+    if evt.ugmt.pt[mu1] > evt.ugmt.pt[mu2]:
+        highPtMu = mu1
+    else:
+        highPtMu = mu2
+
+    return lowQualMu, highPtMu
+
+
+# TODO: At some point allow me to apply weights to dEta, dPhi depending on TF!
+def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
+    ptCancelledMuons = set()
+    qualCancelledMuons = set()
+
+    if dRcut == -1:
+        return qualCancelledMuons, ptCancelledMuons
+
+    for i in range(0, evt.ugmt.n):
+        if evt.ugmt.bx[i] != 0:
+            continue
+
+        tfType1 = evt.ugmt.tfLink[i].tf
+        tfIdx1 = evt.ugmt.tfLink[i].idx
+        processor1 = evt.ugmt.tfInfo[tfType1].processor[tfIdx1]
+
+        for j in range(i, evt.ugmt.n):
+            if evt.ugmt.bx[i] != 0:
+                continue
+
+            tfType2 = evt.ugmt.tfLink[j].tf
+            tfIdx2 = evt.ugmt.tfLink[j].idx
+            processor2 = evt.ugmt.tfInfo[tfType2].processor[tfIdx2]
+
+            match = -1
+            if ((tfType1 == 0) and (tfType2 == 0)) and \
+                ((processor1 == processor2+1) or
+                 (processor2 == processor1+1) or
+                 ((processor1 == 11) and (processor2 == 0)) or
+                 ((processor2 == 11) and (processor1 == 0))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif ((tfType1 == 1) and (tfType2 == 1)) and \
+                 ((processor1 == processor2+1) or
+                  (processor2 == processor1+1) or
+                  ((processor1 == 5) and (processor2 == 0)) or
+                  ((processor2 == 5) and (processor1 == 0))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif ((tfType1 == 2) and (tfType2 == 2)) and \
+                 ((processor1 == processor2+1) or
+                  (processor2 == processor1+1) or
+                  ((processor1 == 5) and (processor2 == 0)) or
+                  ((processor2 == 5) and (processor1 == 0))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif ((tfType1 == 0) and (tfType2 == 1)) and \
+                 ((processor1 == 2*processor2) or
+                  (processor1 == 2*processor2+1) or
+                  (processor1 == 2*processor2+2) or
+                  (processor1 == 2*processor2+3) or
+                  ((processor1 == 0) and (processor2 == 5)) or
+                  ((processor1 == 1) and (processor2 == 5))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif((tfType1 == 1) and (tfType2 == 0)) and \
+                ((processor2 == 2*processor1) or
+                 (processor2 == 2*processor1+1) or
+                 (processor2 == 2*processor1+2) or
+                 (processor2 == 2*processor1+3) or
+                 ((processor2 == 0) and (processor1 == 5)) or
+                 ((processor2 == 1) and (processor1 == 5))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif ((tfType1 == 1) and (tfType2 == 2)) and \
+                 ((processor1 == processor2+1) or
+                  (processor2 == processor1+1) or
+                  (processor1 == processor2) or
+                  ((processor1 == 5) and (processor2 == 0)) or
+                  ((processor2 == 5) and (processor1 == 0))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            elif ((tfType1 == 2) and (tfType2 == 1)) and \
+                 ((processor1 == processor2+1) or
+                  (processor2 == processor1+1) or
+                  (processor1 == processor2) or
+                  ((processor1 == 5) and (processor2 == 0)) or
+                  ((processor2 == 5) and (processor1 == 0))):
+                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+
+            if match > 0:
+                cancelledWqual, cancelledWpt = findCancelMus(evt, i, j)
+                ptCancelledMuons.add(cancelledWpt)
+                qualCancelledMuons.add(cancelledWqual)
+
+    return qualCancelledMuons, ptCancelledMuons
 
 
 def getGenMuons(evt):
@@ -47,15 +159,19 @@ def getGmtMuons(evt):
 
 # TODO: At some point possibly get TF muons here..
 # (would also need to convert phi then)
-def getUGmtMuons(evt):
+def getUGmtMuons(evt, cancelledMuons):
     leadingPt = 0
     trailingPt = 0
     leadingUGmtMu = -1
     trailingUGmtMu = -1
+    numMus = 0
     for i in range(0, evt.ugmt.n):
         if evt.ugmt.bx[i] != 0:
             continue
+        elif i in cancelledMuons:
+            continue
 
+        numMus += 1
         if evt.ugmt.pt[i] > leadingPt:
             trailingPt = leadingPt
             trailingUGmtMu = leadingUGmtMu
@@ -65,30 +181,10 @@ def getUGmtMuons(evt):
             trailingPt = evt.ugmt.pt[i]
             trailingUGmtMu = i
 
-    return leadingUGmtMu, trailingUGmtMu
-
-def getQualUGmtMuons(evt):
-    highQual = 0
-    lowQual = 0
-    highQualUGmtMu = -1
-    lowQualUGmtMu = -1
-    for i in range(0, evt.ugmt.n):
-        if evt.ugmt.bx[i] != 0:
-            continue
-
-        if evt.ugmt.qual[i] > highQual:
-            lowQual = highQual
-            lowQualUGmtMu = highQualUGmtMu
-            highQual = evt.ugmt.qual[i]
-            highQualUGmtMu = i
-        elif evt.ugmt.qual[i] > lowQual:
-            lowQual = evt.ugmt.qual[i]
-            lowQualUGmtMu = i
-
-    return highQualUGmtMu, lowQualUGmtMu
+    return leadingUGmtMu, trailingUGmtMu, numMus
 
 
-def analyse(evt, gmt_content_list, ugmt_content_list):
+def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
     count = 0
     for pdgId in evt.gen.id:
         if abs(pdgId) == 13:
@@ -104,8 +200,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         leadingMu = 0
         trailingMu = -1
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
-    leadingUGmtMu, trailingUGmtMu = getUGmtMuons(evt)
-    highQualUGmtMu, lowQualUGmtMu = getQualUGmtMuons(evt)
+    highQualMuons, minPtMuons = doCancelOut(evt, dRcut)
+    leadingUGmtMu_pt, trailingUGmtMu_pt, nL1Mus_pt = getUGmtMuons(evt,
+                                                                  minPtMuons)
+    leadingUGmtMu_q, trailingUGmtMu_q, nL1Mus_q = getUGmtMuons(evt,
+                                                               highQualMuons)
 
     # Compute properties of J/Psi particle
     if NgenMu > 1:
@@ -118,7 +217,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         jPsi = root.TLorentzVector()
         jPsi = mu1 + mu2
     else:
-        jPsi = -1
+        jPsi = root.TLorentzVector()
 
     gmt_content = array('f')
     for gmtVar in gmt_content_list:
@@ -170,92 +269,92 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         # CAVEAT: This works only as long as uGMT doesn't perform cancel out
         if ugmtVar == "N":
             ugmt_content.append(evt.ugmt.n)
-        elif ugmtVar == "pT1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.pt[leadingUGmtMu])
-        elif ugmtVar == "eta1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.eta[leadingUGmtMu])
-        elif ugmtVar == "phi1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.phi[leadingUGmtMu])
-        elif ugmtVar == "qual1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.qual[leadingUGmtMu])
-        elif ugmtVar == "ch1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.ch[leadingUGmtMu])
-        elif ugmtVar == "trkAddr1" and (evt.ugmt.n > 0):
-            tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
+        elif ugmtVar == "pT1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.pt[leadingUGmtMu_pt])
+        elif ugmtVar == "eta1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.eta[leadingUGmtMu_pt])
+        elif ugmtVar == "phi1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_pt])
+        elif ugmtVar == "qual1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.qual[leadingUGmtMu_pt])
+        elif ugmtVar == "ch1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.ch[leadingUGmtMu_pt])
+        elif ugmtVar == "trkAddr1_pt" and (nL1Mus_pt > 0):
+            tfType = evt.ugmt.tfLink[leadingUGmtMu_pt].tf
+            tfIdx = evt.ugmt.tfLink[leadingUGmtMu_pt].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
             ugmt_content.append(trkAddr)
-        elif ugmtVar == "tfType1" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
-        elif (ugmtVar == "tfProcessor1") and (evt.ugmt.n > 0):
-            tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
+        elif ugmtVar == "tfType1_pt" and (nL1Mus_pt > 0):
+            ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu_pt].tf)
+        elif (ugmtVar == "tfProcessor1_pt") and (nL1Mus_pt > 0):
+            tfType = evt.ugmt.tfLink[leadingUGmtMu_pt].tf
+            tfIdx = evt.ugmt.tfLink[leadingUGmtMu_pt].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
-        elif (ugmtVar == "pT2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
-        elif (ugmtVar == "eta2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.eta[trailingUGmtMu])
-        elif (ugmtVar == "phi2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.phi[trailingUGmtMu])
-        elif (ugmtVar == "qual2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.qual[trailingUGmtMu])
-        elif (ugmtVar == "ch2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.ch[trailingUGmtMu])
-        elif (ugmtVar == "trkAddr2") and (evt.ugmt.n > 1):
-            tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
+        elif (ugmtVar == "pT2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.pt[trailingUGmtMu_pt])
+        elif (ugmtVar == "eta2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.eta[trailingUGmtMu_pt])
+        elif (ugmtVar == "phi2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_pt])
+        elif (ugmtVar == "qual2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.qual[trailingUGmtMu_pt])
+        elif (ugmtVar == "ch2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.ch[trailingUGmtMu_pt])
+        elif (ugmtVar == "trkAddr2_pt") and (nL1Mus_pt > 1):
+            tfType = evt.ugmt.tfLink[trailingUGmtMu_pt].tf
+            tfIdx = evt.ugmt.tfLink[trailingUGmtMu_pt].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
             ugmt_content.append(trkAddr)
-        elif (ugmtVar == "tfType2") and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
-        elif (ugmtVar == "tfProcessor2") and (evt.ugmt.n > 1):
-            tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
+        elif (ugmtVar == "tfType2_pt") and (nL1Mus_pt > 1):
+            ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu_pt].tf)
+        elif (ugmtVar == "tfProcessor2_pt") and (nL1Mus_pt > 1):
+            tfType = evt.ugmt.tfLink[trailingUGmtMu_pt].tf
+            tfIdx = evt.ugmt.tfLink[trailingUGmtMu_pt].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
-        elif ugmtVar == "pT_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.pt[highQualUGmtMu])
-        elif ugmtVar == "eta_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.eta[highQualUGmtMu])
-        elif ugmtVar == "phi_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.phi[highQualUGmtMu])
-        elif ugmtVar == "qual_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.qual[highQualUGmtMu])
-        elif ugmtVar == "ch_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.ch[highQualUGmtMu])
-        elif ugmtVar == "trkAddr_qualHigh" and (evt.ugmt.n > 0):
-            tfType = evt.ugmt.tfLink[highQualUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[highQualUGmtMu].idx
+        elif ugmtVar == "pT1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.pt[leadingUGmtMu_q])
+        elif ugmtVar == "eta1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.eta[leadingUGmtMu_q])
+        elif ugmtVar == "phi1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_q])
+        elif ugmtVar == "qual1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.qual[leadingUGmtMu_q])
+        elif ugmtVar == "ch1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.ch[leadingUGmtMu_q])
+        elif ugmtVar == "trkAddr1_q" and (nL1Mus_q > 0):
+            tfType = evt.ugmt.tfLink[leadingUGmtMu_q].tf
+            tfIdx = evt.ugmt.tfLink[leadingUGmtMu_q].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
             ugmt_content.append(trkAddr)
-        elif ugmtVar == "tfType_qualHigh" and (evt.ugmt.n > 0):
-            ugmt_content.append(evt.ugmt.tfLink[highQualUGmtMu].tf)
-        elif (ugmtVar == "tfProcessor_qualHigh") and (evt.ugmt.n > 0):
-            tfType = evt.ugmt.tfLink[highQualUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[highQualUGmtMu].idx
+        elif ugmtVar == "tfType1_q" and (nL1Mus_q > 0):
+            ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu_q].tf)
+        elif (ugmtVar == "tfProcessor1_q") and (nL1Mus_q > 0):
+            tfType = evt.ugmt.tfLink[leadingUGmtMu_q].tf
+            tfIdx = evt.ugmt.tfLink[leadingUGmtMu_q].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
-        elif ugmtVar == "pT_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.pt[lowQualUGmtMu])
-        elif ugmtVar == "eta_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.eta[lowQualUGmtMu])
-        elif ugmtVar == "phi_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.phi[lowQualUGmtMu])
-        elif ugmtVar == "qual_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.qual[lowQualUGmtMu])
-        elif ugmtVar == "ch_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.ch[lowQualUGmtMu])
-        elif ugmtVar == "trkAddr_qualLow" and (evt.ugmt.n > 1):
-            tfType = evt.ugmt.tfLink[lowQualUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[lowQualUGmtMu].idx
+        elif (ugmtVar == "pT2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.pt[trailingUGmtMu_q])
+        elif (ugmtVar == "eta2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.eta[trailingUGmtMu_q])
+        elif (ugmtVar == "phi2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_q])
+        elif (ugmtVar == "qual2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.qual[trailingUGmtMu_q])
+        elif (ugmtVar == "ch2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.ch[trailingUGmtMu_q])
+        elif (ugmtVar == "trkAddr2_q") and (nL1Mus_q > 1):
+            tfType = evt.ugmt.tfLink[trailingUGmtMu_q].tf
+            tfIdx = evt.ugmt.tfLink[trailingUGmtMu_q].idx
             trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
             ugmt_content.append(trkAddr)
-        elif ugmtVar == "tfType_qualLow" and (evt.ugmt.n > 1):
-            ugmt_content.append(evt.ugmt.tfLink[lowQualUGmtMu].tf)
-        elif (ugmtVar == "tfProcessor_qualLow") and (evt.ugmt.n > 1):
-            tfType = evt.ugmt.tfLink[lowQualUGmtMu].tf
-            tfIdx = evt.ugmt.tfLink[lowQualUGmtMu].idx
+        elif (ugmtVar == "tfType2_q") and (nL1Mus_q > 1):
+            ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu_q].tf)
+        elif (ugmtVar == "tfProcessor2_q") and (nL1Mus_q > 1):
+            tfType = evt.ugmt.tfLink[trailingUGmtMu_q].tf
+            tfIdx = evt.ugmt.tfLink[trailingUGmtMu_q].idx
             processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
             ugmt_content.append(processor)
         elif (ugmtVar == "pT1_gen"):
@@ -321,22 +420,38 @@ def generate_content_lists():
         gmt.append("phi_jpsi")
     ugmt = []
     ugmt.append("N")
-    ugmt.append("pT1")
-    ugmt.append("pT2")
-    ugmt.append("eta1")
-    ugmt.append("eta2")
-    ugmt.append("phi1")
-    ugmt.append("phi2")
-    ugmt.append("qual1")
-    ugmt.append("qual2")
-    ugmt.append("ch1")
-    ugmt.append("ch2")
-    ugmt.append("trkAddr1")
-    ugmt.append("trkAddr2")
-    ugmt.append("tfType1")
-    ugmt.append("tfType2")
-    ugmt.append("tfProcessor1")
-    ugmt.append("tfProcessor2")
+    ugmt.append("pT1_pt")
+    ugmt.append("pT2_pt")
+    ugmt.append("eta1_pt")
+    ugmt.append("eta2_pt")
+    ugmt.append("phi1_pt")
+    ugmt.append("phi2_pt")
+    ugmt.append("qual1_pt")
+    ugmt.append("qual2_pt")
+    ugmt.append("ch1_pt")
+    ugmt.append("ch2_pt")
+    ugmt.append("trkAddr1_pt")
+    ugmt.append("trkAddr2_pt")
+    ugmt.append("tfType1_pt")
+    ugmt.append("tfType2_pt")
+    ugmt.append("tfProcessor1_pt")
+    ugmt.append("tfProcessor2_pt")
+    ugmt.append("pT1_q")
+    ugmt.append("pT2_q")
+    ugmt.append("eta1_q")
+    ugmt.append("eta2_q")
+    ugmt.append("phi1_q")
+    ugmt.append("phi2_q")
+    ugmt.append("qual1_q")
+    ugmt.append("qual2_q")
+    ugmt.append("ch1_q")
+    ugmt.append("ch2_q")
+    ugmt.append("trkAddr1_q")
+    ugmt.append("trkAddr2_q")
+    ugmt.append("tfType1_q")
+    ugmt.append("tfType2_q")
+    ugmt.append("tfProcessor1_q")
+    ugmt.append("tfProcessor2_q")
     ugmt.append("pT1_gen")
     ugmt.append("eta1_gen")
     ugmt.append("phi1_gen")
@@ -349,23 +464,6 @@ def generate_content_lists():
         ugmt.append("pT_jpsi")
         ugmt.append("eta_jpsi")
         ugmt.append("phi_jpsi")
-    else:
-        ugmt.append("pT_qualHigh")
-        ugmt.append("eta_qualHigh")
-        ugmt.append("phi_qualHigh")
-        ugmt.append("qual_qualHigh")
-        ugmt.append("ch_qualHigh")
-        ugmt.append("trkAddr_qualHigh")
-        ugmt.append("tfType_qualHigh")
-        ugmt.append("tfProcessor_qualHigh")
-        ugmt.append("pT_qualLow")
-        ugmt.append("eta_qualLow")
-        ugmt.append("phi_qualLow")
-        ugmt.append("qual_qualLow")
-        ugmt.append("ch_qualLow")
-        ugmt.append("trkAddr_qualLow")
-        ugmt.append("tfType_qualLow")
-        ugmt.append("tfProcessor_qualLow")
 
     return gmt, ugmt
 
