@@ -19,7 +19,7 @@ if NgenMu == 1:
 elif NgenMu == 2:
     ntupleName = "DimuonNtuple"
 cutList = []
-cutList.append([None, ""])
+cutList.append(["", None])
 cutList.append(["-dR0_3", 5*[0.3]])
 cutList.append(["-dR0_1", 5*[0.1]])
 cutList.append(["-dR0_05", 5*[0.05]])
