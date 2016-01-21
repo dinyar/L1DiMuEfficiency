@@ -139,7 +139,7 @@ cccuts.append(gmtCuts["omtf"])
 cccuts.append(gmtCuts["emtf"])
 chargeCheckList = []
 chargeCheckList.append([["mu1_ch", "ch"],
-                       binningDict["charge"], "ch1",
+                       binningDict["charge"], "ch1_pt",
                        genCuts["diMu-pt1"], [0, 1.2]])
 for varList in chargeCheckList:
     generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
@@ -147,7 +147,8 @@ for varList in chargeCheckList:
                                    cccuts, "charge_check")
 
 ghostList = []
-# NOTE: If there is no L1 muon present deltaR etc are 0! This will lead to "inefficiencies". 
+# TODO: Split ghostList in two: one including GMT with only gen quantities plotted, one only with uGMT with L1 and gen quantities plotted
+# NOTE: If no L1 muon deltaR etc will be 0! This will lead to "inefficiencies".
 ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(eta1_pt-eta2_pt)",
