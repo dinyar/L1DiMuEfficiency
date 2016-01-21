@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 from ROOT import *
-import sys, os
+import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "../L1AnalysisHelpers"))
 from CreateHistograms import *
 
@@ -11,8 +12,6 @@ gROOT.SetBatch(kTRUE)
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
-# TODO: Fix this cut!
-genCuts["L1GenMu-pt1"] = ["(pT1_gen > 1)", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["gmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
@@ -22,9 +21,11 @@ gmtCuts["ugmt_diMu-pt1_pTmin"] = ["((pT1_pt > 1) && (pT2_pt > 1))",
 gmtCuts["ugmt_diMu-pt1_qMax"] = ["((pT1_q > 1) && (pT2_q > 1))",
                                  "diMu-pt1_qMax"]
 
-gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
-gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
-gmtCuts["emtf"] = ["(tfType1==2)", "emtf"]
+gmtCuts["bmtf"] = ["(tfType1_pt==0)", "bmtf"]
+gmtCuts["omtf"] = ["(tfType1_pt==1)", "omtf"]
+gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
+
+# TODO: Do these plots also for maxQual!
 
 # TODO: Need different gen cuts and plotting vars for GMT vs. uGMT?
 efficiencyList = []
@@ -146,49 +147,49 @@ for varList in chargeCheckList:
                                    cccuts, "charge_check")
 
 ghostList = []
-# TODO: If there is no L1 muon present deltaR etc are 0!
+# NOTE: If there is no L1 muon present deltaR etc are 0! This will lead to "inefficiencies". 
 ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(eta1_pt-eta2_pt)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(phi1_pt-phi2_pt)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(eta1_pt-eta2_pt)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(phi1_pt-phi2_pt)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
                   binningDict["etaFineRestr"], "eta1_gen",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                   binningDict["etaFineRestr"], "eta1_pt",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genPhi", "#phi(#mu)"],
                   binningDict["phiFineRestr"], "phi1_gen",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                   binningDict["phiFineRestr"], "phi1_pt",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1_gen",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1_pt",
-                  genCuts["L1GenMu-pt1"], [0, 1.2]])
+                  genCuts["mu-pt1"], [0, 1.2]])
 
 singleMu_ntuples = []
 singleMu_ntuples.append("GMTSingleMuNtuple.root")
@@ -224,10 +225,10 @@ resolution_check_cuts.append(gmtCuts["emtf"])
 resolutionCheckList = []
 resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "phi1_pt-phi1_gen",
-                            genCuts["L1GenMu-pt1"], [0, 1.2]])
+                            genCuts["mu-pt1"], [0, 1.2]])
 resolutionCheckList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "eta1_pt-eta1_gen",
-                            genCuts["L1GenMu-pt1"], [0, 1.2]])
+                            genCuts["mu-pt1"], [0, 1.2]])
 for varList in resolutionCheckList:
     generateCombinedEfficiencyHist(varList, resolution_check_ntuple,
                                    resolution_check_ntuple_name,
