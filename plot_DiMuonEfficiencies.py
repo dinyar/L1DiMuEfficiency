@@ -146,51 +146,65 @@ for varList in chargeCheckList:
                                    ccdlabel, cclc,
                                    cccuts, "charge_check")
 
-ghostList = []
-# TODO: Split ghostList in two: one including GMT with only gen quantities plotted, one only with uGMT with L1 and gen quantities plotted
+ghostListWOgmt = []
 # NOTE: If no L1 muon deltaR etc will be 0! This will lead to "inefficiencies".
-ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "abs(eta1_pt-eta2_pt)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "abs(phi1_pt-phi2_pt)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "abs(eta1_pt-eta2_pt)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "abs(phi1_pt-phi2_pt)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_genEta", "#eta(#mu)"],
-                  binningDict["etaFineRestr"], "eta1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
-                  binningDict["etaFineRestr"], "eta1_pt",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_genPhi", "#phi(#mu)"],
-                  binningDict["phiFineRestr"], "phi1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
-                  binningDict["phiFineRestr"], "phi1_pt",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
-                  binningDict["pt140Fine"], "pT1_gen",
-                  genCuts["mu-pt1"], [0, 1.2]])
-ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
-                  binningDict["pt140Fine"], "pT1_pt",
-                  genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
+                       binningDict["distVeryWide"],
+                       "abs(eta1_pt-eta2_pt)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
+                       binningDict["distVeryWide"],
+                       "abs(phi1_pt-phi2_pt)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
+                       binningDict["distVeryWide"],
+                       "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
+                       binningDict["distNarrow"],
+                       "abs(eta1_pt-eta2_pt)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
+                       binningDict["distNarrow"],
+                       "abs(phi1_pt-phi2_pt)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
+                       binningDict["etaFineRestr"], "eta1_pt",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
+                       binningDict["phiFineRestr"], "phi1_pt",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
+                       binningDict["pt140Fine"], "pT1_pt",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
+                       binningDict["distNarrow"],
+                       "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_genEta", "#eta(#mu)"],
+                       binningDict["etaFineRestr"], "eta1_gen",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_genPhi", "#phi(#mu)"],
+                       binningDict["phiFineRestr"], "phi1_gen",
+                       genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
+                       binningDict["pt140Fine"], "pT1_gen",
+                       genCuts["mu-pt1"], [0, 1.2]])
+
+ghostListWgmt = []
+ghostListWgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
+                      binningDict["distNarrow"],
+                      "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
+                      genCuts["mu-pt1"], [0, 1.2]])
+ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
+                      binningDict["etaFineRestr"], "eta1_gen",
+                      genCuts["mu-pt1"], [0, 1.2]])
+ghostListWgmt.append([["mu1_genPhi", "#phi(#mu)"],
+                      binningDict["phiFineRestr"], "phi1_gen",
+                      genCuts["mu-pt1"], [0, 1.2]])
+ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
+                      binningDict["pt140Fine"], "pT1_gen",
+                      genCuts["mu-pt1"], [0, 1.2]])
 
 singleMu_ntuples = []
 singleMu_ntuples.append("GMTSingleMuNtuple.root")
@@ -199,9 +213,14 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
-for varList in ghostList:
+for varList in ghostListWgmt:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    labels, line_colours, cuts, "singleMu")
+for varList in ghostListWOgmt:
+    generateCombinedEfficiencyHist(varList, singleMu_ntuples[1:],
+                                   ntuple_names[1:], labels[1:],
+                                   line_colours[1:], cuts[1:], "singleMu")
+
 
 resolution_check_ntuple = []
 resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
