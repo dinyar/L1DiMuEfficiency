@@ -42,14 +42,14 @@ def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
 
     if useChargeMatching is True:
         if evt.ugmt.ch[mu1] != evt.ugmt.ch[mu2]:
-            return 0
+            return False
 
     dR = sqrt(wEta * dEta**2 + wPhi * dPhi**2)
 
     if dR > dRcut:
-        return 0
+        return False
     else:
-        return 1
+        return True
 
 
 def findCancelMus(evt, mu1, mu2):
@@ -111,7 +111,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                  (processor2 == processor1+1) or
                  ((processor1 == 11) and (processor2 == 0)) or
                  ((processor2 == 11) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut[1],
+                match = checkMatchQuality(evt, i, j, dRcut[0],
                                           wEta[0], wPhi[0],
                                           useChargeMatching[0])
             elif ((tfType1 == 1) and (tfType2 == 1)) and \
@@ -175,7 +175,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                                           wEta[4], wPhi[4],
                                           useChargeMatching[4])
 
-            if match > 0:
+            if match is True:
                 cancelledWqual, cancelledWpt = findCancelMus(evt, i, j)
                 ptCancelledMuons.add(cancelledWpt)
                 qualCancelledMuons.add(cancelledWqual)
