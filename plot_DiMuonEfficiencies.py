@@ -77,8 +77,13 @@ jpsi_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
 jpsi_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
 jpsi_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
 jpsi_ntuples.append("uGMTDimuonNtuple-dR0_01.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
+
 ntuple_names = []
 ntuple_names.append("gmt_ntuple")
+ntuple_names.append("ugmt_ntuple")
+ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
@@ -95,6 +100,12 @@ labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
                "dR0-05"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
                "dR0-01"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+               match charges and #DeltaR<0.1 in OMTF", "uGMT",
+               "dR0-01_OMTF-dR0-1-chargeMatch"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+               match charges and #DeltaR<0.3 in OMTF", "uGMT",
+               "dR0-01_OMTF-dR0-1-chargeMatch"])
 line_colours = []
 line_colours.append(1)
 line_colours.append(46)
@@ -102,8 +113,12 @@ line_colours.append(30)
 line_colours.append(38)
 line_colours.append(8)
 line_colours.append(28)
+line_colours.append(7)
+line_colours.append(9)
 cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
 cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
 cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
 cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
@@ -207,6 +222,9 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
+
 
 for varList in ghostListWgmt:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
