@@ -56,6 +56,7 @@ def findCancelMus(evt, mu1, mu2):
 
 
 # TODO: At some point allow me to apply weights to dEta, dPhi depending on TF!
+# TODO: Try using charge for matching.
 def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
     ptCancelledMuons = set()
     qualCancelledMuons = set()
@@ -80,6 +81,9 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
             processor2 = evt.ugmt.tfInfo[tfType2].processor[tfIdx2]
 
             match = -1
+            # Same track finder. Possibilies for each one:
+            # 1. Trivially neighbours
+            # 2. At wrap-around edge
             if ((tfType1 == 0) and (tfType2 == 0)) and \
                 ((processor1 == processor2+1) or
                  (processor2 == processor1+1) or
@@ -98,6 +102,9 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            # Different track finders, barrel/overlap. Possibilities:
+            # 1. Trivially beighbours
+            # 2. At wrap around edge
             elif ((tfType1 == 0) and (tfType2 == 1)) and \
                  ((processor1 == 2*processor2) or
                   (processor1 == 2*processor2+1) or
@@ -114,16 +121,19 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                  ((processor2 == 0) and (processor1 == 5)) or
                  ((processor2 == 1) and (processor1 == 5))):
                 match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+            # Different track finders, endcap/overlap. Possibilities:
+            # 1. Trivially neighbours
+            # 2. At wrap around edge
             elif ((tfType1 == 1) and (tfType2 == 2)) and \
                  ((processor1 == processor2+1) or
-                  (processor2 == processor1+1) or
+                  (processor1 == processor2-1) or
                   (processor1 == processor2) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
             elif ((tfType1 == 2) and (tfType2 == 1)) and \
                  ((processor1 == processor2+1) or
-                  (processor2 == processor1+1) or
+                  (processor1 == processor2-1) or
                   (processor1 == processor2) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
