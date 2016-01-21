@@ -15,6 +15,11 @@ genCuts["L1GenMu-pt1"] = ["((pT1_gen > 1) && (pT1 > 1))", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
+gmtCuts["diMu-pt1-dR0_3"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_3"]
+gmtCuts["diMu-pt1-dR0_1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_1"]
+gmtCuts["diMu-pt1-dR0_05"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_05"]
+gmtCuts["diMu-pt1-dR0_01"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_01"]
+
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1==2)", "emtf"]
@@ -94,10 +99,10 @@ line_colours.append(1)
 line_colours.append(8)
 cuts = []
 cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1-dR0_3"])
+cuts.append(gmtCuts["diMu-pt1-dR0_1"])
+cuts.append(gmtCuts["diMu-pt1-dR0_05"])
+cuts.append(gmtCuts["diMu-pt1-dR0_01"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
