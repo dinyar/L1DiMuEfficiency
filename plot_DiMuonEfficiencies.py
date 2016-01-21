@@ -8,45 +8,6 @@ from CreateHistograms import *
 gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
-# Cancel-out requirement for sector/wedge configuration
-cancel_reqs = []
-# Same track finder. Possibiliies:
-# 1. Tivially neighbours
-# 2. At wrap-around edge
-# 2.a. Barrel
-# 2.b. Overlap/endcap
-cancel_reqs.append("((tfType1 == tfType2) &&\
-                     ((abs(tfProcessor1-tfProcessor2) == 1) ||\
-                      ((tfType1 == 0) &&\
-                       (((tfProcessor1 == 0) && (tfProcessor2 == 11)) ||\
-                        ((tfProcessor1 == 11) && (tfProcessor2 == 0)))) ||\
-                      ((tfType1 > 0) &&\
-                       (((tfProcessor1 == 0) && (tfProcessor2 == 11)) ||\
-                        ((tfProcessor1 == 11) && (tfProcessor2 == 0))))\
-                     ))")
-# Different track finders, endcap/overlap. Possibilities:
-# 1. Trivially neighbours
-# 2. At wrap around edge
-cancel_reqs.append("((((tfType1 == 1) && (tfType2 == 2)) ||\
-                      ((tfType1 == 2) && (tfType2 == 1))) &&\
-                     ((abs(tfProcessor1-tfProcessor2) < 2) ||\
-                      (((tfProcessor1 == 0) && (tfProcessor2 == 5)) ||\
-                       ((tfProcessor1 == 5) && (tfProcessor2 == 0)))\
-                     ))")
-# Different track finders, barrel/overlap. Possibilities:
-# 1. Trivially beighbours
-# 2. At wrap around edge
-cancel_reqs.append("((((tfType1 == 0) && (tfType2 == 1)) &&\
-                        (((2*tfProcessor2-1) <= tfProcessor1) &&\
-                         ((2*tfProcessor2+2) >= tfProcessor1))) ||\
-                      (((tfType1 == 1) && (tfType2 == 0)) &&\
-                       (((2*tfProcessor1-1) <= tfProcessor2) &&\
-                        ((2*tfProcessor1+2) >= tfProcessor2)))\
-                    )")
-
-cancel_requirement = ' || '.join(cancel_reqs)
-cancel_requirement = '(' + cancel_requirement + ')'
-
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
@@ -54,18 +15,10 @@ genCuts["L1GenMu-pt1"] = ["((pT1_gen > 1) && (pT1 > 1))", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
-# TODO: Try different distance cut for each track finder/area.
-# TODO: Try different distance cuts for phi/eta
-# TODO: Try using charge for matching.
-gmtCuts["diMu-pt1_separatedFar"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.1))", "diMu-pt1_separatedFar"]
-gmtCuts["diMu-pt1_separatedFarFix"] = ["((pT1 > 1) && (pT2 > 1) && !((sqrt((eta1-eta2)**2+(phi1-phi2)**2) < 0.1) && " + cancel_requirement + "))", "diMu-pt1_separatedFarFix"]
-gmtCuts["diMu-pt1_separatedNear"] = ["((pT1 > 1) && (pT2 > 1) && (sqrt((eta1-eta2)**2+(phi1-phi2)**2) > 0.01))", "diMu-pt1_separatedNear"]
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1==2)", "emtf"]
-# TODO: Have cuts to only look at certain track finders
 
-# TODO: Plot charge separately per TF.
 efficiencyList = []
 # TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
@@ -112,9 +65,10 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 jpsi_ntuples = []
 jpsi_ntuples.append("GMTDimuonNtuple.root")
 jpsi_ntuples.append("uGMTDimuonNtuple.root")
-jpsi_ntuples.append("uGMTDimuonNtuple.root")
-jpsi_ntuples.append("uGMTDimuonNtuple.root")
-jpsi_ntuples.append("uGMTDimuonNtuple.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
+jpsi_ntuples.append("uGMTDimuonNtuple-dR0_01.root")
 ntuple_names = []
 ntuple_names.append("gmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
@@ -125,9 +79,11 @@ distribution_labels = []
 distribution_labels.append(["Gen muons", "GMT muons", "GMT"])
 distribution_labels.append(["Gen muons", "uGMT muons", "uGMT"])
 distribution_labels.append(["Gen muons",
+                            "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT"])
+distribution_labels.append(["Gen muons",
                             "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT"])
 distribution_labels.append(["Gen muons",
-                            "uGMT muons w/ cancel-out #DeltaR<0.1, w/ wedge comp", "uGMT"])
+                            "uGMT muons w/ cancel-out #DeltaR<0.5", "uGMT"])
 distribution_labels.append(["Gen muons",
                             "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT"])
 line_colours = []
@@ -139,9 +95,9 @@ line_colours.append(8)
 cuts = []
 cuts.append(gmtCuts["diMu-pt1"])
 cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1_separatedFar"])
-cuts.append(gmtCuts["diMu-pt1_separatedFarFix"])
-cuts.append(gmtCuts["diMu-pt1_separatedNear"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
@@ -226,9 +182,10 @@ ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
 singleMu_ntuples = []
 singleMu_ntuples.append("GMTSingleMuNtuple.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
 for varList in ghostList:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    distribution_labels, line_colours,
