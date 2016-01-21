@@ -19,16 +19,21 @@ if NgenMu == 1:
 elif NgenMu == 2:
     ntupleName = "DimuonNtuple"
 cutList = []
-cutList.append(["-1", ""])
-cutList.append(["0.3", "-dR0_3"])
-cutList.append(["0.1", "-dR0_1"])
-cutList.append(["0.05", "-dR0_05"])
-cutList.append(["0.01", "-dR0_01"])
+cutList.append([None, ""])
+cutList.append(["-dR0_3", 5*[0.3]])
+cutList.append(["-dR0_1", 5*[0.1]])
+cutList.append(["-dR0_05", 5*[0.05]])
+cutList.append(["-dR0_01", 5*[0.01]])
 
 
-def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi):
+def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
+                      useChargeMatching=False):
     dEta = wEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
     dPhi = wPhi * abs(evt.ugmt.phi[mu1]-evt.ugmt.phi[mu2])
+
+    if useChargeMatching is True:
+        if evt.ugmt.ch[mu1] != evt.ugmt.ch[mu2]:
+            return 0
 
     dR = sqrt(wEta * dEta**2 + wPhi * dPhi**2)
 
@@ -57,11 +62,19 @@ def findCancelMus(evt, mu1, mu2):
 
 # TODO: At some point allow me to apply weights to dEta, dPhi depending on TF!
 # TODO: Try using charge for matching.
-def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
+# Order in TF-specific lists: BMTF, OMTF, EMTF, BMTF/OMTF, OMTF/EMTF
+def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
+    if wEta is None:
+        wEta = [1, 1, 1, 1, 1]
+    if wPhi is None:
+        wPhi = [1, 1, 1, 1, 1]
+    if useChargeMatching is None:
+        useChargeMatching = [False, False, False, False, False]
+
     ptCancelledMuons = set()
     qualCancelledMuons = set()
 
-    if dRcut == -1:
+    if dRcut is None:
         return qualCancelledMuons, ptCancelledMuons
 
     for i in range(0, evt.ugmt.n):
@@ -89,19 +102,25 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                  (processor2 == processor1+1) or
                  ((processor1 == 11) and (processor2 == 0)) or
                  ((processor2 == 11) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[1],
+                                          wEta[0], wPhi[0],
+                                          useChargeMatching[0])
             elif ((tfType1 == 1) and (tfType2 == 1)) and \
                  ((processor1 == processor2+1) or
                   (processor2 == processor1+1) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[1],
+                                          wEta[1], wPhi[1],
+                                          useChargeMatching[1])
             elif ((tfType1 == 2) and (tfType2 == 2)) and \
                  ((processor1 == processor2+1) or
                   (processor2 == processor1+1) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[2],
+                                          wEta[2], wPhi[2],
+                                          useChargeMatching[2])
             # Different track finders, barrel/overlap. Possibilities:
             # 1. Trivially beighbours
             # 2. At wrap around edge
@@ -112,7 +131,9 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                   (processor1 == 2*processor2+3) or
                   ((processor1 == 0) and (processor2 == 5)) or
                   ((processor1 == 1) and (processor2 == 5))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[3],
+                                          wEta[3], wPhi[3],
+                                          useChargeMatching[3])
             elif((tfType1 == 1) and (tfType2 == 0)) and \
                 ((processor2 == 2*processor1) or
                  (processor2 == 2*processor1+1) or
@@ -120,7 +141,9 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                  (processor2 == 2*processor1+3) or
                  ((processor2 == 0) and (processor1 == 5)) or
                  ((processor2 == 1) and (processor1 == 5))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[3],
+                                          wEta[3], wPhi[3],
+                                          useChargeMatching[3])
             # Different track finders, endcap/overlap. Possibilities:
             # 1. Trivially neighbours
             # 2. At wrap around edge
@@ -130,14 +153,18 @@ def doCancelOut(evt, dRcut, wEta=1, wPhi=1):
                   (processor1 == processor2) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[4],
+                                          wEta[4], wPhi[4],
+                                          useChargeMatching[4])
             elif ((tfType1 == 2) and (tfType2 == 1)) and \
                  ((processor1 == processor2+1) or
                   (processor1 == processor2-1) or
                   (processor1 == processor2) or
                   ((processor1 == 5) and (processor2 == 0)) or
                   ((processor2 == 5) and (processor1 == 0))):
-                match = checkMatchQuality(evt, i, j, dRcut, wEta, wPhi)
+                match = checkMatchQuality(evt, i, j, dRcut[4],
+                                          wEta[4], wPhi[4],
+                                          useChargeMatching[4])
 
             if match > 0:
                 cancelledWqual, cancelledWpt = findCancelMus(evt, i, j)
@@ -510,7 +537,7 @@ def main():
     ugmt_files = []
     ugmt_ntuples = []
     for cuts in cutList:
-        ugmt_ntuple_fname = "uGMT" + ntupleName + cuts[1] + ".root"
+        ugmt_ntuple_fname = "uGMT" + ntupleName + cuts[0] + ".root"
         ugmt_f = root.TFile(ugmt_ntuple_fname, 'recreate')
         ugmt_f.cd()
         flat_ugmt_tuple = root.TNtuple("ugmt_ntuple", "ntupledump",
@@ -532,7 +559,7 @@ def main():
             gmt_ntuple_values, ugmt_ntuple_values = analyse(event,
                                                             gmt_content_list,
                                                             ugmt_content_list,
-                                                            cuts[0])
+                                                            cuts[1])
 
             ugmt_file.cd()
             ugmt_tuple.Fill(ugmt_ntuple_values)
