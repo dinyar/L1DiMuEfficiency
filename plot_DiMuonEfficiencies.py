@@ -93,7 +93,7 @@ labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
                "dR0-3"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
                "dR0-1"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.5", "uGMT",
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
                "dR0-05"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
                "dR0-01"])
