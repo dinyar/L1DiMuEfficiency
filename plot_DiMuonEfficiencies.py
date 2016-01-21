@@ -27,7 +27,6 @@ gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
 
 # TODO: Do these plots also for maxQual!
 
-# TODO: Need different gen cuts and plotting vars for GMT vs. uGMT?
 efficiencyList = []
 # TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
@@ -71,7 +70,6 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.2]])
 
-# TODO: Should allow labelling from filename
 jpsi_ntuples = []
 jpsi_ntuples.append("GMTDimuonNtuple.root")
 jpsi_ntuples.append("uGMTDimuonNtuple.root")
@@ -152,7 +150,7 @@ ghostListWOgmt.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(eta1_pt-eta2_pt)",
                        genCuts["mu-pt1"], [0, 1.2]])
-ghostListWOgmt.append([["deltaPhi_GMT", "#Delta#phi(#mu#mu_{Ghost})"],
+ghostListWOgmt.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(phi1_pt-phi2_pt)",
                        genCuts["mu-pt1"], [0, 1.2]])
@@ -168,6 +166,10 @@ ghostListWOgmt.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "abs(phi1_pt-phi2_pt)",
                        genCuts["mu-pt1"], [0, 1.2]])
+ghostListWOgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
+                       binningDict["distNarrow"],
+                       "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
+                       genCuts["mu-pt1"], [0, 1.2]])
 ghostListWOgmt.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                        binningDict["etaFineRestr"], "eta1_pt",
                        genCuts["mu-pt1"], [0, 1.2]])
@@ -176,10 +178,6 @@ ghostListWOgmt.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                        genCuts["mu-pt1"], [0, 1.2]])
 ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                        binningDict["pt140Fine"], "pT1_pt",
-                       genCuts["mu-pt1"], [0, 1.2]])
-ghostListWOgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
-                       binningDict["distNarrow"],
-                       "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
                        genCuts["mu-pt1"], [0, 1.2]])
 ghostListWOgmt.append([["mu1_genEta", "#eta(#mu)"],
                        binningDict["etaFineRestr"], "eta1_gen",
@@ -192,10 +190,6 @@ ghostListWOgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                        genCuts["mu-pt1"], [0, 1.2]])
 
 ghostListWgmt = []
-ghostListWgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
-                      binningDict["distNarrow"],
-                      "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                      genCuts["mu-pt1"], [0, 1.2]])
 ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
                       binningDict["etaFineRestr"], "eta1_gen",
                       genCuts["mu-pt1"], [0, 1.2]])
@@ -213,6 +207,7 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
+
 for varList in ghostListWgmt:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
                                    labels, line_colours, cuts, "singleMu")
