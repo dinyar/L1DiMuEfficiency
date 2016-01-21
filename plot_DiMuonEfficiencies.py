@@ -15,10 +15,6 @@ genCuts["L1GenMu-pt1"] = ["((pT1_gen > 1) && (pT1 > 1))", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1"]
-gmtCuts["diMu-pt1-dR0_3"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_3"]
-gmtCuts["diMu-pt1-dR0_1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_1"]
-gmtCuts["diMu-pt1-dR0_05"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_05"]
-gmtCuts["diMu-pt1-dR0_01"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-pt1-dR0_01"]
 
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
@@ -67,6 +63,7 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.2]])
 
+# TODO: Should allow labelling from filename
 jpsi_ntuples = []
 jpsi_ntuples.append("GMTDimuonNtuple.root")
 jpsi_ntuples.append("uGMTDimuonNtuple.root")
@@ -80,17 +77,17 @@ ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
-distribution_labels = []
-distribution_labels.append(["Gen muons", "GMT muons", "GMT"])
-distribution_labels.append(["Gen muons", "uGMT muons", "uGMT"])
-distribution_labels.append(["Gen muons",
-                            "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT"])
-distribution_labels.append(["Gen muons",
-                            "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT"])
-distribution_labels.append(["Gen muons",
-                            "uGMT muons w/ cancel-out #DeltaR<0.5", "uGMT"])
-distribution_labels.append(["Gen muons",
-                            "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT"])
+labels = []
+labels.append(["Gen muons", "GMT muons", "GMT"])
+labels.append(["Gen muons", "uGMT muons", "uGMT"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
+               "dR0-3"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
+               "dR0-1"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.5", "uGMT",
+               "dR0-05"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
+               "dR0-01"])
 line_colours = []
 line_colours.append(38)
 line_colours.append(46)
@@ -99,15 +96,14 @@ line_colours.append(1)
 line_colours.append(8)
 cuts = []
 cuts.append(gmtCuts["diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1-dR0_3"])
-cuts.append(gmtCuts["diMu-pt1-dR0_1"])
-cuts.append(gmtCuts["diMu-pt1-dR0_05"])
-cuts.append(gmtCuts["diMu-pt1-dR0_01"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
+cuts.append(gmtCuts["diMu-pt1"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
-                                   distribution_labels, line_colours,
-                                   cuts, "jPsi")
+                                   labels, line_colours, cuts, "jPsi")
 
 
 ccntuple = []
