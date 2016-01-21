@@ -192,8 +192,7 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
 for varList in ghostList:
     generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
-                                   distribution_labels, line_colours,
-                                   cuts, "singleMu")
+                                   labels, line_colours, cuts, "singleMu")
 
 resolution_check_ntuple = []
 resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
