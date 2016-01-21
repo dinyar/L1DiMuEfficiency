@@ -11,7 +11,8 @@ gROOT.SetBatch(kTRUE)
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
-genCuts["L1GenMu-pt1"] = ["((pT1_gen > 1) && (pT1 > 1))", "mu-ptL1Gen1"]
+# TODO: Fix this cut!
+genCuts["L1GenMu-pt1"] = ["(pT1_gen > 1)", "mu-ptL1Gen1"]
 genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["gmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
@@ -25,6 +26,7 @@ gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1==2)", "emtf"]
 
+# TODO: Need different gen cuts and plotting vars for GMT vs. uGMT?
 efficiencyList = []
 # TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) | binning | parameters used for project functions
@@ -103,11 +105,11 @@ line_colours.append(8)
 line_colours.append(28)
 cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1"])
-cuts.append(gmtCuts["diMu-pt1_pTmin"])
-cuts.append(gmtCuts["diMu-pt1_pTmin"])
-cuts.append(gmtCuts["diMu-pt1_pTmin"])
-cuts.append(gmtCuts["diMu-pt1_pTmin"])
-cuts.append(gmtCuts["diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
+cuts.append(gmtCuts["ugmt_diMu-pt1_pTmin"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
