@@ -12,8 +12,11 @@ opts, parser = parse_options_and_init_log()
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
+parser.add_argument("--NgenMu", dest="NgenMu", type=int, help="Number of generated muons to expect in input file.")
+opts = parser.parse_args()
+
 # TODO: This should be passed in as command line option!
-NgenMu = 1
+NgenMu = opts.NgenMu
 if NgenMu == 1:
     ntupleName = "SingleMuNtuple"
 elif NgenMu == 2:
