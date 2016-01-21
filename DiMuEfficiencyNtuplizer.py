@@ -19,11 +19,17 @@ if NgenMu == 1:
 elif NgenMu == 2:
     ntupleName = "DimuonNtuple"
 cutList = []
-cutList.append(["", None])
-cutList.append(["-dR0_3", 5*[0.3]])
-cutList.append(["-dR0_1", 5*[0.1]])
-cutList.append(["-dR0_05", 5*[0.05]])
-cutList.append(["-dR0_01", 5*[0.01]])
+cutList.append(["", None, None, None, None])
+cutList.append(["-dR0_3", 5*[0.3], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_1", 5*[0.1], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_05", 5*[0.05], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_01", 5*[0.01], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_01-OMTF_dR0_1_chargeMatch",
+                [0.01, 0.1, 0.01, 0.01, 0.01],
+                5*[1], 5*[1], [False, True, False, False, False]])
+cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
+                [0.01, 0.3, 0.01, 0.01, 0.01],
+                5*[1], 5*[1], [False, True, False, False, False]])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
@@ -229,7 +235,8 @@ def getUGmtMuons(evt, cancelledMuons):
     return leadingUGmtMu, trailingUGmtMu, numMus
 
 
-def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
+def analyse(evt, gmt_content_list, ugmt_content_list,
+            dRcut, wEta, wPhi, useChargeMatching):
     count = 0
     for pdgId in evt.gen.id:
         if abs(pdgId) == 13:
@@ -245,7 +252,8 @@ def analyse(evt, gmt_content_list, ugmt_content_list, dRcut):
         leadingMu = 0
         trailingMu = -1
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
-    highQualMuons, minPtMuons = doCancelOut(evt, dRcut)
+    highQualMuons, minPtMuons = doCancelOut(evt, dRcut, wEta, wPhi,
+                                            useChargeMatching)
     leadingUGmtMu_pt, trailingUGmtMu_pt, nL1Mus_pt = getUGmtMuons(evt,
                                                                   minPtMuons)
     leadingUGmtMu_q, trailingUGmtMu_q, nL1Mus_q = getUGmtMuons(evt,
@@ -559,7 +567,8 @@ def main():
             gmt_ntuple_values, ugmt_ntuple_values = analyse(event,
                                                             gmt_content_list,
                                                             ugmt_content_list,
-                                                            cuts[1])
+                                                            cuts[1], cuts[2],
+                                                            cuts[3], cuts[4])
 
             ugmt_file.cd()
             ugmt_tuple.Fill(ugmt_ntuple_values)
