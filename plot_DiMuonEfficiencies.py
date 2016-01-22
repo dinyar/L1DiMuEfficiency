@@ -101,10 +101,10 @@ labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
                "dR0-01"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
-               match charges and #DeltaR<0.1 in OMTF", "uGMT",
+match charges and #DeltaR<0.1 in OMTF", "uGMT",
                "dR0-01_OMTF-dR0-1-chargeMatch"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
-               match charges and #DeltaR<0.3 in OMTF", "uGMT",
+match charges and #DeltaR<0.3 in OMTF", "uGMT",
                "dR0-01_OMTF-dR0-1-chargeMatch"])
 line_colours = []
 line_colours.append(1)
