@@ -194,15 +194,6 @@ ghostListWOgmt.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
 ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                        binningDict["pt140Fine"], "pT1_pt",
                        genCuts["mu-pt1"], [0, 1.2]])
-ghostListWOgmt.append([["mu1_genEta", "#eta(#mu)"],
-                       binningDict["etaFineRestr"], "eta1_gen",
-                       genCuts["mu-pt1"], [0, 1.2]])
-ghostListWOgmt.append([["mu1_genPhi", "#phi(#mu)"],
-                       binningDict["phiFineRestr"], "phi1_gen",
-                       genCuts["mu-pt1"], [0, 1.2]])
-ghostListWOgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT1_gen",
-                       genCuts["mu-pt1"], [0, 1.2]])
 
 ghostListWgmt = []
 ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
