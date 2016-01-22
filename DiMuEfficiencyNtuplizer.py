@@ -32,6 +32,13 @@ cutList.append(["-dR0_01-OMTF_dR0_1_chargeMatch",
 cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
                 [0.01, 0.3, 0.01, 0.01, 0.01],
                 5*[1], 5*[1], [False, True, False, False, False]])
+cutList.append(["-dR0_01-OMTF_dR0_3",
+                [0.01, 0.3, 0.01, 0.01, 0.01],
+                5*[1], 5*[1], [False, False, False, False, False]])
+# TODO: Use charge matching between TFs as soon as this is fixed in the emulator.
+cutList.append(["-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1",
+                [0.01, 0.01, 0.01, 0.3, 0.1],
+                5*[1], 5*[1], [False, False, False, False, False]])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
@@ -80,8 +87,6 @@ def findCancelMus(evt, mu1, mu2):
     return lowQualMu, highPtMu
 
 
-# TODO: At some point allow me to apply weights to dEta, dPhi depending on TF!
-# TODO: Try using charge for matching.
 # Order in TF-specific lists: BMTF, OMTF, EMTF, BMTF/OMTF, OMTF/EMTF
 def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None,
                 debug=False):
