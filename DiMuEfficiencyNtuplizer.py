@@ -39,6 +39,9 @@ cutList.append(["-dR0_01-OMTF_dR0_3",
 cutList.append(["-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1",
                 [0.01, 0.01, 0.01, 0.3, 0.1],
                 5*[1], 5*[1], [False, False, False, False, False]])
+cutList.append(["-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1",
+                [0.01, 0.01, 0.01, 0.3, 0.1],
+                5*[1], 5*[1], [False, False, False, True, False]])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
