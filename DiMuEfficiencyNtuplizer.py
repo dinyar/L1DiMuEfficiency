@@ -583,6 +583,10 @@ def main():
         if (i+1) % 1000 == 0:
             L1Ana.log.info("Processing event: {n}".format(n=i))
             debug = True
+            print 80*'#'
+            print "Debugging event"
+            print 80*'#'
+            print cuts
         else:
             debug = False
 
