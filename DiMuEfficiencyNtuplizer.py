@@ -15,7 +15,6 @@ from L1Analysis import L1Ana, L1Ntuple
 parser.add_argument("--NgenMu", dest="NgenMu", type=int, help="Number of generated muons to expect in input file.")
 opts = parser.parse_args()
 
-# TODO: This should be passed in as command line option!
 NgenMu = opts.NgenMu
 if NgenMu == 1:
     ntupleName = "SingleMuNtuple"
@@ -36,13 +35,24 @@ cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
-                      useChargeMatching=False):
-    dEta = wEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
-    dPhi = wPhi * abs(evt.ugmt.phi[mu1]-evt.ugmt.phi[mu2])
+                      useChargeMatching=False, debug=False):
+    if debug is True:
+        print "evt: ", evt
+        print "mu1: ", mu1
+        print "mu1_eta: ", evt.ugmt.eta[mu1]
+        print "mu2: ", mu2
+        print "mu2_eta: ", evt.ugmt.eta[mu2]
+        print "dRcut: ", dRcut
+        print "wEta: ", wEta
+        print "wPhi: ", wPhi
+        print "useChargeMatching: ", useChargeMatching
 
     if useChargeMatching is True:
         if evt.ugmt.ch[mu1] != evt.ugmt.ch[mu2]:
             return False
+
+    dEta = wEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
+    dPhi = wPhi * abs(evt.ugmt.phi[mu1]-evt.ugmt.phi[mu2])
 
     dR = sqrt(wEta * dEta**2 + wPhi * dPhi**2)
 
@@ -72,7 +82,15 @@ def findCancelMus(evt, mu1, mu2):
 # TODO: At some point allow me to apply weights to dEta, dPhi depending on TF!
 # TODO: Try using charge for matching.
 # Order in TF-specific lists: BMTF, OMTF, EMTF, BMTF/OMTF, OMTF/EMTF
-def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
+def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None,
+                debug=False):
+    if debug is True:
+        print "evt: ", evt
+        print "dRcut: ", dRcut
+        print "wEta: ", wEta
+        print "wPhi: ", wPhi
+        print "useChargeMatching: ", useChargeMatching
+
     if wEta is None:
         wEta = [1, 1, 1, 1, 1]
     if wPhi is None:
@@ -113,7 +131,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                  ((processor2 == 11) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut[0],
                                           wEta[0], wPhi[0],
-                                          useChargeMatching[0])
+                                          useChargeMatching[0], debug)
             elif ((tfType1 == 1) and (tfType2 == 1)) and \
                  ((processor1 == processor2+1) or
                   (processor2 == processor1+1) or
@@ -121,7 +139,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut[1],
                                           wEta[1], wPhi[1],
-                                          useChargeMatching[1])
+                                          useChargeMatching[1], debug)
             elif ((tfType1 == 2) and (tfType2 == 2)) and \
                  ((processor1 == processor2+1) or
                   (processor2 == processor1+1) or
@@ -129,7 +147,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut[2],
                                           wEta[2], wPhi[2],
-                                          useChargeMatching[2])
+                                          useChargeMatching[2], debug)
             # Different track finders, barrel/overlap. Possibilities:
             # 1. Trivially beighbours
             # 2. At wrap around edge
@@ -142,7 +160,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                   ((processor1 == 1) and (processor2 == 5))):
                 match = checkMatchQuality(evt, i, j, dRcut[3],
                                           wEta[3], wPhi[3],
-                                          useChargeMatching[3])
+                                          useChargeMatching[3], debug)
             elif((tfType1 == 1) and (tfType2 == 0)) and \
                 ((processor2 == 2*processor1) or
                  (processor2 == 2*processor1+1) or
@@ -152,7 +170,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                  ((processor2 == 1) and (processor1 == 5))):
                 match = checkMatchQuality(evt, i, j, dRcut[3],
                                           wEta[3], wPhi[3],
-                                          useChargeMatching[3])
+                                          useChargeMatching[3], debug)
             # Different track finders, endcap/overlap. Possibilities:
             # 1. Trivially neighbours
             # 2. At wrap around edge
@@ -164,7 +182,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut[4],
                                           wEta[4], wPhi[4],
-                                          useChargeMatching[4])
+                                          useChargeMatching[4], debug)
             elif ((tfType1 == 2) and (tfType2 == 1)) and \
                  ((processor1 == processor2+1) or
                   (processor1 == processor2-1) or
@@ -173,7 +191,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None):
                   ((processor2 == 5) and (processor1 == 0))):
                 match = checkMatchQuality(evt, i, j, dRcut[4],
                                           wEta[4], wPhi[4],
-                                          useChargeMatching[4])
+                                          useChargeMatching[4], debug)
 
             if match is True:
                 cancelledWqual, cancelledWpt = findCancelMus(evt, i, j)
@@ -239,7 +257,7 @@ def getUGmtMuons(evt, cancelledMuons):
 
 
 def analyse(evt, gmt_content_list, ugmt_content_list,
-            dRcut, wEta, wPhi, useChargeMatching):
+            dRcut, wEta, wPhi, useChargeMatching, debug=False):
     count = 0
     for pdgId in evt.gen.id:
         if abs(pdgId) == 13:
@@ -256,7 +274,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
         trailingMu = -1
     leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
     highQualMuons, minPtMuons = doCancelOut(evt, dRcut, wEta, wPhi,
-                                            useChargeMatching)
+                                            useChargeMatching, debug)
     leadingUGmtMu_pt, trailingUGmtMu_pt, nL1Mus_pt = getUGmtMuons(evt,
                                                                   minPtMuons)
     leadingUGmtMu_q, trailingUGmtMu_q, nL1Mus_q = getUGmtMuons(evt,
@@ -564,6 +582,9 @@ def main():
         event = ntuple[i]
         if (i+1) % 1000 == 0:
             L1Ana.log.info("Processing event: {n}".format(n=i))
+            debug = True
+        else:
+            debug = False
 
         for cuts, ugmt_file, ugmt_tuple in zip(cutList, ugmt_files,
                                                ugmt_ntuples):
@@ -571,7 +592,7 @@ def main():
                                                             gmt_content_list,
                                                             ugmt_content_list,
                                                             cuts[1], cuts[2],
-                                                            cuts[3], cuts[4])
+                                                            cuts[3], cuts[4], debug)
 
             ugmt_file.cd()
             ugmt_tuple.Fill(ugmt_ntuple_values)
