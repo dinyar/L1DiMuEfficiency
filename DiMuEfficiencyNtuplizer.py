@@ -37,6 +37,7 @@ cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
                       useChargeMatching=False, debug=False):
     if debug is True:
+        print "In checkMatchQuality"
         print "evt: ", evt
         print "mu1: ", mu1
         print "mu1_eta: ", evt.ugmt.eta[mu1]
@@ -85,6 +86,7 @@ def findCancelMus(evt, mu1, mu2):
 def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None,
                 debug=False):
     if debug is True:
+        print "In doCancelOut"
         print "evt: ", evt
         print "dRcut: ", dRcut
         print "wEta: ", wEta
@@ -586,7 +588,7 @@ def main():
             print 80*'#'
             print "Debugging event"
             print 80*'#'
-            print cuts
+            print cutList
         else:
             debug = False
 
