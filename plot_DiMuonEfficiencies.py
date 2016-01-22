@@ -25,6 +25,13 @@ gmtCuts["bmtf"] = ["(tfType1_pt==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1_pt==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
 
+gmtCuts["diBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==0))", "diBmtf"]
+gmtCuts["diOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==1))", "diOmtf"]
+gmtCuts["diEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==2))", "diEmtf"]
+gmtCuts["diBOmtf"] = ["(((tfType1_pt==0) && (tfType2_pt==1)) || ((tfType1_pt==1) && (tfType2_pt==0)))", "diBOmtf"]
+gmtCuts["diEOmtf"] = ["(((tfType1_pt==1) && (tfType2_pt==2)) || ((tfType1_pt==2) && (tfType2_pt==1)))", "diEOmtf"]
+
+
 # TODO: Do these plots also for maxQual!
 
 efficiencyList = []
@@ -224,13 +231,9 @@ for varList in ghostListWOgmt:
 
 
 resolution_check_ntuple = []
-resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
-resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
-resolution_check_ntuple.append("uGMTSingleMuNtuple.root")
+resolution_check_ntuple.extend(3*["uGMTSingleMuNtuple.root"])
 resolution_check_ntuple_name = []
-resolution_check_ntuple_name.append("ugmt_ntuple")
-resolution_check_ntuple_name.append("ugmt_ntuple")
-resolution_check_ntuple_name.append("ugmt_ntuple")
+resolution_check_ntuple_name.extend(3*["ugmt_ntuple"])
 resolution_check_dlabel = []
 resolution_check_dlabel.append(["All muons", "BMTF muons", "uGMT"])
 resolution_check_dlabel.append(["All muons", "OMTF muons", "uGMT"])
@@ -256,3 +259,39 @@ for varList in resolutionCheckList:
                                    resolution_check_dlabel,
                                    resolution_check_line_colour,
                                    resolution_check_cuts, "resolution_check")
+
+ghost_distance_ntuple = []
+ghost_distance_ntuple.extend(5*["uGMTSingleMuNtuple.root"])
+ghost_distance_ntuple_name = []
+ghost_distance_ntuple_name.extend(5*["ugmt_ntuple"])
+ghost_distance_dlabel = []
+ghost_distance_dlabel.append(["All muons", "BMTF muons", "uGMT"])
+ghost_distance_dlabel.append(["All muons", "OMTF muons", "uGMT"])
+ghost_distance_dlabel.append(["All muons", "EMTF muons", "uGMT"])
+ghost_distance_dlabel.append(["All muons", "BMTF+OMTF overlap muons", "uGMT"])
+ghost_distance_dlabel.append(["All muons", "EMTF+OMTF overlap muons", "uGMT"])
+ghost_distance_line_colour = []
+ghost_distance_line_colour.append(30)
+ghost_distance_line_colour.append(36)
+ghost_distance_line_colour.append(48)
+ghost_distance_line_colour.append(8)
+ghost_distance_line_colour.append(28)
+ghost_distance_cuts = []
+ghost_distance_cuts.append(gmtCuts["diBmtf"])
+ghost_distance_cuts.append(gmtCuts["diOmtf"])
+ghost_distance_cuts.append(gmtCuts["diEmtf"])
+ghost_distance_cuts.append(gmtCuts["diBOmtf"])
+ghost_distance_cuts.append(gmtCuts["diEOmtf"])
+ghostDistanceList = []
+ghostDistanceList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Ghost})"],
+                          binningDict["distSym"], "phi1_pt-phi2_pt",
+                          genCuts["mu-pt1"], [0, 1.2]])
+ghostDistanceList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Ghost})"],
+                          binningDict["distSym"], "eta1_pt-eta2_pt",
+                          genCuts["mu-pt1"], [0, 1.2]])
+for varList in ghostDistanceList:
+    generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
+                                   ghost_distance_ntuple_name,
+                                   ghost_distance_dlabel,
+                                   ghost_distance_line_colour,
+                                   ghost_distance_cuts, "ghost_distance")
