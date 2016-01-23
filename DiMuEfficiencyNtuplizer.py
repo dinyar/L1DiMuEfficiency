@@ -13,6 +13,7 @@ import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
 parser.add_argument("--NgenMu", dest="NgenMu", type=int, help="Number of generated muons to expect in input file.")
+parser.add_argument("--debug", dest="debugging", default='False', action='store_true', help="Debugging mode.")
 opts = parser.parse_args()
 
 NgenMu = opts.NgenMu
@@ -25,7 +26,7 @@ cutList.append(["", None, None, None, None])
 cutList.append(["-dR0_3", 5*[0.3], 5*[1], 5*[1], 5*[False]])
 cutList.append(["-dR0_1", 5*[0.1], 5*[1], 5*[1], 5*[False]])
 cutList.append(["-dR0_1-BMTFOMTFchargeMatch", 5*[0.1], 5*[1], 5*[1],
-               [True, True, False, True, False]])
+                [True, True, False, True, False]])
 cutList.append(["-dR0_05", 5*[0.05], 5*[1], 5*[1], 5*[False]])
 cutList.append(["-dR0_01", 5*[0.01], 5*[1], 5*[1], 5*[False]])
 cutList.append(["-dR0_01-OMTF_dR0_1_chargeMatch",
@@ -594,11 +595,14 @@ def main():
         event = ntuple[i]
         if (i+1) % 1000 == 0:
             L1Ana.log.info("Processing event: {n}".format(n=i))
-            debug = True
-            print 80*'#'
-            print "Debugging event"
-            print 80*'#'
-            print cutList
+            if opts.debugging is True:
+                debug = True
+                print 80*'#'
+                print "Debugging event"
+                print 80*'#'
+                print cutList
+            else:
+                debug = False
         else:
             debug = False
 
