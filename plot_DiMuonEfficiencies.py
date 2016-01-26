@@ -25,6 +25,10 @@ gmtCuts["bmtf"] = ["(tfType1_pt==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1_pt==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
 
+gmtCuts["singleBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==-11)", "bmtf"]
+gmtCuts["singleOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==-11)", "omtf"]
+gmtCuts["singleEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==-11)", "emtf"]
+
 gmtCuts["diBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==0))", "diBmtf"]
 gmtCuts["diOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==1))", "diOmtf"]
 gmtCuts["diEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==2))", "diEmtf"]
@@ -257,9 +261,9 @@ resolution_check_line_colour.append(30)
 resolution_check_line_colour.append(36)
 resolution_check_line_colour.append(48)
 resolution_check_cuts = []
-resolution_check_cuts.append(gmtCuts["bmtf"])
-resolution_check_cuts.append(gmtCuts["omtf"])
-resolution_check_cuts.append(gmtCuts["emtf"])
+resolution_check_cuts.append(gmtCuts["singleBmtf"])
+resolution_check_cuts.append(gmtCuts["singleOmtf"])
+resolution_check_cuts.append(gmtCuts["singleEmtf"])
 resolutionCheckList = []
 resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "phi1_pt-phi1_gen",
