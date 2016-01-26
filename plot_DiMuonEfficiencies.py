@@ -25,9 +25,9 @@ gmtCuts["bmtf"] = ["(tfType1_pt==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1_pt==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
 
-gmtCuts["singleBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==-11)", "bmtf"]
-gmtCuts["singleOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==-11)", "omtf"]
-gmtCuts["singleEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==-11)", "emtf"]
+gmtCuts["singleBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==-11))", "bmtf"]
+gmtCuts["singleOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==-11))", "omtf"]
+gmtCuts["singleEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==-11))", "emtf"]
 
 gmtCuts["diBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==0))", "diBmtf"]
 gmtCuts["diOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==1))", "diOmtf"]
@@ -149,9 +149,9 @@ for varList in efficiencyList:
 
 
 ccntuple = []
-ccntuple.append("uGMTDimuonNtuple.root")
-ccntuple.append("uGMTDimuonNtuple.root")
-ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.append("uGMTSingleMuNtuple.root")
+ccntuple.append("uGMTSingleMuNtuple.root")
+ccntuple.append("uGMTSingleMuNtuple.root")
 ccntuple_name = []
 ccntuple_name.append("ugmt_ntuple")
 ccntuple_name.append("ugmt_ntuple")
