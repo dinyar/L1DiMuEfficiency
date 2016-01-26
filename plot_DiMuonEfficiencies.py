@@ -149,9 +149,9 @@ for varList in efficiencyList:
 
 
 ccntuple = []
-ccntuple.append("uGMTSingleMuNtuple.root")
-ccntuple.append("uGMTSingleMuNtuple.root")
-ccntuple.append("uGMTSingleMuNtuple.root")
+ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.append("uGMTDimuonNtuple.root")
 ccntuple_name = []
 ccntuple_name.append("ugmt_ntuple")
 ccntuple_name.append("ugmt_ntuple")
