@@ -34,6 +34,7 @@ gmtCuts["diOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==1))", "diOmtf"]
 gmtCuts["diEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==2))", "diEmtf"]
 gmtCuts["diBOmtf"] = ["(((tfType1_pt==0) && (tfType2_pt==1)) || ((tfType1_pt==1) && (tfType2_pt==0)))", "diBOmtf"]
 gmtCuts["diEOmtf"] = ["(((tfType1_pt==1) && (tfType2_pt==2)) || ((tfType1_pt==2) && (tfType2_pt==1)))", "diEOmtf"]
+gmtCuts["diBEmtf"] = ["(((tfType1_pt==0) && (tfType2_pt==2)) || ((tfType1_pt==2) && (tfType2_pt==0)))", "diBEmtf"]
 
 
 # TODO: Do these plots also for maxQual!
@@ -83,7 +84,7 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 
 jpsi_ntuples = []
 jpsi_ntuples.append("GMTDimuonNtuple.root")
-jpsi_ugmt_ntuples= []
+jpsi_ugmt_ntuples = []
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
@@ -149,13 +150,9 @@ for varList in efficiencyList:
 
 
 ccntuple = []
-ccntuple.append("uGMTDimuonNtuple.root")
-ccntuple.append("uGMTDimuonNtuple.root")
-ccntuple.append("uGMTDimuonNtuple.root")
+ccntuple.extend(3*["uGMTDimuonNtuple.root"])
 ccntuple_name = []
-ccntuple_name.append("ugmt_ntuple")
-ccntuple_name.append("ugmt_ntuple")
-ccntuple_name.append("ugmt_ntuple")
+ccntuple_name.extend(3*["ugmt_ntuple"])
 ccdlabel = []
 ccdlabel.append(["All muons", "BMTF muons", "uGMT"])
 ccdlabel.append(["All muons", "OMTF muons", "uGMT"])
@@ -282,12 +279,12 @@ ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(5*["uGMTSingleMuNtuple.root"])
 ghost_distance_ntuple_name = []
 ghost_distance_ntuple_name.extend(5*["ugmt_ntuple"])
-ghost_distance_dlabel = []
-ghost_distance_dlabel.append(["All muons", "BMTF muons", "uGMT"])
-ghost_distance_dlabel.append(["All muons", "OMTF muons", "uGMT"])
-ghost_distance_dlabel.append(["All muons", "EMTF muons", "uGMT"])
-ghost_distance_dlabel.append(["All muons", "BMTF+OMTF overlap muons", "uGMT"])
-ghost_distance_dlabel.append(["All muons", "EMTF+OMTF overlap muons", "uGMT"])
+ghost_distance_label = []
+ghost_distance_label.append(["All muons", "BMTF muons", "uGMT"])
+ghost_distance_label.append(["All muons", "OMTF muons", "uGMT"])
+ghost_distance_label.append(["All muons", "EMTF muons", "uGMT"])
+ghost_distance_label.append(["All muons", "BMTF+OMTF overlap muons", "uGMT"])
+ghost_distance_label.append(["All muons", "EMTF+OMTF overlap muons", "uGMT"])
 ghost_distance_line_colour = []
 ghost_distance_line_colour.append(30)
 ghost_distance_line_colour.append(36)
@@ -310,6 +307,40 @@ ghostDistanceList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Ghost})"],
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
                                    ghost_distance_ntuple_name,
-                                   ghost_distance_dlabel,
+                                   ghost_distance_label,
                                    ghost_distance_line_colour,
                                    ghost_distance_cuts, "ghost_distance")
+
+tf_eff_ntuples = []
+tf_eff_ntuples.extend(6*["uGMTDimuonNtuple.root"])
+# Di BMTF/OMTF/EMTF, BMTF+OMTF, OMTF+EMTF, BMTF+EMTF (cross-check)
+tf_eff_ntuple_names = []
+tf_eff_ntuple_names.extend(6*["ugmt_ntuple"])
+tf_eff_labels = []
+tf_eff_labels.append(["Gen muons", "GMT muons", "GMT"])
+tf_eff_labels.append(["Gen muons", "uGMT muons", "uGMT"])
+tf_eff_labels.append(["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
+tf_eff_labels.append(["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
+tf_eff_labels.append(["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
+tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT", "diBOMTF"])
+tf_eff_labels.append(["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
+tf_eff_labels.append(["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
+tf_eff_line_colours = []
+tf_eff_line_colours.append(46)
+tf_eff_line_colours.append(30)
+tf_eff_line_colours.append(38)
+tf_eff_line_colours.append(8)
+tf_eff_line_colours.append(28)
+tf_eff_line_colours.append(7)
+tf_eff_cuts = []
+tf_eff_cuts.append(gmtCuts["diBmtf"])
+tf_eff_cuts.append(gmtCuts["diOmtf"])
+tf_eff_cuts.append(gmtCuts["diEmtf"])
+tf_eff_cuts.append(gmtCuts["diBOmtf"])
+tf_eff_cuts.append(gmtCuts["diEOmtf"])
+tf_eff_cuts.append(gmtCuts["diBEmtf"])
+
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
+                                   tf_eff_ntuple_names, tf_eff_labels,
+                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff")
