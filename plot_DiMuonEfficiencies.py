@@ -237,12 +237,12 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF
 
 
 for varList in ghostListWgmt:
-    generateCombinedEfficiencyHist(varList, singleMu_ntuples, ntuple_names,
-                                   labels, line_colours, cuts, "singleMu")
+    generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
+                                  labels, line_colours, cuts, "singleMu")
 for varList in ghostListWOgmt:
-    generateCombinedEfficiencyHist(varList, singleMu_ntuples[1:],
-                                   ntuple_names[1:], labels[1:],
-                                   line_colours[1:], cuts[1:], "singleMu")
+    generateCombinedGhostPercHist(varList, singleMu_ntuples[1:],
+                                  ntuple_names[1:], labels[1:],
+                                  line_colours[1:], cuts[1:], "singleMu")
 
 
 resolution_check_ntuple = []
