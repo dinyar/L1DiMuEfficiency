@@ -175,7 +175,11 @@ for varList in chargeCheckList:
                                    cccuts, "charge_check")
 
 ghostListWOgmt = []
-# NOTE: If no L1 muon deltaR etc will be 0! This will lead to "inefficiencies".
+# TODO: Add plot with deltaPt.
+# NOTE: If no L1 muon at all deltaX will be 0! This will lead to "inefficiencies".
+# TODO: Because of not above exclude events without an L1 muon.
+# (we're not looking at efficiency, but ghost rate so we'd be underestimating ghost rate otherwise.)
+# basically we want to know which percentage of singleMu events would be "poisoned" by ghosts
 ghostListWOgmt.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(eta1_pt-eta2_pt)",
@@ -303,6 +307,9 @@ ghostDistanceList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Ghost})"],
                           genCuts["mu-pt1"], [0, 1.4]])
 ghostDistanceList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Ghost})"],
                           binningDict["distSym"], "eta1_pt-eta2_pt",
+                          genCuts["mu-pt1"], [0, 1.4]])
+ghostDistanceList.append([["ptResolution", "#Delta p_{T}(#mu_{L1}#mu_{Ghost})"],
+                          binningDict["pTdistSym"], "pT1_pt-pT2_pt",
                           genCuts["mu-pt1"], [0, 1.4]])
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
