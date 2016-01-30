@@ -309,7 +309,7 @@ ghostDistanceList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Ghost})"],
                           binningDict["distSym"], "eta1_pt-eta2_pt",
                           genCuts["mu-pt1"], [0, 1.4]])
 ghostDistanceList.append([["ptResolution", "#Delta p_{T}(#mu_{L1}#mu_{Ghost})"],
-                          binningDict["pTdistSym"], "pT1_pt-pT2_pt",
+                          binningDict["pt140Fine"], "pT1_pt-pT2_pt",
                           genCuts["mu-pt1"], [0, 1.4]])
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
