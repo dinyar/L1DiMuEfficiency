@@ -324,8 +324,6 @@ tf_eff_ntuples.extend(6*["uGMTDimuonNtuple.root"])
 tf_eff_ntuple_names = []
 tf_eff_ntuple_names.extend(6*["ugmt_ntuple"])
 tf_eff_labels = []
-tf_eff_labels.append(["Gen muons", "GMT muons", "GMT"])
-tf_eff_labels.append(["Gen muons", "uGMT muons", "uGMT"])
 tf_eff_labels.append(["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
 tf_eff_labels.append(["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
 tf_eff_labels.append(["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
