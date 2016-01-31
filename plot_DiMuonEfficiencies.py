@@ -319,9 +319,11 @@ for varList in ghostDistanceList:
                                    ghost_distance_cuts, "ghost_distance")
 
 tf_eff_ntuples = []
+tf_eff_ntuples.append("GMTDimuonNtuple.root")
 tf_eff_ntuples.extend(6*["uGMTDimuonNtuple.root"])
 # Di BMTF/OMTF/EMTF, BMTF+OMTF, OMTF+EMTF, BMTF+EMTF (cross-check)
 tf_eff_ntuple_names = []
+tf_eff_ntuple_names.append("gmt_ntuple")
 tf_eff_ntuple_names.extend(6*["ugmt_ntuple"])
 tf_eff_labels = []
 tf_eff_labels.append(["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
@@ -331,6 +333,7 @@ tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT", "diBOMTF"])
 tf_eff_labels.append(["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
 tf_eff_labels.append(["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
 tf_eff_line_colours = []
+tf_eff_line_colour.append(30)
 tf_eff_line_colours.append(46)
 tf_eff_line_colours.append(30)
 tf_eff_line_colours.append(38)
@@ -338,6 +341,7 @@ tf_eff_line_colours.append(8)
 tf_eff_line_colours.append(28)
 tf_eff_line_colours.append(7)
 tf_eff_cuts = []
+tf_eff_cuts.append(gmtCuts["gmt_diMu-pt1"])
 tf_eff_cuts.append(gmtCuts["diBmtf"])
 tf_eff_cuts.append(gmtCuts["diOmtf"])
 tf_eff_cuts.append(gmtCuts["diEmtf"])
