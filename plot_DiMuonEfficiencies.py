@@ -26,6 +26,8 @@ gmtCuts["omtf"] = ["(tfType1_pt==1)", "omtf"]
 gmtCuts["emtf"] = ["(tfType1_pt==2)", "emtf"]
 
 gmtCuts["singleBmtf"] = ["((tfType1_pt==0) && (tfType2_pt==-11))", "bmtf"]
+gmtCuts["singleBmtfEtaFine"] = ["((tfType1_pt==0) && (tfType2_pt==-11) && (hf1_pt==1))", "bmtfEtaFine"]
+gmtCuts["singleBmtfEtaCoarse"] = ["((tfType1_pt==0) && (tfType2_pt==-11) && (hf1_pt==0))", "bmtfEtaCoarse"]
 gmtCuts["singleOmtf"] = ["((tfType1_pt==1) && (tfType2_pt==-11))", "omtf"]
 gmtCuts["singleEmtf"] = ["((tfType1_pt==2) && (tfType2_pt==-11))", "emtf"]
 
@@ -250,19 +252,25 @@ for varList in ghostListWOgmt:
 
 
 resolution_check_ntuple = []
-resolution_check_ntuple.extend(3*["uGMTSingleMuNtuple.root"])
+resolution_check_ntuple.extend(5*["uGMTSingleMuNtuple.root"])
 resolution_check_ntuple_name = []
-resolution_check_ntuple_name.extend(3*["ugmt_ntuple"])
+resolution_check_ntuple_name.extend(len(resolution_check_ntuple)*["ugmt_ntuple"])
 resolution_check_dlabel = []
 resolution_check_dlabel.append(["All muons", "BMTF muons", "uGMT"])
+resolution_check_dlabel.append(["All muons", "BMTF muons, fine eta", "uGMT"])
+resolution_check_dlabel.append(["All muons", "BMTF muons, coarse eta", "uGMT"])
 resolution_check_dlabel.append(["All muons", "OMTF muons", "uGMT"])
 resolution_check_dlabel.append(["All muons", "EMTF muons", "uGMT"])
 resolution_check_line_colour = []
+resolution_check_line_colour.append(28)
 resolution_check_line_colour.append(30)
+resolution_check_line_colour.append(32)
 resolution_check_line_colour.append(36)
 resolution_check_line_colour.append(48)
 resolution_check_cuts = []
 resolution_check_cuts.append(gmtCuts["singleBmtf"])
+resolution_check_cuts.append(gmtCuts["singleBmtfEtaFine"])
+resolution_check_cuts.append(gmtCuts["singleBmtfEtaCoarse"])
 resolution_check_cuts.append(gmtCuts["singleOmtf"])
 resolution_check_cuts.append(gmtCuts["singleEmtf"])
 resolutionCheckList = []
