@@ -12,8 +12,10 @@ opts, parser = parse_options_and_init_log()
 import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
-parser.add_argument("--NgenMu", dest="NgenMu", type=int, help="Number of generated muons to expect in input file.")
-parser.add_argument("--debug", dest="debugging", default='False', action='store_true', help="Debugging mode.")
+parser.add_argument("--NgenMu", dest="NgenMu", type=int,
+                    help="Number of generated muons to expect in input file.")
+parser.add_argument("--debug", dest="debugging", default='False',
+                    action='store_true', help="Debugging mode.")
 opts = parser.parse_args()
 
 NgenMu = opts.NgenMu
@@ -355,11 +357,16 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
     for ugmtVar in ugmt_content_list:
         # CAVEAT: This works only as long as uGMT doesn't perform cancel out
         if ugmtVar == "N":
-            ugmt_content.append(evt.ugmt.n)
+            ugmt_content.append(nL1Mus_pt)
         elif ugmtVar == "pT1_pt" and (nL1Mus_pt > 0):
             ugmt_content.append(evt.ugmt.pt[leadingUGmtMu_pt])
         elif ugmtVar == "eta1_pt" and (nL1Mus_pt > 0):
             ugmt_content.append(evt.ugmt.eta[leadingUGmtMu_pt])
+        elif ugmtVar == "hf1_pt" and (nL1Mus_pt > 0):
+            if evt.ugmt.hf[leadingUGmtMu_pt] is True:
+                ugmt_content.append(1)
+            else:
+                ugmt_content.append(0)
         elif ugmtVar == "phi1_pt" and (nL1Mus_pt > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_pt])
         elif ugmtVar == "qual1_pt" and (nL1Mus_pt > 0):
@@ -382,6 +389,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu_pt])
         elif (ugmtVar == "eta2_pt") and (nL1Mus_pt > 1):
             ugmt_content.append(evt.ugmt.eta[trailingUGmtMu_pt])
+        elif (ugmtVar == "hf2_pt") and (nL1Mus_pt > 1):
+            if evt.ugmt.hf[trailingUGmtMu_pt] is True:
+                ugmt_content.append(1)
+            else:
+                ugmt_content.append(0)
         elif (ugmtVar == "phi2_pt") and (nL1Mus_pt > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_pt])
         elif (ugmtVar == "qual2_pt") and (nL1Mus_pt > 1):
@@ -404,6 +416,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
             ugmt_content.append(evt.ugmt.pt[leadingUGmtMu_q])
         elif ugmtVar == "eta1_q" and (nL1Mus_q > 0):
             ugmt_content.append(evt.ugmt.eta[leadingUGmtMu_q])
+        elif ugmtVar == "hf1_q" and (nL1Mus_q > 0):
+            if evt.ugmt.hf[leadingUGmtMu_q] is True:
+                ugmt_content.append(1)
+            else:
+                ugmt_content.append(0)
         elif ugmtVar == "phi1_q" and (nL1Mus_q > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_q])
         elif ugmtVar == "qual1_q" and (nL1Mus_q > 0):
@@ -426,6 +443,11 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu_q])
         elif (ugmtVar == "eta2_q") and (nL1Mus_q > 1):
             ugmt_content.append(evt.ugmt.eta[trailingUGmtMu_q])
+        elif (ugmtVar == "hf2_q") and (nL1Mus_q > 1):
+            if evt.ugmt.hf[trailingUGmtMu_q] is True:
+                ugmt_content.append(1)
+            else:
+                ugmt_content.append(0)
         elif (ugmtVar == "phi2_q") and (nL1Mus_q > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_q])
         elif (ugmtVar == "qual2_q") and (nL1Mus_q > 1):
@@ -510,7 +532,9 @@ def generate_content_lists():
     ugmt.append("pT1_pt")
     ugmt.append("pT2_pt")
     ugmt.append("eta1_pt")
+    ugmt.append("hf1_pt")
     ugmt.append("eta2_pt")
+    ugmt.append("hf2_pt")
     ugmt.append("phi1_pt")
     ugmt.append("phi2_pt")
     ugmt.append("qual1_pt")
@@ -526,7 +550,9 @@ def generate_content_lists():
     ugmt.append("pT1_q")
     ugmt.append("pT2_q")
     ugmt.append("eta1_q")
+    ugmt.append("hf1_q")
     ugmt.append("eta2_q")
+    ugmt.append("hf2_q")
     ugmt.append("phi1_q")
     ugmt.append("phi2_q")
     ugmt.append("qual1_q")
