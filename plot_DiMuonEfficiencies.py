@@ -334,7 +334,7 @@ tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT", "diBOMTF"])
 tf_eff_labels.append(["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
 tf_eff_labels.append(["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
 tf_eff_line_colours = []
-tf_eff_line_colours.append(30)
+tf_eff_line_colours.append(0)
 tf_eff_line_colours.append(46)
 tf_eff_line_colours.append(30)
 tf_eff_line_colours.append(38)
