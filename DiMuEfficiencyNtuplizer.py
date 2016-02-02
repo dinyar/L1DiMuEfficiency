@@ -365,10 +365,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
         elif ugmtVar == "hf1_pt" and (nL1Mus_pt > 0):
             tfType = evt.ugmt.tfLink[leadingUGmtMu_pt].tf
             tfIdx = evt.ugmt.tfLink[leadingUGmtMu_pt].idx
-            if evt.ugmt.tfInfo[tfType].hf[tfIdx] is True:
-                ugmt_content.append(1)
-            else:
-                ugmt_content.append(0)
+            ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
         elif ugmtVar == "phi1_pt" and (nL1Mus_pt > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_pt])
         elif ugmtVar == "qual1_pt" and (nL1Mus_pt > 0):
@@ -394,10 +391,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
         elif (ugmtVar == "hf2_pt") and (nL1Mus_pt > 1):
             tfType = evt.ugmt.tfLink[trailingUGmtMu_pt].tf
             tfIdx = evt.ugmt.tfLink[trailingUGmtMu_pt].idx
-            if evt.ugmt.tfInfo[tfType].hf[tfIdx] is True:
-                ugmt_content.append(1)
-            else:
-                ugmt_content.append(0)
+            ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
         elif (ugmtVar == "phi2_pt") and (nL1Mus_pt > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_pt])
         elif (ugmtVar == "qual2_pt") and (nL1Mus_pt > 1):
@@ -423,10 +417,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
         elif ugmtVar == "hf1_q" and (nL1Mus_q > 0):
             tfType = evt.ugmt.tfLink[leadingUGmtMu_q].tf
             tfIdx = evt.ugmt.tfLink[leadingUGmtMu_q].idx
-            if evt.ugmt.tfInfo[tfType].hf[tfIdx] is True:
-                ugmt_content.append(1)
-            else:
-                ugmt_content.append(0)
+            ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
         elif ugmtVar == "phi1_q" and (nL1Mus_q > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu_q])
         elif ugmtVar == "qual1_q" and (nL1Mus_q > 0):
@@ -452,10 +443,7 @@ def analyse(evt, gmt_content_list, ugmt_content_list,
         elif (ugmtVar == "hf2_q") and (nL1Mus_q > 1):
             tfType = evt.ugmt.tfLink[trailingUGmtMu_q].tf
             tfIdx = evt.ugmt.tfLink[trailingUGmtMu_q].idx
-            if evt.ugmt.tfInfo[tfType].hf[tfIdx] is True:
-                ugmt_content.append(1)
-            else:
-                ugmt_content.append(0)
+            ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
         elif (ugmtVar == "phi2_q") and (nL1Mus_q > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu_q])
         elif (ugmtVar == "qual2_q") and (nL1Mus_q > 1):
