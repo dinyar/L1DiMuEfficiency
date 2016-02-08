@@ -187,47 +187,47 @@ ghostListWOgmt = []
 ghostListWOgmt.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(eta1_pt-eta2_pt)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(phi1_pt-phi2_pt)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "abs(eta1_pt-eta2_pt)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "abs(phi1_pt-phi2_pt)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                        binningDict["etaFineRestr"], "eta1_pt",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                        binningDict["phiFineRestr"], "phi1_pt",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                        binningDict["pt140Fine"], "pT1_pt",
-                       genCuts["mu-pt1"], [0, 0.6]])
+                       genCuts["mu-pt1"], [0, 0.3]])
 
 ghostListWgmt = []
 ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
                       binningDict["etaFineRestr"], "eta1_gen",
-                      genCuts["mu-pt1"], [0, 0.6]])
+                      genCuts["mu-pt1"], [0, 0.3]])
 ghostListWgmt.append([["mu1_genPhi", "#phi(#mu)"],
                       binningDict["phiFineRestr"], "phi1_gen",
-                      genCuts["mu-pt1"], [0, 0.6]])
+                      genCuts["mu-pt1"], [0, 0.3]])
 ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                       binningDict["pt140Fine"], "pT1_gen",
-                      genCuts["mu-pt1"], [0, 0.6]])
+                      genCuts["mu-pt1"], [0, 0.3]])
 
 singleMu_ntuples = []
 singleMu_ntuples.append(gmt_singleMu_file)
