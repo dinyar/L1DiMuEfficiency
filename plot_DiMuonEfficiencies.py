@@ -84,18 +84,20 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
 
+gmt_singleMu_file = "GMTSingleMuNtuple.root"
+gmt_dimu_file = "GMTDimuonNtuple.root"
+ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "uGMTDimuonNtuple.root"
+
 jpsi_ntuples = []
-jpsi_ntuples.append("GMTDimuonNtuple.root")
+jpsi_ntuples.append(gmt_dimu_file)
 jpsi_ugmt_ntuples = []
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple.root")
+jpsi_ugmt_ntuples.append(ugmt_dimu_file)
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1-BMTFOMTFchargeMatch.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01.root")
-# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
-# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
-# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-OMTF_dR0_3.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
 jpsi_ntuples.extend(jpsi_ugmt_ntuples)
@@ -152,7 +154,7 @@ for varList in efficiencyList:
 
 
 ccntuple = []
-ccntuple.extend(3*["uGMTDimuonNtuple.root"])
+ccntuple.extend(3*[ugmt_dimu_file])
 ccntuple_name = []
 ccntuple_name.extend(3*["ugmt_ntuple"])
 ccdlabel = []
@@ -185,51 +187,51 @@ ghostListWOgmt = []
 ghostListWOgmt.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(eta1_pt-eta2_pt)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "abs(phi1_pt-phi2_pt)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
                        binningDict["distVeryWide"],
                        "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "abs(eta1_pt-eta2_pt)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "abs(phi1_pt-phi2_pt)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
                        binningDict["distNarrow"],
                        "sqrt((eta1_pt-eta2_pt)**2+(phi1_pt-phi2_pt)**2)",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                        binningDict["etaFineRestr"], "eta1_pt",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                        binningDict["phiFineRestr"], "phi1_pt",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                        binningDict["pt140Fine"], "pT1_pt",
-                       genCuts["mu-pt1"], [0, 1.4]])
+                       genCuts["mu-pt1"], [0, 0.6]])
 
 ghostListWgmt = []
 ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
                       binningDict["etaFineRestr"], "eta1_gen",
-                      genCuts["mu-pt1"], [0, 1.4]])
+                      genCuts["mu-pt1"], [0, 0.6]])
 ghostListWgmt.append([["mu1_genPhi", "#phi(#mu)"],
                       binningDict["phiFineRestr"], "phi1_gen",
-                      genCuts["mu-pt1"], [0, 1.4]])
+                      genCuts["mu-pt1"], [0, 0.6]])
 ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                       binningDict["pt140Fine"], "pT1_gen",
-                      genCuts["mu-pt1"], [0, 1.4]])
+                      genCuts["mu-pt1"], [0, 0.6]])
 
 singleMu_ntuples = []
-singleMu_ntuples.append("GMTSingleMuNtuple.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple.root")
+singleMu_ntuples.append(gmt_singleMu_file)
+singleMu_ntuples.append(ugmt_singleMu_file)
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1-BMTFOMTFchargeMatch.root")
@@ -252,7 +254,7 @@ for varList in ghostListWOgmt:
 
 
 resolution_check_ntuple = []
-resolution_check_ntuple.extend(5*["uGMTSingleMuNtuple.root"])
+resolution_check_ntuple.extend(5*[ugmt_singleMu_file])
 resolution_check_ntuple_name = []
 resolution_check_ntuple_name.extend(len(resolution_check_ntuple)*["ugmt_ntuple"])
 resolution_check_dlabel = []
@@ -288,7 +290,7 @@ for varList in resolutionCheckList:
                                    resolution_check_cuts, "resolution_check")
 
 ghost_distance_ntuple = []
-ghost_distance_ntuple.extend(5*["uGMTSingleMuNtuple.root"])
+ghost_distance_ntuple.extend(5*[ugmt_singleMu_file])
 ghost_distance_ntuple_name = []
 ghost_distance_ntuple_name.extend(5*["ugmt_ntuple"])
 ghost_distance_label = []
@@ -327,8 +329,8 @@ for varList in ghostDistanceList:
                                    ghost_distance_cuts, "ghost_distance")
 
 tf_eff_ntuples = []
-tf_eff_ntuples.append("GMTDimuonNtuple.root")
-tf_eff_ntuples.extend(6*["uGMTDimuonNtuple.root"])
+tf_eff_ntuples.append(gmt_dimu_file)
+tf_eff_ntuples.extend(6*[ugmt_dimu_file])
 # Di BMTF/OMTF/EMTF, BMTF+OMTF, OMTF+EMTF, BMTF+EMTF (cross-check)
 tf_eff_ntuple_names = []
 tf_eff_ntuple_names.append("gmt_ntuple")
