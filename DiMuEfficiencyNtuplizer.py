@@ -40,13 +40,19 @@ cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
 cutList.append(["-dR0_01-OMTF_dR0_3",
                 [0.01, 0.3, 0.01, 0.01, 0.01],
                 5*[1], 5*[1], [False, False, False, False, False]])
-# TODO: Use charge matching between TFs as soon as this is fixed in the emulator.
+# TODO: Use charge matching between TFs when this is fixed in the emulator
 cutList.append(["-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1",
                 [0.01, 0.01, 0.01, 0.3, 0.1],
                 5*[1], 5*[1], [False, False, False, False, False]])
 cutList.append(["-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1",
                 [0.01, 0.01, 0.01, 0.3, 0.1],
                 5*[1], 5*[1], [False, False, False, True, False]])
+cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.2, 0.05],
+                5*[1], [2, 2, 1, 4, 1], [False, False, False, False, False]])
+cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.2, 0.05],
+                5*[1], [2, 2, 1, 4, 1], [True, True, False, True, False]])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
@@ -634,7 +640,8 @@ def main():
                                                             gmt_content_list,
                                                             ugmt_content_list,
                                                             cuts[1], cuts[2],
-                                                            cuts[3], cuts[4], debug)
+                                                            cuts[3], cuts[4],
+                                                            debug)
 
             ugmt_file.cd()
             ugmt_tuple.Fill(ugmt_ntuple_values)
