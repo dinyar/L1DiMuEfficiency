@@ -135,6 +135,15 @@ labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 match charges and #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
                "dR0-01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #Delta#phi<0.05,\
+#Delta#eta<0.1; #Delta#eta<0.2 in BMTF/OMTF, #DeltaEta<0.05 in EMTF/OMTF\
+and EMTF",
+               "uGMT", "dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05"])
+labels.append(["Gen muons", "uGMT muons w/ cancel-out #Delta#phi<0.05,\
+#Delta#eta<0.1; charge match in BMTF+OMTF, charge match and #Delta#eta<0.2\
+in BMTF/OMTF, #DeltaEta<0.05 in EMTF/OMTF and EMTF",
+               "uGMT",
+               "dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05"])
 
 line_colours = []
 line_colours.append(1)
@@ -146,6 +155,8 @@ line_colours.append(28)
 line_colours.append(7)
 line_colours.append(9)
 line_colours.append(32)
+line_colours.append(35)
+line_colours.append(42)
 cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1"])
 cuts.extend(len(jpsi_ugmt_ntuples)*[gmtCuts["ugmt_diMu-pt1_pTmin"]])
@@ -291,7 +302,8 @@ for varList in resolutionCheckList:
                                    resolution_check_ntuple_name,
                                    resolution_check_dlabel,
                                    resolution_check_line_colour,
-                                   resolution_check_cuts, "resolution_check")
+                                   resolution_check_cuts, "resolution_check",
+                                   False)
 
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(5*[ugmt_singleMu_file])
