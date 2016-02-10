@@ -100,6 +100,8 @@ jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
+jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05.root")
+jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05.root")
 jpsi_ntuples.extend(jpsi_ugmt_ntuples)
 
 ntuple_names = []
@@ -242,6 +244,8 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05.root")
 
 
 for varList in ghostListWgmt:
