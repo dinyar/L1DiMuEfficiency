@@ -297,10 +297,10 @@ resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
 resolutionCheckList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "eta1_pt-eta1_gen",
                             genCuts["mu-pt1"], [0, 1.4]])
-resolutionCheckList.append([["etaResolution", "#eta(#mu_{L1})"],
+resolutionCheckList.append([["mu1_l1Eta", "#eta(#mu_{L1})"],
                             binningDict["etaFineRestr"], "eta1_pt",
                             genCuts["mu-pt1"], [0, 1.4]])
-resolutionCheckList.append([["etaResolution", "#eta(#mu_{Gen})"],
+resolutionCheckList.append([["mu1_genEta", "#eta(#mu_{Gen})"],
                             binningDict["etaFineRestr"], "eta1_gen",
                             genCuts["mu-pt1"], [0, 1.4]])
 for varList in resolutionCheckList:
