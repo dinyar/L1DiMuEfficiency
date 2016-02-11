@@ -380,3 +380,18 @@ for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
                                    tf_eff_ntuple_names, tf_eff_labels,
                                    tf_eff_line_colours, tf_eff_cuts, "tf_eff")
+
+
+tf_ghosts_ntuples = []
+tf_ghosts_ntuples.append(gmt_singleMu_file)
+tf_ghosts_ntuples.extend(6*[ugmt_singleMu_file])
+
+for varList in ghostListWgmt:
+    generateCombinedEfficiencyHist(varList, tf_ghosts_ntuples,
+                                   tf_eff_ntuple_names, tf_eff_labels,
+                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff")
+for varList in ghostListWOgmt:
+    generateCombinedEfficiencyHist(varList, tf_ghosts_ntuples[1:],
+                                   tf_eff_ntuple_names[1:], tf_eff_labels[1:],
+                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
+                                   "tf_eff")
