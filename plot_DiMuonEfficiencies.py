@@ -297,6 +297,12 @@ resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
 resolutionCheckList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "eta1_pt-eta1_gen",
                             genCuts["mu-pt1"], [0, 1.4]])
+resolutionCheckList.append([["etaResolution", "#eta(#mu_{L1})"],
+                            binningDict["etaFineRestr"], "eta1_pt",
+                            genCuts["mu-pt1"], [0, 1.4]])
+resolutionCheckList.append([["etaResolution", "#eta(#mu_{Gen})"],
+                            binningDict["etaFineRestr"], "eta1_gen",
+                            genCuts["mu-pt1"], [0, 1.4]])
 for varList in resolutionCheckList:
     generateCombinedEfficiencyHist(varList, resolution_check_ntuple,
                                    resolution_check_ntuple_name,
@@ -389,9 +395,10 @@ tf_ghosts_ntuples.extend(6*[ugmt_singleMu_file])
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples,
                                   tf_eff_ntuple_names, tf_eff_labels,
-                                  tf_eff_line_colours, tf_eff_cuts, "tf_ghosts")
+                                  tf_eff_line_colours, tf_eff_cuts,
+                                  "tf_ghosts", False)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples[1:],
                                   tf_eff_ntuple_names[1:], tf_eff_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
-                                  "tf_ghosts")
+                                  "tf_ghosts", False)
