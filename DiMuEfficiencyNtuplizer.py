@@ -25,34 +25,34 @@ elif NgenMu == 2:
     ntupleName = "DimuonNtuple"
 cutList = []
 cutList.append(["", None, None, None, None])
-cutList.append(["-dR0_3", 5*[0.3], 5*[1], 5*[1], 5*[False]])
-cutList.append(["-dR0_1", 5*[0.1], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_3", 5*[0.3], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_1", 5*[0.1], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dR0_1-BMTFOMTFchargeMatch", 5*[0.1], 5*[1], 5*[1],
                 [True, True, False, True, False]])
-cutList.append(["-dR0_05", 5*[0.05], 5*[1], 5*[1], 5*[False]])
-cutList.append(["-dR0_01", 5*[0.01], 5*[1], 5*[1], 5*[False]])
+cutList.append(["-dR0_05", 5*[0.05], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_01", 5*[0.01], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dR0_01-OMTF_dR0_1_chargeMatch",
                 [0.01, 0.1, 0.01, 0.01, 0.01],
-                5*[1], 5*[1], [False, True, False, False, False]])
+                5*[[1]], 5*[1], [False, True, False, False, False]])
 cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
                 [0.01, 0.3, 0.01, 0.01, 0.01],
-                5*[1], 5*[1], [False, True, False, False, False]])
+                5*[[1]], 5*[1], [False, True, False, False, False]])
 cutList.append(["-dR0_01-OMTF_dR0_3",
                 [0.01, 0.3, 0.01, 0.01, 0.01],
-                5*[1], 5*[1], [False, False, False, False, False]])
+                5*[[1]], 5*[1], [False, False, False, False, False]])
 # TODO: Use charge matching between TFs when this is fixed in the emulator
 cutList.append(["-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1",
                 [0.01, 0.01, 0.01, 0.3, 0.1],
-                5*[1], 5*[1], [False, False, False, False, False]])
+                5*[[1]], 5*[1], [False, False, False, False, False]])
 cutList.append(["-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1",
                 [0.01, 0.01, 0.01, 0.3, 0.1],
-                5*[1], 5*[1], [False, False, False, True, False]])
+                5*[[1]], 5*[1], [False, False, False, True, False]])
 cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05",
                 [0.1, 0.1, 0.05, 0.2, 0.05],
-                5*[1], [2, 2, 1, 4, 1], [False, False, False, False, False]])
+                5*[[1]], [2, 2, 1, 4, 1], [False, False, False, False, False]])
 cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05",
                 [0.1, 0.1, 0.05, 0.2, 0.05],
-                5*[1], [2, 2, 1, 4, 1], [True, True, False, True, False]])
+                5*[[1]], [2, 2, 1, 4, 1], [True, True, False, True, False]])
 
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
@@ -73,10 +73,28 @@ def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
         if evt.ugmt.ch[mu1] != evt.ugmt.ch[mu2]:
             return False
 
-    dEta = wEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
+    if len(wEta) == 1:
+        weightEta = wEta[0]
+    elif len(wEta) == 2:
+        tf1 = evt.ugmt.tfLink[mu1].tf
+        tf2 = evt.ugmt.tfLink[mu2].tf
+        if (((evt.ugmt.tfInfo[tf1].hf[evt.ugmt.tfLink[mu1].idx] == 1)
+             and tf1 == 1) or
+            ((evt.ugmt.tfInfo[tf2].hf[evt.ugmt.tfLink[mu2].idx] == 1)
+             and tf2 == 1)):
+            # Eta find bit set.
+            weightEta = wEta[0]
+        else:
+            # Eta is coarse!
+            weightEta = wEta[1]
+    else:
+        print("WARNING: No value for wEta provided. Assuming '1'.")
+        weightEta = 1
+
+    dEta = weightEta * abs(evt.ugmt.eta[mu1]-evt.ugmt.eta[mu2])
     dPhi = wPhi * abs(evt.ugmt.phi[mu1]-evt.ugmt.phi[mu2])
 
-    dR = sqrt(wEta * dEta**2 + wPhi * dPhi**2)
+    dR = sqrt(dEta**2 + dPhi**2)
 
     if dR > dRcut:
         return False
@@ -113,7 +131,7 @@ def doCancelOut(evt, dRcut, wEta=None, wPhi=None, useChargeMatching=None,
         print "useChargeMatching: ", useChargeMatching
 
     if wEta is None:
-        wEta = [1, 1, 1, 1, 1]
+        wEta = [[1], [1], [1], [1], [1]]
     if wPhi is None:
         wPhi = [1, 1, 1, 1, 1]
     if useChargeMatching is None:
