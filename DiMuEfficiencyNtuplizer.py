@@ -61,6 +61,14 @@ cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_4_c
                 [0.1, 0.1, 0.05, 0.1, 0.05],
                 [[1, 0.25], [1], [1], [1, 0.25], [1]], [2, 2, 1, 2, 1],
                 [True, True, False, True, False]])
+cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.1, 0.1],
+                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
+                [False, False, False, False, False]])
+cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.1, 0.1],
+                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
+                [True, True, False, True, False]])
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
                       useChargeMatching=False, debug=False):
