@@ -258,7 +258,6 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF
 singleMu_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05.root")
 singleMu_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05.root")
 
-
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
                                   labels, line_colours, cuts, "singleMu")
@@ -400,5 +399,41 @@ for varList in ghostListWgmt:
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples[1:],
                                   tf_eff_ntuple_names[1:], tf_eff_labels[1:],
+                                  tf_eff_line_colours[1:], tf_eff_cuts[1:],
+                                  "tf_ghosts", False)
+
+
+tf_eff_wo_gb_ntuples = []
+tf_eff_wo_gb_ntuples.append(gmt_dimu_file)
+tf_eff_wo_gb_ntuples.extend(6*["uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_4-EOMTF_EMTF_dEta0_05.root"])
+tf_eff_wo_gb_labels = []
+tf_eff_wo_gb_labels.append(["Gen muons", "GMT muons", "GMT"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only BMTF muons", "uGMT", "diBMTF"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only OMTF muons", "uGMT", "diOMTF"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only EMTF muons", "uGMT", "diEMTF"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, BMTF+OMTF muons", "uGMT", "diBOMTF"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, OMTF+EMTF muons", "uGMT", "diOEMTF"])
+tf_eff_wo_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, BMTF+EMTF muons", "uGMT", "diBEMTF"])
+
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, tf_eff_wo_gb_ntuples,
+                                   tf_eff_ntuple_names, tf_eff_wo_gb_labels,
+                                   tf_eff_line_colours, tf_eff_cuts,
+                                   "tf_eff_wo_gb")
+
+
+tf_ghosts_wo_gb_ntuples = []
+tf_ghosts_wo_gb_ntuples.append(gmt_singleMu_file)
+tf_ghosts_wo_gb_ntuples.extend(6*["uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_4-EOMTF_EMTF_dEta0_05.root"])
+
+for varList in ghostListWgmt:
+    generateCombinedGhostPercHist(varList, tf_ghosts_wo_gb_ntuples,
+                                  tf_eff_ntuple_names, tf_eff_wo_gb_labels,
+                                  tf_eff_line_colours, tf_eff_cuts,
+                                  "tf_ghosts", False)
+for varList in ghostListWOgmt:
+    generateCombinedGhostPercHist(varList, tf_ghosts_wo_gb_ntuples[1:],
+                                  tf_eff_ntuple_names[1:],
+                                  tf_eff_wo_gb_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts", False)
