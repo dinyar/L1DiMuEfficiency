@@ -137,13 +137,13 @@ match charges and #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
                "dR0-01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #Delta#phi<0.05,\
 #Delta#eta<0.1; #DeltaEta<0.05 in EMTF/OMTF, \
-#DeltaEta<0.1 in  EMTF, #Delta#eta<0.3 in BMTF if no eta fine", 
+#DeltaEta<0.1 in  EMTF, #Delta#eta<0.3 in BMTF if no eta fine",
                "uGMT", "dPhi0_05dEta0_1-BOMTF_dEta0_3-EOMTF_dEta0_1-EMTF_dEta0_05"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #Delta#phi<0.05,\
 #Delta#eta<0.1; charge match in BMTF+OMTF, charge match and #DeltaEta<0.05\
  in EMTF/OMTF, #DeltaEta<0.1 in EMTF, #Delta#eta<0.3 in BMTF if no eta \
-fine", 
-               "uGMT", 
+fine",
+               "uGMT",
                "dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05"])
 
 line_colours = []
@@ -429,7 +429,7 @@ for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_w_gb_ntuples,
                                    tf_eff_ntuple_names, tf_eff_w_gb_labels,
                                    tf_eff_line_colours, tf_eff_cuts,
-                                   "tf_eff_wo_gb", drawGenMus=True,
+                                   "tf_eff_w_gb", drawGenMus=True,
                                    drawStackPlot=True)
 
 
@@ -450,4 +450,3 @@ for varList in ghostListWOgmt:
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts_w_gb", drawGenMus=False,
                                   drawStackPlot=True)
-
