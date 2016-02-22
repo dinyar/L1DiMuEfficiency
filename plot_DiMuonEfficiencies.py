@@ -99,9 +99,6 @@ jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1-BMTFOMTFchargeMatch.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 
@@ -193,7 +190,8 @@ chargeCheckList.append([["mu1_ch", "ch"],
 for varList in chargeCheckList:
     generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
                                    ccdlabel, cclc,
-                                   cccuts, "charge_check")
+                                   cccuts, "charge_check", drawGenMus=True,
+                                   drawStackPlot=True)
 
 ghostListWOgmt = []
 # TODO: Add plot with deltaPt.
@@ -312,7 +310,7 @@ for varList in resolutionCheckList:
                                    resolution_check_dlabel,
                                    resolution_check_line_colour,
                                    resolution_check_cuts, "resolution_check",
-                                   False)
+                                   drawGenMus=False, drawStackPlot=True)
 
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(5*[ugmt_singleMu_file])
@@ -351,7 +349,8 @@ for varList in ghostDistanceList:
                                    ghost_distance_ntuple_name,
                                    ghost_distance_label,
                                    ghost_distance_line_colour,
-                                   ghost_distance_cuts, "ghost_distance")
+                                   ghost_distance_cuts, "ghost_distance",
+                                   drawGenMus=True, drawStackPlot=True)
 
 tf_eff_ntuples = []
 tf_eff_ntuples.append(gmt_dimu_file)
@@ -391,7 +390,8 @@ tf_eff_cuts.append(gmtCuts["diBEmtf"])
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
                                    tf_eff_ntuple_names, tf_eff_labels,
-                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff")
+                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff",
+                                   drawGenMus=True, drawStackPlot=True)
 
 
 tf_ghosts_ntuples = []
@@ -402,12 +402,14 @@ for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples,
                                   tf_eff_ntuple_names, tf_eff_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
-                                  "tf_ghosts", False)
+                                  "tf_ghosts", drawGenMus=False,
+                                  drawStackPlot=True)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples[1:],
                                   tf_eff_ntuple_names[1:], tf_eff_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
-                                  "tf_ghosts", False)
+                                  "tf_ghosts", drawGenMus=False,
+                                  drawStackPlot=True)
 
 
 tf_eff_w_gb_ntuples = []
@@ -427,7 +429,8 @@ for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_w_gb_ntuples,
                                    tf_eff_ntuple_names, tf_eff_w_gb_labels,
                                    tf_eff_line_colours, tf_eff_cuts,
-                                   "tf_eff_w_gb")
+                                   "tf_eff_wo_gb", drawGenMus=True,
+                                   drawStackPlot=True)
 
 
 tf_ghosts_w_gb_ntuples = []
@@ -438,10 +441,13 @@ for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples,
                                   tf_eff_ntuple_names, tf_eff_w_gb_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
-                                  "tf_ghosts_w_gb", False)
+                                  "tf_ghosts_w_gb", drawGenMus=False,
+                                  drawStackPlot=True)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples[1:],
                                   tf_eff_ntuple_names[1:],
                                   tf_eff_w_gb_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
-                                  "tf_ghosts_w_gb", False)
+                                  "tf_ghosts_w_gb", drawGenMus=False,
+                                  drawStackPlot=True)
+
