@@ -29,7 +29,7 @@ cutList = []
 cutList.append(["", None, None, None, None])
 cutList.append(["-dR0_3", 5*[0.3], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dR0_1", 5*[0.1], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_1-BMTFOMTFchargeMatch", 5*[0.1], 5*[1], 5*[1],
+cutList.append(["-dR0_1-BMTFOMTFchargeMatch", 5*[0.1], 5*[[1]], 5*[1],
                 [True, True, False, True, False]])
 cutList.append(["-dR0_05", 5*[0.05], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dR0_01", 5*[0.01], 5*[[1]], 5*[1], 5*[False]])
