@@ -14,6 +14,8 @@ from L1Analysis import L1Ana, L1Ntuple
 
 parser.add_argument("--NgenMu", dest="NgenMu", type=int,
                     help="Number of generated muons to expect in input file.")
+parser.add_argument("--outDir", dest="outDir", default="ntuples", type=str,
+                    help="Directory to store flat tuples in.")
 parser.add_argument("--debug", dest="debugging", default='False',
                     action='store_true', help="Debugging mode.")
 opts = parser.parse_args()
@@ -68,6 +70,14 @@ cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-
 cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05",
                 [0.1, 0.1, 0.05, 0.1, 0.1],
                 [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
+                [True, True, False, True, False]])
+cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_05-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.05, 0.1],
+                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 1, 2],
+                [False, False, False, False, False]])
+cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_05-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05",
+                [0.1, 0.1, 0.05, 0.05, 0.1],
+                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 1, 2],
                 [True, True, False, True, False]])
 
 def checkMatchQuality(evt, mu1, mu2, dRcut, wEta, wPhi,
@@ -631,7 +641,10 @@ def main():
     gmt_content_string = ':'.join(gmt_content_list)
     ugmt_content_string = ':'.join(ugmt_content_list)
 
-    gmt_ntuple_fname = "GMT" + ntupleName + ".root"
+    if not os.path.exists(opts.outDir):
+        os.makedirs(opts.outDir)
+
+    gmt_ntuple_fname = opts.outDir + "/GMT" + ntupleName + ".root"
     gmt_f = root.TFile(gmt_ntuple_fname, 'recreate')
     gmt_f.cd()
     flat_gmt_tuple = root.TNtuple("gmt_ntuple", "ntupledump",
@@ -640,7 +653,7 @@ def main():
     ugmt_files = []
     ugmt_ntuples = []
     for cuts in cutList:
-        ugmt_ntuple_fname = "uGMT" + ntupleName + cuts[0] + ".root"
+        ugmt_ntuple_fname = opts.outDir + "/uGMT" + ntupleName + cuts[0] + ".root"
         ugmt_f = root.TFile(ugmt_ntuple_fname, 'recreate')
         ugmt_f.cd()
         flat_ugmt_tuple = root.TNtuple("ugmt_ntuple", "ntupledump",
