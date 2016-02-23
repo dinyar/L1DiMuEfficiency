@@ -1,17 +1,8 @@
 #!/usr/bin/python
 
-from ROOT import gROOT, kTRUE
 import sys
 import os
 import argparse
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                             "../L1AnalysisHelpers"))
-from CreateHistograms import (binningDict, generateCombinedGhostPercHist,
-                              generateCombinedEfficiencyHist)
-
-
-gROOT.Reset()
-gROOT.SetBatch(kTRUE)
 
 desc = ''
 parser = argparse.ArgumentParser(description=desc,
@@ -22,6 +13,16 @@ parser.add_argument('--qualityBasedCOU', default='False', action='store_true',
 parser.add_argument('--outDir', type=str, default='plots',
                     help='Folder to store plots in.')
 opts = parser.parse_args()
+
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                             "../L1AnalysisHelpers"))
+from CreateHistograms import (binningDict, generateCombinedGhostPercHist,
+                              generateCombinedEfficiencyHist)
+
+from ROOT import gROOT, kTRUE
+
+gROOT.Reset()
+gROOT.SetBatch(kTRUE)
 
 # Cut dicts
 genCuts = {}
@@ -218,7 +219,7 @@ cuts.extend(len(jpsi_ugmt_ntuples) * [gmtCuts["ugmt_diMu-pt1"]])
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
                                    labels, line_colours, cuts, "jPsi",
-                                   folder=opts.outDir)
+                                   rootFolder=opts.outDir)
 
 
 ccntuple = []
@@ -245,7 +246,7 @@ for varList in chargeCheckList:
     generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
                                    ccdlabel, cclc,
                                    cccuts, "charge_check", drawGenMus=True,
-                                   drawStackPlot=True, folder=opts.outDir)
+                                   drawStackPlot=True, rootFolder=opts.outDir)
 
 ghostListWOgmt = []
 # TODO: Add plot with deltaPt.
@@ -331,12 +332,12 @@ singleMu_ntuples.append(
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
                                   labels, line_colours, cuts, "singleMu",
-                                  folder=opts.outDir)
+                                  rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, singleMu_ntuples[1:],
                                   ntuple_names[1:], labels[1:],
                                   line_colours[1:], cuts[1:], "singleMu",
-                                  folder=opts.outDir)
+                                  rootFolder=opts.outDir)
 
 
 resolution_check_ntuple = []
@@ -385,7 +386,7 @@ for varList in resolutionCheckList:
                                    resolution_check_line_colour,
                                    resolution_check_cuts, "resolution_check",
                                    drawGenMus=False, drawStackPlot=True,
-                                   folder=opts.outDir)
+                                   rootFolder=opts.outDir)
 
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(5 * [ugmt_singleMu_file])
@@ -430,7 +431,7 @@ for varList in ghostDistanceList:
                                    ghost_distance_line_colour,
                                    ghost_distance_cuts, "ghost_distance",
                                    drawGenMus=True, drawStackPlot=True,
-                                   folder=opts.outDir)
+                                   rootFolder=opts.outDir)
 
 tf_eff_ntuples = []
 tf_eff_ntuples.append(gmt_dimu_file)
@@ -474,7 +475,7 @@ for varList in efficiencyList:
                                    tf_eff_ntuple_names, tf_eff_labels,
                                    tf_eff_line_colours, tf_eff_cuts, "tf_eff",
                                    drawGenMus=True, drawStackPlot=True,
-                                   folder=opts.outDir)
+                                   rootFolder=opts.outDir)
 
 
 tf_ghosts_ntuples = []
@@ -486,13 +487,13 @@ for varList in ghostListWgmt:
                                   tf_eff_ntuple_names, tf_eff_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
                                   "tf_ghosts", drawGenMus=False,
-                                  drawStackPlot=True, folder=opts.outDir)
+                                  drawStackPlot=True, rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples[1:],
                                   tf_eff_ntuple_names[1:], tf_eff_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts", drawGenMus=False,
-                                  drawStackPlot=True, folder=opts.outDir)
+                                  drawStackPlot=True, rootFolder=opts.outDir)
 
 
 tf_eff_w_gb_ntuples = []
@@ -523,7 +524,7 @@ for varList in efficiencyList:
                                    tf_eff_ntuple_names, tf_eff_w_gb_labels,
                                    tf_eff_line_colours, tf_eff_cuts,
                                    "tf_eff_w_gb", drawGenMus=True,
-                                   drawStackPlot=True, folder=opts.outDir)
+                                   drawStackPlot=True, rootFolder=opts.outDir)
 
 
 tf_ghosts_w_gb_ntuples = []
@@ -536,11 +537,11 @@ for varList in ghostListWgmt:
                                   tf_eff_ntuple_names, tf_eff_w_gb_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
                                   "tf_ghosts_w_gb", drawGenMus=False,
-                                  drawStackPlot=True, folder=opts.outDir)
+                                  drawStackPlot=True, rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples[1:],
                                   tf_eff_ntuple_names[1:],
                                   tf_eff_w_gb_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts_w_gb", drawGenMus=False,
-                                  drawStackPlot=True, folder=opts.outDir)
+                                  drawStackPlot=True, rootFolder=opts.outDir)
