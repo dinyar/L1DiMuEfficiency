@@ -430,7 +430,7 @@ for varList in ghostDistanceList:
                                    ghost_distance_label,
                                    ghost_distance_line_colour,
                                    ghost_distance_cuts, "ghost_distance",
-                                   drawGenMus=True, drawStackPlot=True,
+                                   drawGenMus=False, drawStackPlot=True,
                                    rootFolder=opts.outDir)
 
 tf_eff_ntuples = []
