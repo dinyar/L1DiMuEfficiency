@@ -171,8 +171,8 @@ match charges in BMTF+OMTF", "uGMT",
                "dR0-1-BMTFOMTFchargeMatch"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
                "dR0-05"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
-               "dR0-01"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
+#                "dR0-01"])
 # labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # match charges and #DeltaR<0.1 in OMTF", "uGMT",
 #                "dR0-01_OMTF-dR0-1-chargeMatch"])
@@ -182,12 +182,12 @@ labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
 # labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # #DeltaR<0.3 in OMTF", "uGMT",
 #                "dR0-01_OMTF-dR0-3"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
-#DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
-               "dR0-01-BOMTF_dR0_3-EOMTF_dR0_1"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
-match charges and #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
-               "dR0-01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
+#                "dR0-01-BOMTF_dR0_3-EOMTF_dR0_1"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# match charges and #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
+#                "dR0-01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1"])
 labels.append(["Gen muons", "uGMT muons w/ cancel-out #Delta#phi<0.05,\
 #Delta#eta<0.1; #DeltaEta<0.05 in EMTF/OMTF, \
 #DeltaEta<0.1 in  EMTF, #Delta#eta<0.3 in BMTF if no eta fine",
@@ -320,10 +320,10 @@ singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3.root")
-singleMu_ntuples.append(
-    "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
-singleMu_ntuples.append(
-    "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
+# singleMu_ntuples.append(
+#     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
+# singleMu_ntuples.append(
+#     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
 singleMu_ntuples.append(
     "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 singleMu_ntuples.append(
