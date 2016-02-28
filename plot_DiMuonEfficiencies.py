@@ -143,11 +143,11 @@ ugmt_dimu_file = "uGMTDimuonNtuple.root"
 jpsi_ntuples = []
 jpsi_ntuples.append(gmt_dimu_file)
 jpsi_ugmt_ntuples = []
-jpsi_ugmt_ntuples.append(ugmt_dimu_file)
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1-BMTFOMTFchargeMatch.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
+# jpsi_ugmt_ntuples.append(ugmt_dimu_file)
+# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
+# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
+# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1-BMTFOMTFchargeMatch.root")
+# jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
 jpsi_ugmt_ntuples.append(
     "uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 jpsi_ugmt_ntuples.append(
@@ -160,17 +160,18 @@ ntuple_names.append("gmt_ntuple")
 ntuple_names.extend(len(jpsi_ugmt_ntuples) * ["ugmt_ntuple"])
 labels = []
 labels.append(["Gen muons", "GMT muons", "GMT"])
-labels.append(["Gen muons", "uGMT muons", "uGMT"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
-               "dR0-3"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
-               "dR0-1"])
-labels.append(["Gen muons",
-               "uGMT muons w/ cancel-out #DeltaR<0.1, \
-match charges in BMTF+OMTF", "uGMT",
-               "dR0-1-BMTFOMTFchargeMatch"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
-               "dR0-05"])
+# labels.append(["Gen muons", "uGMT muons", "uGMT"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
+#                "dR0-3"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
+#                "dR0-1"])
+# labels.append(["Gen muons",
+#                "uGMT muons w/ cancel-out #DeltaR<0.1, \
+# match charges in BMTF+OMTF", "uGMT",
+#                "dR0-1-BMTFOMTFchargeMatch"])
+# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
+#                "dR0-05"])
+
 # labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
 #                "dR0-01"])
 # labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
@@ -311,12 +312,13 @@ ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
 
 singleMu_ntuples = []
 singleMu_ntuples.append(gmt_singleMu_file)
-singleMu_ntuples.append(ugmt_singleMu_file)
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1-BMTFOMTFchargeMatch.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
+# singleMu_ntuples.append(ugmt_singleMu_file)
+# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
+# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
+# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1-BMTFOMTFchargeMatch.root")
+# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
+# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
+
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3.root")
