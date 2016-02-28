@@ -302,13 +302,13 @@ ghostListWOgmt.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
 ghostListWgmt = []
 ghostListWgmt.append([["mu1_genEta", "#eta(#mu)"],
                       binningDict["etaFineRestr"], "eta1_gen",
-                      genCuts["mu-pt1"], [0, 0.3]])
+                      genCuts["mu-pt1"], [0, 0.075]])
 ghostListWgmt.append([["mu1_genPhi", "#phi(#mu)"],
                       binningDict["phiFineRestr"], "phi1_gen",
-                      genCuts["mu-pt1"], [0, 0.3]])
+                      genCuts["mu-pt1"], [0, 0.075]])
 ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                       binningDict["pt140Fine"], "pT1_gen",
-                      genCuts["mu-pt1"], [0, 0.3]])
+                      genCuts["mu-pt1"], [0, 0.075]])
 
 singleMu_ntuples = []
 singleMu_ntuples.append(gmt_singleMu_file)
