@@ -13,7 +13,7 @@ import ROOT as root
 from L1Analysis import L1Ana, L1Ntuple
 
 parser.add_argument("--NgenMu", dest="NgenMu", type=int,
-                    help="Number of generated muons to expect in input file.")
+                    help="Number of generated muons per event to expect.")
 parser.add_argument("--outDir", dest="outDir", default="ntuples", type=str,
                     help="Directory to store flat tuples in.")
 parser.add_argument("--debug", dest="debugging", default='False',
