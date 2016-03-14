@@ -42,6 +42,10 @@ else:
 gmtCuts["ugmt_diMu-pt1"] = ["((pT1" + ghostSelector + " > 1) && (pT2" +
                             ghostSelector + " > 1))",
                             "diMu-pt1"]
+gmtCuts["ugmt_leadingMu-pt1"] = ["(pT1" + ghostSelector + " > 1)",
+                                 "leadingMu-pt1"]
+gmtCuts["ugmt_trailingMu-pt1"] = ["(pT2" + ghostSelector + " > 1)",
+                                  "trailingMu-pt1"]
 
 gmtCuts["bmtf"] = ["(tfType1" + ghostSelector + "==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1" + ghostSelector + "==1)", "omtf"]
@@ -135,24 +139,6 @@ efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
 efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu1_genEta", "#eta(leading #mu)"],
-                       binningDict["etaFineRestr"], "eta1_gen",
-                       genCuts["leadingMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu2_genEta", "#eta(trailing #mu)"],
-                       binningDict["etaFineRestr"], "eta2_gen",
-                       genCuts["trailingMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu1_genPhi", "#phi(leading #mu)"],
-                       binningDict["phiFineRestr"], "phi1_gen",
-                       genCuts["leadingMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu2_genPhi", "#phi(trailing #mu)"],
-                       binningDict["phiFineRestr"], "phi2_gen",
-                       genCuts["trailingMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT1_gen",
-                       genCuts["leadingMu-pt1"], [0, 1.4]])
-efficiencyList.append([["singleMu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT2_gen",
-                       genCuts["trailingMu-pt1"], [0, 1.4]])
 
 gmt_singleMu_file = "GMTSingleMuNtuple.root"
 gmt_dimu_file = "GMTDimuonNtuple.root"
@@ -239,6 +225,21 @@ cuts.extend(len(jpsi_ugmt_ntuples) * [gmtCuts["ugmt_diMu-pt1"]])
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
                                    labels, line_colours, cuts, "jPsi",
+                                   rootFolder=opts.outDir)
+
+leadingMuCuts = []
+leadingMuCuts.append(gmtCuts["gmt_leadingMu-pt1"])
+leadingMuCuts.extend(len(jpsi_ugmt_ntuples) * [gmtCuts["ugmt_leadingMu-pt1"]])
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
+                                   labels, line_colours, leadingMuCuts, "jPsi_leadingMuEfficiencies",
+                                   rootFolder=opts.outDir)
+trailingMuCuts = []
+trailingMuCuts.append(gmtCuts["gmt_trailingMu-pt1"])
+trailingMuCuts.extend(len(jpsi_ugmt_ntuples) * [gmtCuts["ugmt_trailingMu-pt1"]])
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
+                                   labels, line_colours, trailingMuCuts, "jPsi_trailingMuEfficiencies",
                                    rootFolder=opts.outDir)
 
 
