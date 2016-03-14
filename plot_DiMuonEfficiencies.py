@@ -361,6 +361,10 @@ for varList in ghostListWOgmt:
                                   line_colours[1:], cuts[1:], "singleMu",
                                   rootFolder=opts.outDir)
 
+for varList in ghostListWgmt:
+    generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
+                                  labels, line_colours, leadingMuCuts, "singleMu_leadingMuEfficiencies",
+                                  rootFolder=opts.outDir)
 
 resolution_check_ntuple = []
 resolution_check_ntuple.extend(5 * [ugmt_singleMu_file])
