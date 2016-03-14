@@ -31,6 +31,8 @@ genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["gmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
                            "diMu-pt1"]
+gmtCuts["gmt_leadingMu-pt1"] = ["(pT1 > 1)", "leadingMu-pt1"]
+gmtCuts["gmt_trailingMu-pt1"] = ["(pT2 > 1)", "trailingMu-pt1"]
 
 if opts.qualityBasedCOU is True:
     ghostSelector = "_q"
@@ -92,7 +94,6 @@ gmtCuts["diBEmtf"] = ["(((tfType1" + ghostSelector + "==0) && (tfType2" +
 # TODO: Do these plots also for maxQual!
 
 efficiencyList = []
-# TODO: For mu1/mu2 plot single mu efficiencies?
 # Entries: Label for histogram (Will be used for filename and title) |
 # binning | parameters used for project functions
 efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
@@ -134,6 +135,24 @@ efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
 efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu1_genEta", "#eta(leading #mu)"],
+                       binningDict["etaFineRestr"], "eta1_gen",
+                       genCuts["leadingMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu2_genEta", "#eta(trailing #mu)"],
+                       binningDict["etaFineRestr"], "eta2_gen",
+                       genCuts["trailingMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu1_genPhi", "#phi(leading #mu)"],
+                       binningDict["phiFineRestr"], "phi1_gen",
+                       genCuts["leadingMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu2_genPhi", "#phi(trailing #mu)"],
+                       binningDict["phiFineRestr"], "phi2_gen",
+                       genCuts["trailingMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
+                       binningDict["pt140Fine"], "pT1_gen",
+                       genCuts["leadingMu-pt1"], [0, 1.4]])
+efficiencyList.append([["singleMu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
+                       binningDict["pt140Fine"], "pT2_gen",
+                       genCuts["trailingMu-pt1"], [0, 1.4]])
 
 gmt_singleMu_file = "GMTSingleMuNtuple.root"
 gmt_dimu_file = "GMTDimuonNtuple.root"
