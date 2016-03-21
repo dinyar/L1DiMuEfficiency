@@ -29,46 +29,14 @@ cutList = []
 cutList.append(["", None, None, None, None])
 cutList.append(["-dR0_3", 5*[0.3], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dR0_1", 5*[0.1], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_1-BMTFOMTFchargeMatch", 5*[0.1], 5*[[1]], 5*[1],
-                [True, True, False, True, False]])
 cutList.append(["-dR0_05", 5*[0.05], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_01", 5*[0.01], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_01-OMTF_dR0_1_chargeMatch",
-                [0.01, 0.1, 0.01, 0.01, 0.01],
-                5*[[1]], 5*[1], [False, True, False, False, False]])
-cutList.append(["-dR0_01-OMTF_dR0_3_chargeMatch",
-                [0.01, 0.3, 0.01, 0.01, 0.01],
-                5*[[1]], 5*[1], [False, True, False, False, False]])
-cutList.append(["-dR0_01-OMTF_dR0_3",
-                [0.01, 0.3, 0.01, 0.01, 0.01],
-                5*[[1]], 5*[1], [False, False, False, False, False]])
-# TODO: Use charge matching between TFs when this is fixed in the emulator
-cutList.append(["-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1",
-                [0.01, 0.01, 0.01, 0.3, 0.1],
-                5*[[1]], 5*[1], [False, False, False, False, False]])
-cutList.append(["-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1",
-                [0.01, 0.01, 0.01, 0.3, 0.1],
-                5*[[1]], 5*[1], [False, False, False, True, False]])
-cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEta0_2-EOMTF_EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.2, 0.05],
-                5*[[1]], [2, 2, 1, 4, 1], [False, False, False, False, False]])
-cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_2_cM-EOMTF_EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.2, 0.05],
-                5*[[1]], [2, 2, 1, 4, 1], [True, True, False, True, False]])
-cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.1, 0.1],
-                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
-                [False, False, False, False, False]])
-cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.1, 0.1],
-                [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
-                [True, True, False, True, False]])
 cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_05-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.05, 0.1],
+                [-1, 0.1, 0.05, 0.05, 0.1],
                 [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 1, 2],
                 [False, False, False, False, False]])
+# TODO: Use charge matching between TFs when this is fixed in the emulator
 cutList.append(["-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_05-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05",
-                [0.1, 0.1, 0.05, 0.05, 0.1],
+                [-1, 0.1, 0.05, 0.05, 0.1],
                 [[1, 0.25], [1], [1], [1, 1./3], [1]], [2, 2, 1, 1, 2],
                 [True, True, False, True, False]])
 
