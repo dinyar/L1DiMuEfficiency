@@ -80,7 +80,6 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
         if abs(pdgId) == 13:
             NgenMu += 1
     if NgenMu < 1:
-        print "Found {n} generated muons in event, skipping.".format(n=NgenMu)
         return [], []
 
     # Find muons with highest pT
@@ -322,7 +321,8 @@ def main():
         gmt_ntuple_values, ugmt_ntuple_values = analyse(event,
                                                         gmt_content_list,
                                                         ugmt_content_list)
-
+        if (gmt_ntuple_values == []) and (ugmt_ntuple_values == []):
+            continue
         ugmt_f.cd()
         flat_ugmt_tuple.Fill(ugmt_ntuple_values)
         gmt_f.cd()
