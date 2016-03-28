@@ -305,10 +305,10 @@ ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
 singleMu_ntuples = []
 singleMu_ntuples.append(gmt_singleMu_file)
 singleMu_ntuples.append(ugmt_singleMu_file)
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1-BMTFOMTFchargeMatch.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_2.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
+singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
 
 # singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
@@ -318,10 +318,10 @@ singleMu_ntuples.append(ugmt_singleMu_file)
 #     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
 # singleMu_ntuples.append(
 #     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
-singleMu_ntuples.append(
-    "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
-singleMu_ntuples.append(
-    "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+# singleMu_ntuples.append(
+#     "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+# singleMu_ntuples.append(
+#     "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
