@@ -24,6 +24,14 @@ from ROOT import gROOT, kTRUE
 gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
+# Ntuples to use
+gmt_singleMu_file = "GMTSingleMuNtuple.root"
+gmt_dimu_file = "GMTDimuonNtuple.root"
+ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "uGMTDimuonNtuple.root"
+ugmt_jpsi_cou_ntuple = "uGMTDimuonNtuple-dR0_1.root"
+ugmt_singleMu_cou_ntuple = "uGMTSingleMuNtuple-dR0_2.root"
+
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
@@ -133,11 +141,6 @@ efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
 efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
-
-gmt_singleMu_file = "GMTSingleMuNtuple.root"
-gmt_dimu_file = "GMTDimuonNtuple.root"
-ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
-ugmt_dimu_file = "uGMTDimuonNtuple.root"
 
 jpsi_ntuples = []
 jpsi_ntuples.append(gmt_dimu_file)
@@ -491,8 +494,7 @@ for varList in ghostListWOgmt:
 
 tf_eff_w_gb_ntuples = []
 tf_eff_w_gb_ntuples.append(gmt_dimu_file)
-tf_eff_w_gb_ntuples.extend(
-    7 * ["uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"])
+tf_eff_w_gb_ntuples.extend(7 * [ugmt_jpsi_cou_ntuple])
 tf_eff_w_gb_labels = []
 tf_eff_w_gb_labels.append(["Gen muons", "GMT muons", "GMT"])
 tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only BMTF muons",
@@ -519,11 +521,10 @@ for varList in efficiencyList:
                                    "tf_eff_w_gb", drawGenMus=True,
                                    drawStackPlot=True, rootFolder=opts.outDir)
 
-
 tf_ghosts_w_gb_ntuples = []
 tf_ghosts_w_gb_ntuples.append(gmt_singleMu_file)
 tf_ghosts_w_gb_ntuples.extend(
-    7 * ["uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"])
+    7 * [ugmt_singleMu_cou_ntuple])
 
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples,
