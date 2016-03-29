@@ -24,13 +24,13 @@ from ROOT import gROOT, kTRUE
 gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
-# Ntuples to use
+# Ntuples to use.
 gmt_singleMu_file = "GMTSingleMuNtuple.root"
 gmt_dimu_file = "GMTDimuonNtuple.root"
 ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
 ugmt_dimu_file = "uGMTDimuonNtuple.root"
-ugmt_jpsi_cou_ntuple = "uGMTDimuonNtuple-dR0_1.root"
-ugmt_singleMu_cou_ntuple = "uGMTSingleMuNtuple-dR0_2.root"
+ugmt_jpsi_cou_ntuple = "uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"
+ugmt_singleMu_cou_ntuple = "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"
 
 # Cut dicts
 genCuts = {}
@@ -142,57 +142,57 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
 
-jpsi_ntuples = []
-jpsi_ntuples.append(gmt_dimu_file)
-jpsi_ugmt_ntuples = []
-jpsi_ugmt_ntuples.append(ugmt_dimu_file)
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_2.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
-jpsi_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
-# jpsi_ugmt_ntuples.append(
+jpsi_couScan_ntuples = []
+jpsi_couScan_ntuples.append(gmt_dimu_file)
+jpsi_couScan_ugmt_ntuples = []
+jpsi_couScan_ugmt_ntuples.append(ugmt_dimu_file)
+jpsi_couScan_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_3.root")
+jpsi_couScan_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_2.root")
+jpsi_couScan_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_1.root")
+jpsi_couScan_ugmt_ntuples.append("uGMTDimuonNtuple-dR0_05.root")
+# jpsi_couScan_ugmt_ntuples.append(
 #     "uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
-# jpsi_ugmt_ntuples.append(
+# jpsi_couScan_ugmt_ntuples.append(
 #     "uGMTDimuonNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 
-jpsi_ntuples.extend(jpsi_ugmt_ntuples)
+jpsi_couScan_ntuples.extend(jpsi_couScan_ugmt_ntuples)
 
 ntuple_names = []
 ntuple_names.append("gmt_ntuple")
-ntuple_names.extend(len(jpsi_ugmt_ntuples) * ["ugmt_ntuple"])
-labels = []
-labels.append(["Gen muons", "GMT muons", "GMT"])
-labels.append(["Gen muons", "uGMT muons", "uGMT"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
+ntuple_names.extend(len(jpsi_couScan_ugmt_ntuples) * ["ugmt_ntuple"])
+couScan_labels = []
+couScan_labels.append(["Gen muons", "GMT muons", "GMT"])
+couScan_labels.append(["Gen muons", "uGMT muons", "uGMT"])
+couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.3", "uGMT",
                "dR0-3"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.2", "uGMT",
+couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.2", "uGMT",
                "dR0-2"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
+couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.1", "uGMT",
                "dR0-1"])
-labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
+couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.05", "uGMT",
                "dR0-05"])
 
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01", "uGMT",
 #                "dR0-01"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # match charges and #DeltaR<0.1 in OMTF", "uGMT",
 #                "dR0-01_OMTF-dR0-1-chargeMatch"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # match charges and #DeltaR<0.3 in OMTF", "uGMT",
 #                "dR0-01_OMTF-dR0-3-chargeMatch"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # #DeltaR<0.3 in OMTF", "uGMT",
 #                "dR0-01_OMTF-dR0-3"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
 #                "dR0-01-BOMTF_dR0_3-EOMTF_dR0_1"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out #DeltaR<0.01,\
 # match charges and #DeltaR<0.3 in BMTF/OMTF, #DeltaR<0.1 in EMTF/OMTF", "uGMT",
 #                "dR0-01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out",
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out",
 #                "uGMT",
 #                "dPhi0_05dEta0_1-BOMTF_dEta0_3-EOMTF_dEta0_1-EMTF_dEta0_05"])
-# labels.append(["Gen muons", "uGMT muons w/ cancel-out using charge matching",
+# couScan_labels.append(["Gen muons", "uGMT muons w/ cancel-out using charge matching",
 #                "uGMT",
 #                "dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05"])
 
@@ -210,39 +210,35 @@ line_colours.append(35)
 line_colours.append(42)
 cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1"])
-cuts.extend(len(jpsi_ugmt_ntuples) * [gmtCuts["ugmt_diMu-pt1"]])
+cuts.extend(len(jpsi_couScan_ugmt_ntuples) * [gmtCuts["ugmt_diMu-pt1"]])
 
 for varList in efficiencyList:
-    generateCombinedEfficiencyHist(varList, jpsi_ntuples, ntuple_names,
-                                   labels, line_colours, cuts, "jPsi",
+    generateCombinedEfficiencyHist(varList, jpsi_couScan_ntuples, ntuple_names,
+                                   couScan_labels, line_colours, cuts,
+                                   "couScan_efficiency",
                                    rootFolder=opts.outDir)
 
+jpsi_efficiency_ntuples = []
+jpsi_efficiency_ntuples.append(gmt_dimu_file)
+jpsi_efficiency_ntuples.append(ugmt_dimu_file)
+jpsi_efficiency_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+jpsi_efficiency_ntuples.append("uGMTDimuonNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+optCOU_labels = []
+optCOU_labels.append(["Gen muons", "GMT muons", "GMT"])
+optCOU_labels.append(["Gen muons", "uGMT muons", "uGMT"])
+optCOU_labels.append(["Gen muons", "uGMT muons w/ tuned cancel-out",
+                      "uGMT",
+                      "dPhi0_05dEta0_1-BOMTF_dEta0_3-EOMTF_dEta0_1-EMTF_dEta0_05"])
+optCOU_labels.append(["Gen muons",
+                      "uGMT muons w/ tuned cancel-out using charge matching",
+                      "uGMT",
+                      "dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEta0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05"])
 
-ccntuple = []
-ccntuple.extend(3 * [ugmt_dimu_file])
-ccntuple_name = []
-ccntuple_name.extend(3 * ["ugmt_ntuple"])
-ccdlabel = []
-ccdlabel.append(["All muons", "BMTF muons", "uGMT"])
-ccdlabel.append(["All muons", "OMTF muons", "uGMT"])
-ccdlabel.append(["All muons", "EMTF muons", "uGMT"])
-cclc = []
-cclc.append(30)
-cclc.append(36)
-cclc.append(48)
-cccuts = []
-cccuts.append(gmtCuts["bmtf"])
-cccuts.append(gmtCuts["omtf"])
-cccuts.append(gmtCuts["emtf"])
-chargeCheckList = []
-chargeCheckList.append([["mu1_ch", "ch"],
-                        binningDict["charge"], "ch1" + ghostSelector,
-                        genCuts["diMu-pt1"], [0, 1.4]])
-for varList in chargeCheckList:
-    generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
-                                   ccdlabel, cclc,
-                                   cccuts, "charge_check", drawGenMus=True,
-                                   drawStackPlot=True, rootFolder=opts.outDir)
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples,
+                                   ntuple_names, optCOU_labels,
+                                   line_colours, cuts, "jPsi_efficiency",
+                                   rootFolder=opts.outDir)
 
 ghostListWOgmt = []
 # TODO: Add plot with deltaPt.
@@ -305,36 +301,67 @@ ghostListWgmt.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                       binningDict["pt140Fine"], "pT1_gen",
                       genCuts["mu-pt1"], [0, 0.075]])
 
-singleMu_ntuples = []
-singleMu_ntuples.append(gmt_singleMu_file)
-singleMu_ntuples.append(ugmt_singleMu_file)
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_2.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
-singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01.root")
-
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_1_chargeMatch.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3_chargeMatch.root")
-# singleMu_ntuples.append("uGMTSingleMuNtuple-dR0_01-OMTF_dR0_3.root")
-# singleMu_ntuples.append(
-#     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3-EOMTF_dR0_1.root")
-# singleMu_ntuples.append(
-#     "uGMTSingleMuNtuple-dR0_01-BOMTF_dR0_3_chargeMatch-EOMTF_dR0_1.root")
-# singleMu_ntuples.append(
-#     "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
-# singleMu_ntuples.append(
-#     "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+singleMu_couScan_ntuples = []
+singleMu_couScan_ntuples.append(gmt_singleMu_file)
+singleMu_couScan_ntuples.append(ugmt_singleMu_file)
+singleMu_couScan_ntuples.append("uGMTSingleMuNtuple-dR0_3.root")
+singleMu_couScan_ntuples.append("uGMTSingleMuNtuple-dR0_2.root")
+singleMu_couScan_ntuples.append("uGMTSingleMuNtuple-dR0_1.root")
+singleMu_couScan_ntuples.append("uGMTSingleMuNtuple-dR0_05.root")
 
 for varList in ghostListWgmt:
-    generateCombinedGhostPercHist(varList, singleMu_ntuples, ntuple_names,
-                                  labels, line_colours, cuts, "singleMu",
+    generateCombinedGhostPercHist(varList, singleMu_couScan_ntuples,
+                                  ntuple_names, couScan_labels, line_colours,
+                                  cuts, "couScan_ghosting",
                                   rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
-    generateCombinedGhostPercHist(varList, singleMu_ntuples[1:],
-                                  ntuple_names[1:], labels[1:],
-                                  line_colours[1:], cuts[1:], "singleMu",
+    generateCombinedGhostPercHist(varList, singleMu_couScan_ntuples[1:],
+                                  ntuple_names[1:], couScan_labels[1:],
+                                  line_colours[1:], cuts[1:],
+                                  "couScan_ghosting", rootFolder=opts.outDir)
+
+singleMu_ghosting_ntuples = []
+singleMu_ghosting_ntuples.append(gmt_dimu_file)
+singleMu_ghosting_ntuples.append(ugmt_dimu_file)
+singleMu_ghosting_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+singleMu_ghosting_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
+
+for varList in ghostListWgmt:
+    generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples,
+                                  ntuple_names, optCOU_labels, line_colours,
+                                  cuts, "singleMu_ghosts",
                                   rootFolder=opts.outDir)
+for varList in ghostListWOgmt:
+    generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples[1:],
+                                  ntuple_names[1:], optCOU_labels[1:],
+                                  line_colours[1:], cuts[1:],
+                                  "singleMu_ghosts", rootFolder=opts.outDir)
+
+ccntuple = []
+ccntuple.extend(3 * [ugmt_dimu_file])
+ccntuple_name = []
+ccntuple_name.extend(3 * ["ugmt_ntuple"])
+ccdlabel = []
+ccdlabel.append(["All muons", "BMTF muons", "uGMT"])
+ccdlabel.append(["All muons", "OMTF muons", "uGMT"])
+ccdlabel.append(["All muons", "EMTF muons", "uGMT"])
+cclc = []
+cclc.append(30)
+cclc.append(36)
+cclc.append(48)
+cccuts = []
+cccuts.append(gmtCuts["bmtf"])
+cccuts.append(gmtCuts["omtf"])
+cccuts.append(gmtCuts["emtf"])
+chargeCheckList = []
+chargeCheckList.append([["mu1_ch", "ch"],
+binningDict["charge"], "ch1" + ghostSelector,
+genCuts["diMu-pt1"], [0, 1.4]])
+for varList in chargeCheckList:
+  generateCombinedEfficiencyHist(varList, ccntuple, ccntuple_name,
+  ccdlabel, cclc,
+  cccuts, "charge_check", drawGenMus=True,
+  drawStackPlot=True, rootFolder=opts.outDir)
 
 resolution_check_ntuple = []
 resolution_check_ntuple.extend(5 * [ugmt_singleMu_file])
@@ -436,17 +463,17 @@ tf_eff_ntuples.extend(7 * [ugmt_dimu_file])
 tf_eff_ntuple_names = []
 tf_eff_ntuple_names.append("gmt_ntuple")
 tf_eff_ntuple_names.extend(7 * ["ugmt_ntuple"])
-tf_eff_labels = []
-tf_eff_labels.append(["Gen muons", "GMT muons", "GMT"])
-tf_eff_labels.append(["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
-tf_eff_labels.append(["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
-tf_eff_labels.append(["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
-tf_eff_labels.append(["Gen muons", "BMTF coarse+OMTF muons", "uGMT",
+tf_eff_couScan_labels = []
+tf_eff_couScan_labels.append(["Gen muons", "GMT muons", "GMT"])
+tf_eff_couScan_labels.append(["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
+tf_eff_couScan_labels.append(["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
+tf_eff_couScan_labels.append(["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
+tf_eff_couScan_labels.append(["Gen muons", "BMTF coarse+OMTF muons", "uGMT",
                       "diBOMTFcoarse"])
-tf_eff_labels.append(["Gen muons", "BMTF fine+OMTF muons", "uGMT",
+tf_eff_couScan_labels.append(["Gen muons", "BMTF fine+OMTF muons", "uGMT",
                       "diBOMTFfine"])
-tf_eff_labels.append(["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
-tf_eff_labels.append(["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
+tf_eff_couScan_labels.append(["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
+tf_eff_couScan_labels.append(["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
 tf_eff_line_colours = []
 tf_eff_line_colours.append(1)
 tf_eff_line_colours.append(46)
@@ -468,7 +495,7 @@ tf_eff_cuts.append(gmtCuts["diBEmtf"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
-                                   tf_eff_ntuple_names, tf_eff_labels,
+                                   tf_eff_ntuple_names, tf_eff_couScan_labels,
                                    tf_eff_line_colours, tf_eff_cuts, "tf_eff",
                                    drawGenMus=True, drawStackPlot=True,
                                    rootFolder=opts.outDir)
@@ -480,13 +507,13 @@ tf_ghosts_ntuples.extend(7 * [ugmt_singleMu_file])
 
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples,
-                                  tf_eff_ntuple_names, tf_eff_labels,
+                                  tf_eff_ntuple_names, tf_eff_couScan_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
                                   "tf_ghosts", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples[1:],
-                                  tf_eff_ntuple_names[1:], tf_eff_labels[1:],
+                                  tf_eff_ntuple_names[1:], tf_eff_couScan_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
@@ -495,28 +522,28 @@ for varList in ghostListWOgmt:
 tf_eff_w_gb_ntuples = []
 tf_eff_w_gb_ntuples.append(gmt_dimu_file)
 tf_eff_w_gb_ntuples.extend(7 * [ugmt_jpsi_cou_ntuple])
-tf_eff_w_gb_labels = []
-tf_eff_w_gb_labels.append(["Gen muons", "GMT muons", "GMT"])
-tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only BMTF muons",
+tf_eff_w_gb_couScan_labels = []
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "GMT muons", "GMT"])
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "uGMT w/ cancel-out, only BMTF muons",
                            "uGMT", "diBMTF"])
-tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only OMTF muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "uGMT w/ cancel-out, only OMTF muons",
                            "uGMT", "diOMTF"])
-tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, only EMTF muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "uGMT w/ cancel-out, only EMTF muons",
                            "uGMT", "diEMTF"])
-tf_eff_w_gb_labels.append(["Gen muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons",
                            "uGMT w/ cancel-out, BMTF coarse+OMTF muons",
                            "uGMT", "diBOMTFcoarse"])
-tf_eff_w_gb_labels.append(["Gen muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons",
                            "uGMT w/ cancel-out, BMTF fine+OMTF muons", "uGMT",
                            "diBOMTFfine"])
-tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, OMTF+EMTF muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "uGMT w/ cancel-out, OMTF+EMTF muons",
                            "uGMT", "diOEMTF"])
-tf_eff_w_gb_labels.append(["Gen muons", "uGMT w/ cancel-out, BMTF+EMTF muons",
+tf_eff_w_gb_couScan_labels.append(["Gen muons", "uGMT w/ cancel-out, BMTF+EMTF muons",
                            "uGMT", "diBEMTF"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_w_gb_ntuples,
-                                   tf_eff_ntuple_names, tf_eff_w_gb_labels,
+                                   tf_eff_ntuple_names, tf_eff_w_gb_couScan_labels,
                                    tf_eff_line_colours, tf_eff_cuts,
                                    "tf_eff_w_gb", drawGenMus=True,
                                    drawStackPlot=True, rootFolder=opts.outDir)
@@ -528,14 +555,14 @@ tf_ghosts_w_gb_ntuples.extend(
 
 for varList in ghostListWgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples,
-                                  tf_eff_ntuple_names, tf_eff_w_gb_labels,
+                                  tf_eff_ntuple_names, tf_eff_w_gb_couScan_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
                                   "tf_ghosts_w_gb", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
 for varList in ghostListWOgmt:
     generateCombinedGhostPercHist(varList, tf_ghosts_w_gb_ntuples[1:],
                                   tf_eff_ntuple_names[1:],
-                                  tf_eff_w_gb_labels[1:],
+                                  tf_eff_w_gb_couScan_labels[1:],
                                   tf_eff_line_colours[1:], tf_eff_cuts[1:],
                                   "tf_ghosts_w_gb", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
