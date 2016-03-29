@@ -27,10 +27,10 @@ elif NgenMu == 2:
     ntupleName = "DimuonNtuple"
 cutList = []
 cutList.append(["", None, None, None, None])
-cutList.append(["-dR0_3", 5*[0.3], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_2", 5*[0.2], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_1", 5*[0.1], 5*[[1]], 5*[1], 5*[False]])
-cutList.append(["-dR0_05", 5*[0.05], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_3", [-1]+4*[0.3], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_2", [-1]+4*[0.2], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_1", [-1]+4*[0.1], 5*[[1]], 5*[1], 5*[False]])
+cutList.append(["-dR0_05", [-1]+4*[0.05], 5*[[1]], 5*[1], 5*[False]])
 cutList.append(["-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05",
                 [-1, 0.1, 0.05, 0.1, 0.1],
                 [[1, 1./3], [1], [1], [1, 1./3], [1]], [2, 2, 1, 2, 2],
