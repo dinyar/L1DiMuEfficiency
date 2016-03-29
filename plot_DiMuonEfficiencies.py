@@ -293,8 +293,8 @@ for varList in ghostListWOgmt:
                                   "couScan_ghosting", rootFolder=opts.outDir)
 
 singleMu_ghosting_ntuples = []
-singleMu_ghosting_ntuples.append(gmt_dimu_file)
-singleMu_ghosting_ntuples.append(ugmt_dimu_file)
+singleMu_ghosting_ntuples.append(gmt_singleMu_file)
+singleMu_ghosting_ntuples.append(ugmt_singleMu_file)
 singleMu_ghosting_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 singleMu_ghosting_ntuples.append("uGMTSingleMuNtuple-dPhi0_05dEta0_1-BMTF_OMTF_cM-BOMTF_dEtaFine0_1-dEtaCoarse0_3_cM-EOMTF_dEta0_1-EMTF_dEta0_05.root")
 
