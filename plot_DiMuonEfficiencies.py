@@ -29,8 +29,8 @@ gmt_singleMu_file = "GMTSingleMuNtuple.root"
 gmt_dimu_file = "GMTDimuonNtuple.root"
 ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
 ugmt_dimu_file = "uGMTDimuonNtuple.root"
-ugmt_jpsi_cou_ntuple = "uGMTDimuonNtuple-dR0_1.root"
-ugmt_singleMu_cou_ntuple = "uGMTSingleMuNtuple-dR0_2.root"
+ugmt_jpsi_cou_ntuple = "uGMTDimuonNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"
+ugmt_singleMu_cou_ntuple = "uGMTSingleMuNtuple-dPhi0_05dEta0_1-BOMTF_dEtaFine0_1-dEtaCoarse0_3-EOMTF_dEta0_1-EMTF_dEta0_05.root"
 
 # Cut dicts
 genCuts = {}
