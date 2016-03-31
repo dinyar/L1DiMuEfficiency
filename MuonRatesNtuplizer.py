@@ -35,10 +35,12 @@ def getGmtMuons(evt):
     trailingPt = 0
     leadingGmtMu = -1
     trailingGmtMu = -1
+    numMus = 0
     for i in range(0, evt.gmt.N):
         if evt.gmt.CandBx[i] != 0:
             continue
 
+        numMus += 1
         if evt.gmt.Pt[i] > leadingPt:
             trailingPt = leadingPt
             trailingGmtMu = leadingGmtMu
@@ -48,7 +50,7 @@ def getGmtMuons(evt):
             trailingPt = evt.gmt.Pt[i]
             trailingGmtMu = i
 
-    return leadingGmtMu, trailingGmtMu
+    return leadingGmtMu, trailingGmtMu, numMus
 
 
 def getUGmtMuons(evt):
@@ -79,53 +81,53 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     for pdgId in evt.gen.id:
         if abs(pdgId) == 13:
             NgenMu += 1
-    if NgenMu < 1:
-        return [], []
+    # if NgenMu < 1:
+    #     return [], []
 
     # Find muons with highest pT
-    if NgenMu > 1:
+    if NgenMu > 0:
         leadingMu, trailingMu = getGenMuons(evt, NgenMu)
     else:
-        leadingMu = 0
+        leadingMu = -1
         trailingMu = -1
-    leadingGmtMu, trailingGmtMu = getGmtMuons(evt)
-    leadingUGmtMu, trailingUGmtMu, nL1Mus = getUGmtMuons(evt)
+    leadingGmtMu, trailingGmtMu, nGMTMus = getGmtMuons(evt)
+    leadingUGmtMu, trailingUGmtMu, nUGMTMus = getUGmtMuons(evt)
 
     gmt_content = array('f')
     for gmtVar in gmt_content_list:
         if gmtVar == "N":
-            gmt_content.append(evt.gmt.N)
-        elif gmtVar == "pT1" and (evt.gmt.N > 0):
+            gmt_content.append(nGMTMus)
+        elif gmtVar == ("pT1") and (nGMTMus > 0):
             gmt_content.append(evt.gmt.Pt[leadingGmtMu])
-        elif gmtVar == "eta1" and (evt.gmt.N > 0):
+        elif gmtVar == ("eta1") and (nGMTMus > 0):
             gmt_content.append(evt.gmt.Eta[leadingGmtMu])
-        elif gmtVar == "phi1" and (evt.gmt.N > 0):
+        elif gmtVar == ("phi1") and (nGMTMus > 0):
             gmt_content.append(evt.gmt.Phi[leadingGmtMu])
-        # elif gmtVar == "qual1" and (evt.gmt.N > 0):
+        # elif gmtVar == "qual1" and (nGMTMus > 0):
         #     gmt_content.append(evt.gmt.Qual[leadingGmtMu])
-        # elif gmtVar == "ch1" and (evt.gmt.N > 0):
+        # elif gmtVar == "ch1" and (nGMTMus > 0):
         #     gmt_content.append(evt.gmt.Cha[leadingGmtMu])
-        elif (gmtVar == "pT2") and (evt.gmt.N > 1):
+        elif (gmtVar == "pT2") and (nGMTMus > 1):
             gmt_content.append(evt.gmt.Pt[trailingGmtMu])
-        elif (gmtVar == "eta2") and (evt.gmt.N > 1):
+        elif (gmtVar == "eta2") and (nGMTMus > 1):
             gmt_content.append(evt.gmt.Eta[trailingGmtMu])
-        elif (gmtVar == "phi2") and (evt.gmt.N > 1):
+        elif (gmtVar == "phi2") and (nGMTMus > 1):
             gmt_content.append(evt.gmt.Phi[trailingGmtMu])
-        # elif (gmtVar == "qual2") and (evt.gmt.N > 1):
+        # elif (gmtVar == "qual2") and (nGMTMus > 1):
         #     gmt_content.append(evt.gmt.Qual[trailingGmtMu])
-        # elif (gmtVar == "ch2") and (evt.gmt.N > 1):
+        # elif (gmtVar == "ch2") and (nGMTMus > 1):
         #     gmt_content.append(evt.gmt.Cha[trailingGmtMu])
-        elif gmtVar == "pT1_gen":
+        elif gmtVar == ("pT1_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.pt[leadingMu])
-        elif gmtVar == "pT2_gen" and (NgenMu > 1):
+        elif gmtVar == ("pT2_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.pt[trailingMu])
-        elif gmtVar == "eta1_gen":
+        elif gmtVar == ("eta1_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.eta[leadingMu])
-        elif gmtVar == "eta2_gen" and (NgenMu > 1):
+        elif gmtVar == ("eta2_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.eta[trailingMu])
-        elif gmtVar == "phi1_gen":
+        elif gmtVar == ("phi1_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.phi[leadingMu])
-        elif gmtVar == "phi2_gen" and (NgenMu > 1):
+        elif gmtVar == ("phi2_gen") and (NgenMu > 1):
             gmt_content.append(evt.gen.phi[trailingMu])
         # elif gmtVar == "pT_jpsi":
         #     gmt_content.append(jPsi.Pt())
@@ -139,70 +141,70 @@ def analyse(evt, gmt_content_list, ugmt_content_list):
     ugmt_content = array('f')
     for ugmtVar in ugmt_content_list:
         if ugmtVar == "N":
-            ugmt_content.append(nL1Mus)
-        elif ugmtVar == "pT1" and (nL1Mus > 0):
+            ugmt_content.append(nUGMTMus)
+        elif (ugmtVar == "pT1") and (nUGMTMus > 0):
             ugmt_content.append(evt.ugmt.pt[leadingUGmtMu])
-        elif ugmtVar == "eta1" and (nL1Mus > 0):
+        elif (ugmtVar == "eta1") and (nUGMTMus > 0):
             ugmt_content.append(evt.ugmt.eta[leadingUGmtMu])
-        # elif ugmtVar == "hf1" and (nL1Mus > 0):
+        # elif ugmtVar == "hf1" and (nUGMTMus > 0):
         #     tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
         #     ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
-        elif ugmtVar == "phi1" and (nL1Mus > 0):
+        elif (ugmtVar == "phi1") and (nUGMTMus > 0):
             ugmt_content.append(evt.ugmt.phi[leadingUGmtMu])
-        # elif ugmtVar == "qual1" and (nL1Mus > 0):
+        # elif ugmtVar == "qual1" and (nUGMTMus > 0):
         #     ugmt_content.append(evt.ugmt.qual[leadingUGmtMu])
-        # elif ugmtVar == "ch1" and (nL1Mus > 0):
+        # elif ugmtVar == "ch1" and (nUGMTMus > 0):
         #     ugmt_content.append(evt.ugmt.ch[leadingUGmtMu])
-        # elif ugmtVar == "trkAddr1" and (nL1Mus > 0):
+        # elif ugmtVar == "trkAddr1" and (nUGMTMus > 0):
         #     tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
         #     trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
         #     ugmt_content.append(trkAddr)
-        # elif ugmtVar == "tfType1" and (nL1Mus > 0):
+        # elif ugmtVar == "tfType1" and (nUGMTMus > 0):
         #     ugmt_content.append(evt.ugmt.tfLink[leadingUGmtMu].tf)
-        # elif (ugmtVar == "tfProcessor1") and (nL1Mus > 0):
+        # elif (ugmtVar == "tfProcessor1") and (nUGMTMus > 0):
         #     tfType = evt.ugmt.tfLink[leadingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[leadingUGmtMu].idx
         #     processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
         #     ugmt_content.append(processor)
-        elif (ugmtVar == "pT2") and (nL1Mus > 1):
+        elif (ugmtVar == "pT2") and (nUGMTMus > 1):
             ugmt_content.append(evt.ugmt.pt[trailingUGmtMu])
-        elif (ugmtVar == "eta2") and (nL1Mus > 1):
+        elif (ugmtVar == "eta2") and (nUGMTMus > 1):
             ugmt_content.append(evt.ugmt.eta[trailingUGmtMu])
-        # elif (ugmtVar == "hf2") and (nL1Mus > 1):
+        # elif (ugmtVar == "hf2") and (nUGMTMus > 1):
         #     tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
         #     ugmt_content.append(evt.ugmt.tfInfo[tfType].hf[tfIdx])
-        elif (ugmtVar == "phi2") and (nL1Mus > 1):
+        elif (ugmtVar == "phi2") and (nUGMTMus > 1):
             ugmt_content.append(evt.ugmt.phi[trailingUGmtMu])
-        # elif (ugmtVar == "qual2") and (nL1Mus > 1):
+        # elif (ugmtVar == "qual2") and (nUGMTMus > 1):
         #     ugmt_content.append(evt.ugmt.qual[trailingUGmtMu])
-        # elif (ugmtVar == "ch2") and (nL1Mus > 1):
+        # elif (ugmtVar == "ch2") and (nUGMTMus > 1):
         #     ugmt_content.append(evt.ugmt.ch[trailingUGmtMu])
-        # elif (ugmtVar == "trkAddr2") and (nL1Mus > 1):
+        # elif (ugmtVar == "trkAddr2") and (nUGMTMus > 1):
         #     tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
         #     trkAddr = evt.ugmt.tfInfo[tfType].trAddress[tfIdx]
         #     ugmt_content.append(trkAddr)
-        # elif (ugmtVar == "tfType2") and (nL1Mus > 1):
+        # elif (ugmtVar == "tfType2") and (nUGMTMus > 1):
         #     ugmt_content.append(evt.ugmt.tfLink[trailingUGmtMu].tf)
-        # elif (ugmtVar == "tfProcessor2") and (nL1Mus > 1):
+        # elif (ugmtVar == "tfProcessor2") and (nUGMTMus > 1):
         #     tfType = evt.ugmt.tfLink[trailingUGmtMu].tf
         #     tfIdx = evt.ugmt.tfLink[trailingUGmtMu].idx
         #     processor = evt.ugmt.tfInfo[tfType].processor[tfIdx]
         #     ugmt_content.append(processor)
-        elif ugmtVar == "pT1_gen":
+        elif (ugmtVar == "pT1_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.pt[leadingMu])
-        elif ugmtVar == "pT2_gen" and (NgenMu > 1):
+        elif (ugmtVar == "pT2_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.pt[trailingMu])
-        elif ugmtVar == "eta1_gen":
+        elif (ugmtVar == "eta1_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.eta[leadingMu])
-        elif ugmtVar == "eta2_gen" and (NgenMu > 1):
+        elif (ugmtVar == "eta2_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.eta[trailingMu])
-        elif ugmtVar == "phi1_gen":
+        elif (ugmtVar == "phi1_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.phi[leadingMu])
-        elif ugmtVar == "phi2_gen" and (NgenMu > 1):
+        elif (ugmtVar == "phi2_gen") and (NgenMu > 1):
             ugmt_content.append(evt.gen.phi[trailingMu])
         # elif ugmtVar == "ch1_gen":
         #     if evt.gen.id[leadingMu] > 0:
