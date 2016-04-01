@@ -18,10 +18,10 @@ cuts["mu-ptGMT1"] = ["(pT1 > 1)", "diMu-ptGMT1"]
 cuts["diMu-ptGMT1"] = ["((pT1 > 1) && (pT2 > 1))", "diMu-ptGMT1"]
 
 rateList = []
-rateList.append([["mu1_genPt", "p_{T}(leading mu) [GeV/c]"],
-                 binningDict["pt140Fine"], "pT1_gen"])
-rateList.append([["mu2_genPt", "p_{T}(trailing mu) [GeV/c]"],
-                 binningDict["pt140Fine"], "pT2_gen"])
+rateList.append([["mu1_L1Pt", "p_{T}(leading mu) [GeV/c]"],
+                 binningDict["pt140Fine"], "pT1"])
+rateList.append([["mu2_L1Pt", "p_{T}(trailing mu) [GeV/c]"],
+                 binningDict["pt140Fine"], "pT2"])
 
 gmt_singleNu_file = "GMTmuonRate.root"
 ugmt_singleNu_file = "uGMTmuonRate.root"
