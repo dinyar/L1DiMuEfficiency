@@ -329,7 +329,10 @@ def main():
         flat_ugmt_tuple.Fill(ugmt_ntuple_values)
         gmt_f.cd()
         flat_gmt_tuple.Fill(gmt_ntuple_values)
-
+    gmt_f.cd()
+    gmt_f.Write()
+    ugmt_f.cd()
+    ugmt_f.Write()
 
 if __name__ == "__main__":
     main()
