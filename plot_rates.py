@@ -27,16 +27,18 @@ gmt_singleNu_file = "GMTmuonRate.root"
 ugmt_singleNu_file = "uGMTmuonRate.root"
 
 ntuples = []
-ntuples.extend(4 * [gmt_singleNu_file])  # Gen single/di-mus, GMT single/di-mus
+# ntuples.extend(2 * [gmt_singleNu_file])  # For gen single/di-mus
+ntuples.extend(2 * [gmt_singleNu_file])  # For GMT single/di-mus
 ntuples.extend(2 * [ugmt_singleNu_file])  # For uGMT single muons, di-muons
 
 ntuple_names = []
-ntuple_names.extend(4 * ["gmt_ntuple"])
+# ntuple_names.extend(2 * ["gmt_ntuple"])
+ntuple_names.extend(2 * ["gmt_ntuple"])
 ntuple_names.extend(2 * ["ugmt_ntuple"])
 
 labels = []
-labels.append("Gen single muon rate")
-labels.append("Gen di-muon rate")
+# labels.append("Gen single muon rate")
+# labels.append("Gen di-muon rate")
 labels.append("GMT single muon rate")
 labels.append("GMT di-muon rate")
 labels.append("uGMT single muon rate")
@@ -51,8 +53,8 @@ line_colours.append(8)
 line_colours.append(28)
 
 cutStrings = []
-cutStrings.append(cuts["mu-ptGen1"])
-cutStrings.append(cuts["diMu-ptGen1"])
+# cutStrings.append(cuts["mu-ptGen1"])
+# cutStrings.append(cuts["diMu-ptGen1"])
 cutStrings.append(cuts["mu-ptGMT1"])
 cutStrings.append(cuts["diMu-ptGMT1"])
 cutStrings.append(cuts["mu-ptGMT1"])
