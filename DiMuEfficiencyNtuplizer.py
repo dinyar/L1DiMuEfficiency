@@ -4,7 +4,7 @@ import os
 from math import sqrt
 from array import array
 sys.path.append(os.path.join(os.path.dirname(__file__),
-                "../L1TriggerDPG/L1Ntuples/macros/python"))
+                "../L1AnalysisHelpers"))
 from ToolBox import parse_options_and_init_log
 # have to do this first or ROOT masks the -h messages
 opts, parser = parse_options_and_init_log()
