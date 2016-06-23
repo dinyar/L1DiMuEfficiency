@@ -32,18 +32,18 @@ std::vector<std::string> createContentList(
     int nGenMu, std::vector<std::string> genPhysicsQuantities,
     std::vector<std::string> l1PhysicsQuantities);
 void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
-                std::vector<std::string> contentList, float[] ntupleValues);
+                std::vector<std::string> contentList, float ntupleValues[]);
 void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
-                float[] ntupleValues);
+                float ntupleValues[]);
 void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
                 int ugmtMu2, std::vector<std::string> contentList,
-                float[] ugmtNtupleValues);
+                float ugmtNtupleValues[]);
 void fillNtuple(int tfMu1,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1_,
                 int tfMu2,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
-                std::vector<std::string> contentList, float[] tfNtupleValues);
+                std::vector<std::string> contentList, float tfNtupleValues[]);
 
 void DiMuonEfficiencyNtuplizer(const char* fname = "L1Ntuple_list", int nGenMu,
                                const char* outDir) {
@@ -397,7 +397,7 @@ std::vector<std::string> createContentList(
 }
 
 void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
-                std::vector<std::string> contentList, float[] ntupleValues) {
+                std::vector<std::string> contentList, float ntupleValues[]) {
   for (int i = 0; i < contentList.length(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
       ntupleValues[i] = reco_->pt[0];
@@ -423,7 +423,7 @@ void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
 
 void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
-                float[] ntupleValues) {
+                float ntupleValues[]) {
   // TODO: Missing charge!
   for (int i = 0; i < contentList.length(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
@@ -446,7 +446,7 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
 
 void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
                 int ugmtMu2, std::vector<std::string> contentList,
-                float[] ugmtNtupleValues) {
+                float ugmtNtupleValues[]) {
   // TODO: Missing track addresses, HF bit, processor
   for (int i = 0; i < contentList.length(); ++i) {
     if (contentList.at(i) == "pT1") {
@@ -497,7 +497,7 @@ void fillNtuple(int tfMu1,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1_,
                 int tfMu2,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
-                std::vector<std::string> contentList, float[] tfNtupleValues) {
+                std::vector<std::string> contentList, float tfNtupleValues[]) {
   for (int i = 0; i < contentList.length(); ++i) {
     if (contentList.at(i) == "pT1") {
       tfNtupleValues[i] = calcTFpt(tf1_->tfMuonHwPt[tfMu1]);
