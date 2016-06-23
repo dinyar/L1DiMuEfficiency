@@ -398,7 +398,7 @@ std::vector<std::string> createContentList(
 
 void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                 std::vector<std::string> contentList, float ntupleValues[]) {
-  for (int i = 0; i < contentList.length(); ++i) {
+  for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
       ntupleValues[i] = reco_->pt[0];
     } else if (contentList.at(i) == "pT1_gen") {
@@ -425,7 +425,7 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
                 float ntupleValues[]) {
   // TODO: Missing charge!
-  for (int i = 0; i < contentList.length(); ++i) {
+  for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
       ntupleValues[i] = gen_->partPt[genMu1];
     } else if (contentList.at(i) == "pT1_gen") {
@@ -448,7 +448,7 @@ void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
                 int ugmtMu2, std::vector<std::string> contentList,
                 float ugmtNtupleValues[]) {
   // TODO: Missing track addresses, HF bit, processor
-  for (int i = 0; i < contentList.length(); ++i) {
+  for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1") {
       ugmtNtupleValues[i] = ugmt_->muonEt[ugmtMu1];
     } else if (contentList.at(i) == "pT2" && ugmtMu2 != -1) {
@@ -498,7 +498,7 @@ void fillNtuple(int tfMu1,
                 int tfMu2,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
                 std::vector<std::string> contentList, float tfNtupleValues[]) {
-  for (int i = 0; i < contentList.length(); ++i) {
+  for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1") {
       tfNtupleValues[i] = calcTFpt(tf1_->tfMuonHwPt[tfMu1]);
     } else if (contentList.at(i) == "pT2" && tfMu2 != -1) {
