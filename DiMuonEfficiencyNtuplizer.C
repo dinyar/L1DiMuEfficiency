@@ -512,9 +512,13 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "hf2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonHwHF[tfMu2];
     } else if (contentList.at(i) == "phi1") {
-      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1]);
+      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1],
+                                    tf1_->tfMuonTrackFinderType[tfMu1],
+                                    tf1_->tfMuonProcessor[tfMu1]);
     } else if (contentList.at(i) == "phi2" && tfMu2 != -1) {
-      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2]);
+      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2],
+                                    tf2_->tfMuonTrackFinderType[tfMu2],
+                                    tf2_->tfMuonProcessor[tfMu2]);
     } else if (contentList.at(i) == "qual1") {
       tfNtupleValues[i] = tf1_->tfMuonHwQual[tfMu1];
     } else if (contentList.at(i) == "qual2" && tfMu2 != -1) {
@@ -526,7 +530,7 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "tfType1") {
       tfNtupleValues[i] = tf1_->tfMuonTrackFinderType[tfMu1];
     } else if (contentList.at(i) == "tfType2" && tfMu2 != -1) {
-      tfNtupleValues[i] = tf2_->tfMuon[tfMu2];
+      tfNtupleValues[i] = tf2_->tfMuonTrackFinderType[tfMu2];
     } else if (contentList.at(i) == "tfProcessor1") {
       tfNtupleValues[i] = tf1_->tfMuonProcessor[tfMu1];
     } else if (contentList.at(i) == "tfProcessor2" && tfMu2 != -1) {
