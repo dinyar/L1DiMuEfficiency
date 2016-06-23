@@ -512,12 +512,30 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "hf2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonHwHF[tfMu2];
     } else if (contentList.at(i) == "phi1") {
-      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1],
-                                    tf1_->tfMuonTrackFinderType[tfMu1],
+      tftype tfType = tftype::none;
+      if (tf1_->tfMuonTrackFinderType[tfMu1] == 0) {
+        tfType = tftype::bmtf;
+      } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 1 ||
+                 tf1_->tfMuonTrackFinderType[tfMu1] == 2) {
+        tfType = tftype::omtf;
+      } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 3 ||
+                 tf1_->tfMuonTrackFinderType[tfMu1] == 4) {
+        tfType = tftype::emtf;
+      }
+      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1], tfType,
                                     tf1_->tfMuonProcessor[tfMu1]);
     } else if (contentList.at(i) == "phi2" && tfMu2 != -1) {
-      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2],
-                                    tf2_->tfMuonTrackFinderType[tfMu2],
+      tftype tfType = tftype::none;
+      if (tf2_->tfMuonTrackFinderType[tfMu2] == 0) {
+        tfType = tftype::bmtf;
+      } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 1 ||
+                 tf2_->tfMuonTrackFinderType[tfMu2] == 2) {
+        tfType = tftype::omtf;
+      } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 3 ||
+                 tf2_->tfMuonTrackFinderType[tfMu2] == 4) {
+        tfType = tftype::emtf;
+      }
+      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2], tfType,
                                     tf2_->tfMuonProcessor[tfMu2]);
     } else if (contentList.at(i) == "qual1") {
       tfNtupleValues[i] = tf1_->tfMuonHwQual[tfMu1];
