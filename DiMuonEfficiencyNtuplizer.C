@@ -45,8 +45,8 @@ void fillNtuple(int tfMu1,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
                 std::vector<std::string> contentList, float tfNtupleValues[]);
 
-void DiMuonEfficiencyNtuplizer(const char* fname = "L1Ntuple_list", int nGenMu,
-                               const char* outDir) {
+void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
+                               int nGenMu = 1, std::string outDir = "tmp/") {
   // make trees and set branch addresses
   const char* ugmtMcTree = "l1UpgradeEmuTree/L1UpgradeTree";
   const char* tfMcTree = "l1UpgradeTfMuonEmuTree/L1UpgradeTfMuonTree";
@@ -72,7 +72,7 @@ void DiMuonEfficiencyNtuplizer(const char* fname = "L1Ntuple_list", int nGenMu,
   TTree* treeGen = (TTree*)file->Get(genTree);
   TTree* treeReco = (TTree*)file->Get(recoTree);
 
-  if (!treeTfMC && !treeUgmtTree && !(treeReco || treeGen)) {
+  if (!treeTfMC && !treeUgmtMC && !(treeReco || treeGen)) {
     std::cout << "Require both TF upgrade and upgrade trees as well as one of "
                  "reco or gen tree to run. Exiting.. "
               << std::endl;
@@ -113,7 +113,7 @@ void DiMuonEfficiencyNtuplizer(const char* fname = "L1Ntuple_list", int nGenMu,
 
   if (treeUgmtMC) {
     std::cout << "Found upgrade tree from MC, adding branches.." << std::endl;
-    foundUgmtTree = tree;
+    foundUgmtTree = true;
     chainUgmtMC->SetBranchAddress("L1Upgrade", &ugmtMC_);
   }
   if (treeTfMC) {
@@ -253,7 +253,7 @@ std::vector<std::string> getNtupleList(std::string fname) {
   std::ifstream flist(fname);
   if (!flist) {
     std::cout << "File " << fname << " is not found!" << std::endl;
-    return false;
+    // TODO: Throw exception..
   }
 
   while (!flist.eof()) {
@@ -380,7 +380,7 @@ std::vector<std::string> createContentList(
     std::vector<std::string> l1PhysicsQuantities) {
   std::vector<std::string> contentList;
   for (std::vector<std::string>::iterator it = l1PhysicsQuantities.begin();
-       it != physicsQuantities.end(); ++it) {
+       it != l1PhysicsQuantities.end(); ++it) {
     contentList.push_back(*it + "1");
     contentList.push_back(*it + "2");
   }
