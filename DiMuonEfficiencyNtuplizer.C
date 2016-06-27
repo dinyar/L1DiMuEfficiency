@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisGeneratorDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
@@ -22,8 +24,8 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
                    int& mu2);
 void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
                  int& mu2, int& pt1, int& pt2,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
                  tftype tfType);
 std::vector<std::string> generateGenPhysicsQuantities();
 std::vector<std::string> generateUgmtPhysicsQuantities();
@@ -95,7 +97,12 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
 
   // Init
   std::cout << "Estimate the number of entries..." << std::endl;
-  int nevents = chainReco->GetEntries();
+  int nevents;
+  if (treeReco) {
+    nevents = chainReco->GetEntries();
+  } else {
+    nevents = chainGen->GetEntries();
+  }
   std::cout << nevents << std::endl;
 
   L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmtMC_ =
@@ -142,11 +149,16 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     ntupleName = "DimuonNtuple";
   }
 
+  const int dir_err = mkdir(outDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  if (-1 == dir_err)
+  {
+    std::cout << "Error creating directory or directory exists already." << std::endl;
+  }
+
   std::string gmtNtupleFname(outDir + "/uGMT" + ntupleName + ".root");
   std::string tfNtupleFname(outDir + "/tf" + ntupleName + ".root");
 
   TFile* ugmtFile = new TFile(gmtNtupleFname.c_str(), "RECREATE");
-  TFile* tfFile = new TFile(tfNtupleFname.c_str(), "RECREATE");
 
   std::vector<std::string> ugmtContentList = createContentList(
       nGenMu, generateGenPhysicsQuantities(), generateUgmtPhysicsQuantities());
@@ -154,17 +166,13 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       nGenMu, generateGenPhysicsQuantities(), generateTfPhysicsQuantities());
 
   std::ostringstream ugmtContentStream;
-  for (std::vector<std::string>::iterator it = ugmtContentList.begin();
-       it != ugmtContentList.end(); ++it) {
-    ugmtContentStream << ":" << *it;
-  }
+  std::copy(ugmtContentList.begin(), ugmtContentList.end()-1, std::ostream_iterator<std::string>(ugmtContentStream, ":"));
+  ugmtContentStream << *(ugmtContentList.rbegin());
   std::string ugmtContentStr(ugmtContentStream.str());
 
   std::ostringstream tfContentStream;
-  for (std::vector<std::string>::iterator it = tfContentList.begin();
-       it != tfContentList.end(); ++it) {
-    tfContentStream << ":" << *it;
-  }
+  std::copy(tfContentList.begin(), tfContentList.end()-1, std::ostream_iterator<std::string>(tfContentStream, ":"));
+  tfContentStream << *(tfContentList.rbegin());
   std::string tfContentStr(tfContentStream.str());
 
   TNtuple* ugmtNtuple =
@@ -182,6 +190,7 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     if ((jentry % 1000) == 0) {
       std::cout << "Done " << jentry << " events..." << std::endl;
     }
+
 
     chainUgmtMC->GetEntry(jentry);
     chainTfMC->GetEntry(jentry);
@@ -236,7 +245,6 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     fillNtuple(ugmtMC_, ugmtMu1, ugmtMu2, ugmtContentList, ugmtNtupleValues);
     ugmtNtuple->Fill(ugmtNtupleValues);
     // Fill tf ntuple
-    tfFile->cd();
     fillNtuple(tfMu1, tf1, tfMu2, tf2, tfContentList, tfNtupleValues);
     tfNtuple->Fill(tfNtupleValues);
   }
@@ -244,8 +252,6 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
   // Write ntuple file to disk.
   ugmtFile->cd();
   ugmtFile->Write();
-  tfFile->cd();
-  tfFile->Write();
 }
 
 std::vector<std::string> getNtupleList(std::string fname) {
@@ -313,8 +319,8 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
 
 void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
                  int& mu2, int& pt1, int& pt2,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
                  tftype tfType) {
   for (int i = 0; i < tf_->nTfMuons; ++i) {
     if (tf_->tfMuonBx[i] != 0) {
@@ -390,6 +396,7 @@ std::vector<std::string> createContentList(
     contentList.push_back(*it + "1_gen");
     if (nGenMu > 1) {
       contentList.push_back(*it + "2_gen");
+      contentList.push_back(*it + "_jpsi");
     }
   }
 
@@ -398,23 +405,37 @@ std::vector<std::string> createContentList(
 
 void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                 std::vector<std::string> contentList, float ntupleValues[]) {
+  TLorentzVector jPsi;
+  if (reco_->nMuons > 1) {
+    TLorentzVector mu1;
+    TLorentzVector mu2;
+    mu1.SetPtEtaPhiE(reco_->pt[0], reco_->eta[0], reco_->phi[0], reco_->e[0]);
+    mu2.SetPtEtaPhiE(reco_->pt[1], reco_->eta[1], reco_->phi[1], reco_->e[1]);
+    jPsi = mu1 + mu2;
+  }
   for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
       ntupleValues[i] = reco_->pt[0];
-    } else if (contentList.at(i) == "pT1_gen") {
+    } else if (contentList.at(i) == "pT2_gen") {
       ntupleValues[i] = reco_->pt[1];
     } else if (contentList.at(i) == "eta1_gen") {
       ntupleValues[i] = reco_->eta[0];
-    } else if (contentList.at(i) == "eta1_gen") {
+    } else if (contentList.at(i) == "eta2_gen") {
       ntupleValues[i] = reco_->eta[1];
     } else if (contentList.at(i) == "phi1_gen") {
       ntupleValues[i] = reco_->phi[0];
-    } else if (contentList.at(i) == "phi1_gen") {
+    } else if (contentList.at(i) == "phi2_gen") {
       ntupleValues[i] = reco_->phi[1];
     } else if (contentList.at(i) == "ch1_gen") {
       ntupleValues[i] = reco_->charge[0];
-    } else if (contentList.at(i) == "ch1_gen") {
+    } else if (contentList.at(i) == "ch2_gen") {
       ntupleValues[i] = reco_->charge[1];
+    } else if (contentList.at(i) == "pT_jpsi") {
+      ntupleValues[i] = jPsi.Pt();
+    } else if (contentList.at(i) == "eta_jpsi") {
+      ntupleValues[i] = jPsi.Eta();
+    } else if (contentList.at(i) == "phi_jpsi") {
+      ntupleValues[i] = jPsi.Phi();
     } else {
       ntupleValues[i] = -10;
     }
@@ -425,19 +446,33 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
                 float ntupleValues[]) {
   // TODO: Missing charge!
+  TLorentzVector jPsi;
+  if (genMu2 > -1) {
+    TLorentzVector mu1;
+    TLorentzVector mu2;
+    mu1.SetPtEtaPhiE(gen_->partPt[genMu1], gen_->partEta[genMu1], gen_->partPhi[genMu1], gen_->partE[genMu1]);
+    mu2.SetPtEtaPhiE(gen_->partPt[genMu2], gen_->partEta[genMu2], gen_->partPhi[genMu2], gen_->partE[genMu2]);
+    jPsi = mu1 + mu2;
+  }
   for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
       ntupleValues[i] = gen_->partPt[genMu1];
-    } else if (contentList.at(i) == "pT1_gen") {
+    } else if (contentList.at(i) == "pT2_gen") {
       ntupleValues[i] = gen_->partPt[genMu2];
     } else if (contentList.at(i) == "eta1_gen") {
       ntupleValues[i] = gen_->partEta[genMu1];
-    } else if (contentList.at(i) == "eta1_gen") {
+    } else if (contentList.at(i) == "eta2_gen") {
       ntupleValues[i] = gen_->partEta[genMu2];
     } else if (contentList.at(i) == "phi1_gen") {
       ntupleValues[i] = gen_->partPhi[genMu1];
-    } else if (contentList.at(i) == "phi1_gen") {
+    } else if (contentList.at(i) == "phi2_gen") {
       ntupleValues[i] = gen_->partPhi[genMu2];
+    } else if (contentList.at(i) == "pT_jpsi") {
+      ntupleValues[i] = jPsi.Pt();
+    } else if (contentList.at(i) == "eta_jpsi") {
+      ntupleValues[i] = jPsi.Eta();
+    } else if (contentList.at(i) == "phi_jpsi") {
+      ntupleValues[i] = jPsi.Phi();
     } else {
       ntupleValues[i] = -10;
     }
@@ -472,24 +507,22 @@ void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
     } else if (contentList.at(i) == "tfType1") {
       int muIdx = ugmt_->muonTfMuonIdx[ugmtMu1];
       if (muIdx < 18 || muIdx >= 90) {
-        ugmtNtupleValues[i] = 3;  // EMTF
+        ugmtNtupleValues[i] = 2;  // EMTF
       } else if (muIdx < 36 || muIdx >= 72) {
-        ugmtNtupleValues[i] = 2;  // OMTF
+        ugmtNtupleValues[i] = 1;  // OMTF
       } else if (muIdx >= 36 && muIdx < 72) {
-        ugmtNtupleValues[i] = 1;  // BMTF
+        ugmtNtupleValues[i] = 0;  // BMTF
       }
     } else if (contentList.at(i) == "tfType2" && ugmtMu2 != -1) {
       int muIdx = ugmt_->muonTfMuonIdx[ugmtMu2];
       if (muIdx < 18 || muIdx >= 90) {
-        ugmtNtupleValues[i] = 3;  // EMTF
+        ugmtNtupleValues[i] = 2;  // EMTF
       } else if (muIdx < 36 || muIdx >= 72) {
-        ugmtNtupleValues[i] = 2;  // OMTF
+        ugmtNtupleValues[i] = 1;  // OMTF
       } else if (muIdx >= 36 && muIdx < 72) {
-        ugmtNtupleValues[i] = 1;  // BMTF
+        ugmtNtupleValues[i] = 0;  // BMTF
       }
-    } else {
-      ugmtNtupleValues[i] = -10;
-    }
+    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non -filled" fields are initialized to -10 already.
   }
 }
 
@@ -498,6 +531,30 @@ void fillNtuple(int tfMu1,
                 int tfMu2,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
                 std::vector<std::string> contentList, float tfNtupleValues[]) {
+  tftype tfType1 = tftype::none;
+  if (tf1_->tfMuonTrackFinderType[tfMu1] == 0) {
+    tfType1 = tftype::bmtf;
+  } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 1 ||
+             tf1_->tfMuonTrackFinderType[tfMu1] == 2) {
+    tfType1 = tftype::omtf;
+  } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 3 ||
+             tf1_->tfMuonTrackFinderType[tfMu1] == 4) {
+    tfType1 = tftype::emtf;
+  }
+
+  tftype tfType2 = tftype::none;
+  if (tfMu2 != -1) {
+    if (tf2_->tfMuonTrackFinderType[tfMu2] == 0) {
+      tfType2 = tftype::bmtf;
+    } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 1 ||
+               tf2_->tfMuonTrackFinderType[tfMu2] == 2) {
+      tfType2 = tftype::omtf;
+    } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 3 ||
+               tf2_->tfMuonTrackFinderType[tfMu2] == 4) {
+      tfType2 = tftype::emtf;
+    }
+  }
+
   for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1") {
       tfNtupleValues[i] = calcTFpt(tf1_->tfMuonHwPt[tfMu1]);
@@ -512,30 +569,10 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "hf2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonHwHF[tfMu2];
     } else if (contentList.at(i) == "phi1") {
-      tftype tfType = tftype::none;
-      if (tf1_->tfMuonTrackFinderType[tfMu1] == 0) {
-        tfType = tftype::bmtf;
-      } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 1 ||
-                 tf1_->tfMuonTrackFinderType[tfMu1] == 2) {
-        tfType = tftype::omtf;
-      } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 3 ||
-                 tf1_->tfMuonTrackFinderType[tfMu1] == 4) {
-        tfType = tftype::emtf;
-      }
-      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1], tfType,
+      tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1], tfType1,
                                     tf1_->tfMuonProcessor[tfMu1]);
     } else if (contentList.at(i) == "phi2" && tfMu2 != -1) {
-      tftype tfType = tftype::none;
-      if (tf2_->tfMuonTrackFinderType[tfMu2] == 0) {
-        tfType = tftype::bmtf;
-      } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 1 ||
-                 tf2_->tfMuonTrackFinderType[tfMu2] == 2) {
-        tfType = tftype::omtf;
-      } else if (tf2_->tfMuonTrackFinderType[tfMu2] == 3 ||
-                 tf2_->tfMuonTrackFinderType[tfMu2] == 4) {
-        tfType = tftype::emtf;
-      }
-      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2], tfType,
+      tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2], tfType2,
                                     tf2_->tfMuonProcessor[tfMu2]);
     } else if (contentList.at(i) == "qual1") {
       tfNtupleValues[i] = tf1_->tfMuonHwQual[tfMu1];
@@ -546,15 +583,13 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "ch2" && tfMu2 != -1) {
       tfNtupleValues[i] = std::pow(-1, tf2_->tfMuonHwSign[tfMu2]);
     } else if (contentList.at(i) == "tfType1") {
-      tfNtupleValues[i] = tf1_->tfMuonTrackFinderType[tfMu1];
+      tfNtupleValues[i] = tfType1; 
     } else if (contentList.at(i) == "tfType2" && tfMu2 != -1) {
-      tfNtupleValues[i] = tf2_->tfMuonTrackFinderType[tfMu2];
+      tfNtupleValues[i] = tfType2; 
     } else if (contentList.at(i) == "tfProcessor1") {
       tfNtupleValues[i] = tf1_->tfMuonProcessor[tfMu1];
     } else if (contentList.at(i) == "tfProcessor2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonProcessor[tfMu2];
-    } else {
-      tfNtupleValues[i] = -10;
-    }
+    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non -filled" fields are initialized to -10 already.
   }
 }
