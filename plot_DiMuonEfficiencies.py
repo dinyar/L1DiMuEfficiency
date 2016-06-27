@@ -122,8 +122,8 @@ ntuple_names = []
 ntuple_names.append("tf_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ugmt_inout_labels = []
-ugmt_inout_labels.append(["Gen muons", "uGMT muons", "uGMT input"])
-ugmt_inout_labels.append(["Gen muons", "uGMT muons", "uGMT output"])
+ugmt_inout_labels.append(["Gen muons", "uGMT input muons", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT output muons", "uGMT"])
 
 line_colours = []
 line_colours.append(1)
@@ -313,10 +313,8 @@ tf_eff_labels.append(
 ["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
 tf_eff_labels.append(
 ["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
-tf_eff_labels.append(["Gen muons", "BMTF coarse+OMTF muons", "uGMT",
-"diBOMTFcoarse"])
-tf_eff_labels.append(["Gen muons", "BMTF fine+OMTF muons", "uGMT",
-"diBOMTFfine"])
+tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT",
+"diBOMTF"])
 tf_eff_labels.append(
 ["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
 tf_eff_labels.append(
@@ -340,8 +338,7 @@ tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1"])
 tf_eff_cuts.append(gmtCuts["diBmtf"])
 tf_eff_cuts.append(gmtCuts["diOmtf"])
 tf_eff_cuts.append(gmtCuts["diEmtf"])
-tf_eff_cuts.append(gmtCuts["diBOmtfCoarse"])
-tf_eff_cuts.append(gmtCuts["diBOmtfFine"])
+tf_eff_cuts.append(gmtCuts["diBOmtf"])
 tf_eff_cuts.append(gmtCuts["diEOmtf"])
 tf_eff_cuts.append(gmtCuts["diBEmtf"])
 
