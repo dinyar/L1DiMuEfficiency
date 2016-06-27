@@ -39,6 +39,8 @@ genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["ugmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
                             "diMu-pt1"]
+gmtCuts["ugmt_diMu-pt1_q4"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 4) && (qual2 > 4))",
+                               "diMu-pt1"]
 
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
@@ -51,6 +53,14 @@ gmtCuts["singleBmtfEtaCoarse"] = ["((tfType1==0) && (tfType2==-10) && (hf1==0))"
                                   "bmtfEtaCoarse"]
 gmtCuts["singleOmtf"] = ["((tfType1==1) && (tfType2==-10))", "omtf"]
 gmtCuts["singleEmtf"] = ["((tfType1==2) && (tfType2==-10))", "emtf"]
+
+gmtCuts["singleBmtf_q4"] = ["((tfType1==0) && (tfType2==-10)) && (qual1 > 4)", "bmtf_q4"]
+gmtCuts["singleBmtfEtaFine_q4"] = ["((tfType1==0) && (tfType2==-10) && (hf1==1)) && (qual1 > 4)",
+                                "bmtfEtaFine_q4"]
+gmtCuts["singleBmtfEtaCoarse_q4"] = ["((tfType1==0) && (tfType2==-10) && (hf1==0)) && (qual1 > 4)",
+                                  "bmtfEtaCoarse_q4"]
+gmtCuts["singleOmtf_q4"] = ["((tfType1==1) && (tfType2==-10)) && (qual1 > 4)", "omtf_q4"]
+gmtCuts["singleEmtf_q4"] = ["((tfType1==2) && (tfType2==-10)) && (qual1 > 4)", "emtf_q4"]
 
 gmtCuts["diBmtf"] = ["((tfType1==0) && (tfType2==0))", "diBmtf"]
 gmtCuts["diOmtf"] = ["((tfType1==1) && (tfType2==1))", "diOmtf"]
@@ -65,6 +75,20 @@ gmtCuts["diEOmtf"] = [
     "(((tfType1==1) && (tfType2==2)) || ((tfType1==2) && (tfType2==1)))", "diEOmtf"]
 gmtCuts["diBEmtf"] = [
     "(((tfType1==0) && (tfType2==2)) || ((tfType1==2) && (tfType2==0)))", "diBEmtf"]
+
+gmtCuts["diBmtf_q4"] = ["((tfType1==0) && (tfType2==0)) && ((qual1 > 4) && (qual2 > 4))", "diBmtf_q4"]
+gmtCuts["diOmtf_q4"] = ["((tfType1==1) && (tfType2==1)) && ((qual1 > 4) && (qual2 > 4))", "diOmtf_q4"]
+gmtCuts["diEmtf_q4"] = ["((tfType1==2) && (tfType2==2)) && ((qual1 > 4) && (qual2 > 4))", "diEmtf_q4"]
+gmtCuts["diBOmtf_q4"] = [
+    "(((tfType1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
+gmtCuts["diBOmtfCoarse_q4"] = [
+    "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
+gmtCuts["diBOmtfFine_q4"] = ["(((tfType1==0) && (hf1==1) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==1))) && ((qual1 > 4) && (qual2 > 4))",
+                          "diBOmtf_q4"]
+gmtCuts["diEOmtf_q4"] = [
+    "(((tfType1==1) && (tfType2==2)) || ((tfType1==2) && (tfType2==1))) && ((qual1 > 4) && (qual2 > 4))", "diEOmtf_q4"]
+gmtCuts["diBEmtf_q4"] = [
+    "(((tfType1==0) && (tfType2==2)) || ((tfType1==2) && (tfType2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBEmtf_q4"]
 
 
 # TODO: Do these plots also for maxQual!
@@ -115,15 +139,16 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 
 # Plot efficiency for in- and ouput of uGMT w/o splitting into TF contributions
 
-jpsi_efficiency_ntuples = []
-jpsi_efficiency_ntuples.append(ugmt_dimu_file)
-jpsi_efficiency_ntuples.append(ugmt_dimu_file)
-ntuple_names = []
-ntuple_names.append("tf_ntuple")
-ntuple_names.append("ugmt_ntuple")
 ugmt_inout_labels = []
 ugmt_inout_labels.append(["Gen muons", "uGMT input muons", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT output muons", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT input muons, q>4", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT output muons, q>4", "uGMT"])
+jpsi_efficiency_ntuples = []
+jpsi_efficiency_ntuples.extend(len(ugmt_inout_labels) * [ugmt_dimu_file])
+ntuple_names = []
+ntuple_names.append("tf_ntuple")
+ntuple_names.append("tf_ntuple")
+ntuple_names.append("ugmt_ntuple")
 
 line_colours = []
 line_colours.append(1)
@@ -138,7 +163,8 @@ line_colours.append(32)
 line_colours.append(35)
 line_colours.append(42)
 cuts = []
-cuts.extend(len(jpsi_efficiency_ntuples) * [gmtCuts["ugmt_diMu-pt1"]])
+cuts.append(gmtCuts["ugmt_diMu-pt1_q4"])
+cuts.extend((len(ugmt_inout_labels)-1) * [gmtCuts["ugmt_diMu-pt1_q4"]])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
@@ -150,57 +176,51 @@ for varList in efficiencyList:
 
 ghostList = []
 # NOTE: If no L1 muon at all deltaX will be 0! This will lead to inefficiencies
-# TODO: Because of note above exclude events without an L1 muon.
-# (we're not looking at efficiency, but ghost rate so we'd be underestimating
-# ghost rate otherwise.)
-# basically we want to know which percentage of singleMu events would be
-# "poisoned" by ghosts
 ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
-                       binningDict["distVeryWide"],
-                       "abs(eta1-eta2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distVeryWide"],
+                  "abs(eta1-eta2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
-                       binningDict["distVeryWide"],
-                       "abs(phi1-phi2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distVeryWide"],
+                  "abs(phi1-phi2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
-                       binningDict["distVeryWide"],
-                       "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distVeryWide"],
+                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
-                       binningDict["distNarrow"],
-                       "abs(eta1-eta2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distNarrow"],
+                  "abs(eta1-eta2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
-                       binningDict["distNarrow"],
-                       "abs(phi1-phi2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distNarrow"],
+                  "abs(phi1-phi2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
-                       binningDict["distNarrow"],
-                       "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["distNarrow"],
+                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
-                       binningDict["etaFineRestr"], "eta1",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["etaFineRestr"], "eta1",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
-                       binningDict["phiFineRestr"], "phi1",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["phiFineRestr"], "phi1",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT1",
-                       genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["pt140Fine"], "pT1",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
-                      binningDict["etaFineRestr"], "eta1_gen",
-                      genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["etaFineRestr"], "eta1_gen",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_genPhi", "#phi(#mu)"],
-                      binningDict["phiFineRestr"], "phi1_gen",
-                      genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["phiFineRestr"], "phi1_gen",
+                  genCuts["mu-pt1"], [0, 0.5]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
-                      binningDict["pt140Fine"], "pT1_gen",
-                      genCuts["mu-pt1"], [0, 0.5]])
+                  binningDict["pt140Fine"], "pT1_gen",
+                  genCuts["mu-pt1"], [0, 0.5]])
 
 singleMu_ghosting_ntuples = []
-singleMu_ghosting_ntuples.append(ugmt_singleMu_file)
-singleMu_ghosting_ntuples.append(ugmt_singleMu_file)
+singleMu_ghosting_ntuples.extend(len(ugmt_inout_labels) * [ugmt_singleMu_file])
 
 for varList in ghostList:
     generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples,
@@ -210,17 +230,18 @@ for varList in ghostList:
 
 # Plotting resolution of track finder inputs.
 
-resolution_check_dlabel = []
-resolution_check_dlabel.append(["All muons", "BMTF muons", "uGMT"])
-resolution_check_dlabel.append(["All muons", "BMTF muons, fine eta", "uGMT"])
-resolution_check_dlabel.append(["All muons", "BMTF muons, coarse eta", "uGMT"])
-resolution_check_dlabel.append(["All muons", "OMTF muons", "uGMT"])
-resolution_check_dlabel.append(["All muons", "EMTF muons", "uGMT"])
+resolution_check_label = []
+resolution_check_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
+resolution_check_label.append(["All muons", "BMTF muons, fine eta, q>4", "uGMT"])
+resolution_check_label.append(["All muons", "BMTF muons, coarse eta, q>4", "uGMT"])
+resolution_check_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
+resolution_check_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
 resolution_check_ntuple = []
-resolution_check_ntuple.extend(len(resolution_check_dlabel) * [ugmt_singleMu_file])
+resolution_check_ntuple.extend(
+    len(resolution_check_label) * [ugmt_singleMu_file])
 resolution_check_ntuple_name = []
 resolution_check_ntuple_name.extend(
-    len(resolution_check_dlabel) * ["tf_ntuple"])
+    len(resolution_check_label) * ["tf_ntuple"])
 resolution_check_line_colour = []
 resolution_check_line_colour.append(28)
 resolution_check_line_colour.append(30)
@@ -228,11 +249,11 @@ resolution_check_line_colour.append(32)
 resolution_check_line_colour.append(36)
 resolution_check_line_colour.append(48)
 resolution_check_cuts = []
-resolution_check_cuts.append(gmtCuts["singleBmtf"])
-resolution_check_cuts.append(gmtCuts["singleBmtfEtaFine"])
-resolution_check_cuts.append(gmtCuts["singleBmtfEtaCoarse"])
-resolution_check_cuts.append(gmtCuts["singleOmtf"])
-resolution_check_cuts.append(gmtCuts["singleEmtf"])
+resolution_check_cuts.append(gmtCuts["singleBmtf_q4"])
+resolution_check_cuts.append(gmtCuts["singleBmtfEtaFine_q4"])
+resolution_check_cuts.append(gmtCuts["singleBmtfEtaCoarse_q4"])
+resolution_check_cuts.append(gmtCuts["singleOmtf_q4"])
+resolution_check_cuts.append(gmtCuts["singleEmtf_q4"])
 resolutionCheckList = []
 resolutionCheckList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Gen})"],
                             binningDict["distSym"], "phi1-phi1_gen",
@@ -249,7 +270,7 @@ resolutionCheckList.append([["mu1_genEta", "#eta(#mu_{Gen})"],
 for varList in resolutionCheckList:
     generateCombinedEfficiencyHist(varList, resolution_check_ntuple,
                                    resolution_check_ntuple_name,
-                                   resolution_check_dlabel,
+                                   resolution_check_label,
                                    resolution_check_line_colour,
                                    resolution_check_cuts, "resolution_check",
                                    drawGenMus=False, drawDistributions=True, drawStackPlot=True,
@@ -258,11 +279,11 @@ for varList in resolutionCheckList:
 # Plot distance of a ghost from the L1 muon at uGMT input
 
 ghost_distance_label = []
-ghost_distance_label.append(["All muons", "BMTF muons", "uGMT"])
-ghost_distance_label.append(["All muons", "OMTF muons", "uGMT"])
-ghost_distance_label.append(["All muons", "EMTF muons", "uGMT"])
-ghost_distance_label.append(["All muons", "BMTF+OMTF overlap muons", "uGMT"])
-ghost_distance_label.append(["All muons", "EMTF+OMTF overlap muons", "uGMT"])
+ghost_distance_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "BMTF+OMTF overlap muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "EMTF+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(len(ghost_distance_label) * [ugmt_singleMu_file])
 ghost_distance_ntuple_name = []
@@ -274,11 +295,11 @@ ghost_distance_line_colour.append(48)
 ghost_distance_line_colour.append(8)
 ghost_distance_line_colour.append(28)
 ghost_distance_cuts = []
-ghost_distance_cuts.append(gmtCuts["diBmtf"])
-ghost_distance_cuts.append(gmtCuts["diOmtf"])
-ghost_distance_cuts.append(gmtCuts["diEmtf"])
-ghost_distance_cuts.append(gmtCuts["diBOmtf"])
-ghost_distance_cuts.append(gmtCuts["diEOmtf"])
+ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
+ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
+ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
+ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
 ghostDistanceList = []
 ghostDistanceList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Ghost})"],
                           binningDict["distSym"],
@@ -306,24 +327,27 @@ for varList in ghostDistanceList:
 
 tf_eff_labels = []
 tf_eff_labels.append(
-["Gen muons", "uGMT input", "TF", "uGMTinput"])
+    ["Gen muons", "uGMT input", "TF", "uGMTinput"])
 tf_eff_labels.append(
-["Gen muons", "only BMTF muons", "uGMT", "diBMTF"])
+    ["Gen muons", "uGMT input, q>4", "TF", "uGMTinput"])
 tf_eff_labels.append(
-["Gen muons", "only OMTF muons", "uGMT", "diOMTF"])
+    ["Gen muons", "only BMTF muons, q>4", "uGMT", "diBMTF"])
 tf_eff_labels.append(
-["Gen muons", "only EMTF muons", "uGMT", "diEMTF"])
+    ["Gen muons", "only OMTF muons, q>4", "uGMT", "diOMTF"])
+tf_eff_labels.append(
+    ["Gen muons", "only EMTF muons, q>4", "uGMT", "diEMTF"])
 tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT",
-"diBOMTF"])
+                      "diBOMTF"])
 tf_eff_labels.append(
-["Gen muons", "OMTF+EMTF muons", "uGMT", "diOEMTF"])
+    ["Gen muons", "OMTF+EMTF muons, q>4", "uGMT", "diOEMTF"])
 tf_eff_labels.append(
-["Gen muons", "BMTF+EMTF muons", "uGMT", "diBEMTF"])
+    ["Gen muons", "BMTF+EMTF muons, q>4", "uGMT", "diBEMTF"])
 tf_eff_ntuples = []
 tf_eff_ntuples.extend(len(tf_eff_labels) * [ugmt_dimu_file])
 tf_eff_ntuple_names = []
 tf_eff_ntuple_names.append("tf_ntuple")
-tf_eff_ntuple_names.extend((len(tf_eff_labels)-1) * ["ugmt_ntuple"])
+tf_eff_ntuple_names.append("tf_ntuple")
+tf_eff_ntuple_names.extend((len(tf_eff_labels) - 2) * ["ugmt_ntuple"])
 tf_eff_line_colours = []
 tf_eff_line_colours.append(1)
 tf_eff_line_colours.append(46)
@@ -335,12 +359,13 @@ tf_eff_line_colours.append(17)
 tf_eff_line_colours.append(7)
 tf_eff_cuts = []
 tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1"])
-tf_eff_cuts.append(gmtCuts["diBmtf"])
-tf_eff_cuts.append(gmtCuts["diOmtf"])
-tf_eff_cuts.append(gmtCuts["diEmtf"])
-tf_eff_cuts.append(gmtCuts["diBOmtf"])
-tf_eff_cuts.append(gmtCuts["diEOmtf"])
-tf_eff_cuts.append(gmtCuts["diBEmtf"])
+tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1_q4"])
+tf_eff_cuts.append(gmtCuts["diBmtf_q4"])
+tf_eff_cuts.append(gmtCuts["diOmtf_q4"])
+tf_eff_cuts.append(gmtCuts["diEmtf_q4"])
+tf_eff_cuts.append(gmtCuts["diBOmtf_q4"])
+tf_eff_cuts.append(gmtCuts["diEOmtf_q4"])
+tf_eff_cuts.append(gmtCuts["diBEmtf_q4"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
