@@ -325,7 +325,7 @@ tf_eff_ntuples = []
 tf_eff_ntuples.extend(len(tf_eff_labels) * [ugmt_dimu_file])
 tf_eff_ntuple_names = []
 tf_eff_ntuple_names.append("tf_ntuple")
-tf_eff_ntuple_names.extend(len(tf_eff_labels)-1 * ["ugmt_ntuple"])
+tf_eff_ntuple_names.extend((len(tf_eff_labels)-1) * ["ugmt_ntuple"])
 tf_eff_line_colours = []
 tf_eff_line_colours.append(1)
 tf_eff_line_colours.append(46)
