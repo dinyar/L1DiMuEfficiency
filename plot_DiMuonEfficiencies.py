@@ -180,45 +180,45 @@ ghostList = []
 ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distVeryWide"],
                   "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
                   binningDict["distNarrow"],
                   "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
                   binningDict["etaFineRestr"], "eta1",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
                   binningDict["phiFineRestr"], "phi1",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
                   binningDict["etaFineRestr"], "eta1_gen",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_genPhi", "#phi(#mu)"],
                   binningDict["phiFineRestr"], "phi1_gen",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1_gen",
-                  genCuts["mu-pt1"], [0, 0.5]])
+                  genCuts["mu-pt1"], [0, 0.6]])
 
 singleMu_ghosting_ntuples = []
 singleMu_ghosting_ntuples.extend(len(ugmt_inout_labels) * [ugmt_singleMu_file])
@@ -286,7 +286,9 @@ ghost_distance_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(
-    ["All muons", "BMTF+OMTF overlap muons, q>4", "uGMT"])
+    ["All muons", "BMTF fine+OMTF overlap muons, q>4", "uGMT"])
+ghost_distance_label.append(
+    ["All muons", "BMTF coarse+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_label.append(
     ["All muons", "EMTF+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_ntuple = []
@@ -299,11 +301,13 @@ ghost_distance_line_colour.append(36)
 ghost_distance_line_colour.append(48)
 ghost_distance_line_colour.append(8)
 ghost_distance_line_colour.append(28)
+ghost_distance_line_colour.append(35)
 ghost_distance_cuts = []
 ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
 ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
 ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
-ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
+ghost_distance_cuts.append(gmtCuts["diBOmtfFine_q4"])
+ghost_distance_cuts.append(gmtCuts["diBOmtfCoarse_q4"])
 ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
 ghostDistanceList = []
 ghostDistanceList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Ghost})"],
