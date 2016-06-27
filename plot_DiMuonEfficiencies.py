@@ -252,7 +252,7 @@ for varList in resolutionCheckList:
                                    resolution_check_dlabel,
                                    resolution_check_line_colour,
                                    resolution_check_cuts, "resolution_check",
-                                   drawGenMus=False, drawStackPlot=True,
+                                   drawGenMus=False, drawDistributions=True, drawStackPlot=True,
                                    rootFolder=opts.outDir)
 
 # Plot distance of a ghost from the L1 muon at uGMT input
@@ -299,7 +299,7 @@ for varList in ghostDistanceList:
                                    ghost_distance_label,
                                    ghost_distance_line_colour,
                                    ghost_distance_cuts, "ghost_distance",
-                                   drawGenMus=False, drawStackPlot=True,
+                                   drawGenMus=False, drawDistributions=True, drawStackPlot=True,
                                    rootFolder=opts.outDir)
 
 # Plot efficiencies at uGMT ouput split by TF contributions.
