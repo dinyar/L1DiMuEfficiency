@@ -66,9 +66,9 @@ gmtCuts["diEmtf"] = ["((tfType1==2) && (tfType2==2))", "diEmtf"]
 gmtCuts["diBOmtf"] = [
     "(((tfType1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0)))", "diBOmtf"]
 gmtCuts["diBOmtfCoarse"] = [
-    "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0)))", "diBOmtf"]
+    "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0)))", "diBOmtfCoarse"]
 gmtCuts["diBOmtfFine"] = ["(((tfType1==0) && (hf1==1) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==1)))",
-                          "diBOmtf"]
+                          "diBOmtfFine"]
 gmtCuts["diEOmtf"] = [
     "(((tfType1==1) && (tfType2==2)) || ((tfType1==2) && (tfType2==1)))", "diEOmtf"]
 gmtCuts["diBEmtf"] = [
@@ -83,9 +83,9 @@ gmtCuts["diEmtf_q4"] = [
 gmtCuts["diBOmtf_q4"] = [
     "(((tfType1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
 gmtCuts["diBOmtfCoarse_q4"] = [
-    "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
+    "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtfCoarse_q4"]
 gmtCuts["diBOmtfFine_q4"] = ["(((tfType1==0) && (hf1==1) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==1))) && ((qual1 > 4) && (qual2 > 4))",
-                             "diBOmtf_q4"]
+                             "diBOmtfFine_q4"]
 gmtCuts["diEOmtf_q4"] = [
     "(((tfType1==1) && (tfType2==2)) || ((tfType1==2) && (tfType2==1))) && ((qual1 > 4) && (qual2 > 4))", "diEOmtf_q4"]
 gmtCuts["diBEmtf_q4"] = [
