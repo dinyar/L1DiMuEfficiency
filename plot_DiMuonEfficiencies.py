@@ -22,8 +22,10 @@ gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
 # Ntuples to use.
-ugmt_singleMu_file = "uGMTSingleMuNtuple.root"
-ugmt_dimu_file = "uGMTDimuonNtuple.root"
+ugmt_singleMu_file = "baseline/uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "baseline/uGMTDimuonNtuple.root"
+tuned_ugmt_singleMu_file = "tuned/uGMTSingleMuNtuple.root"
+tuned_ugmt_dimu_file = "tuned/uGMTDimuonNtuple.root"
 
 # Cut dicts
 genCuts = {}
@@ -141,14 +143,17 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 # Plot efficiency for in- and ouput of uGMT w/o splitting into TF contributions
 
 ugmt_inout_labels = []
-ugmt_inout_labels.append(["Gen muons", "uGMT input muons", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT input muons, q>4", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT output muons, q>4", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT input", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT input, q>4", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT output, baseline, q>4", "uGMT"])
+ugmt_inout_labels.append(["Gen muons", "uGMT output, tuned, q>4", "uGMT"])
 jpsi_efficiency_ntuples = []
-jpsi_efficiency_ntuples.extend(len(ugmt_inout_labels) * [ugmt_dimu_file])
+jpsi_efficiency_ntuples.extend(len(ugmt_inout_labels)-1 * [ugmt_dimu_file])
+jpsi_efficiency_ntuples.append(tuned_ugmt_dimu_file)
 ntuple_names = []
 ntuple_names.append("tf_ntuple")
 ntuple_names.append("tf_ntuple")
+ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
 
 line_colours = []
@@ -222,6 +227,7 @@ ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
 
 singleMu_ghosting_ntuples = []
 singleMu_ghosting_ntuples.extend(len(ugmt_inout_labels) * [ugmt_singleMu_file])
+singleMu_ghosting_ntuples.append(tuned_ugmt_singleMu_file)
 
 for varList in ghostList:
     generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples,
@@ -383,6 +389,15 @@ for varList in efficiencyList:
                                    drawGenMus=True, drawStackPlot=True,
                                    rootFolder=opts.outDir)
 
+tf_tuned_eff_ntuples = []
+tf_tuned_eff_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_dimu_file])
+
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, tf_tuned_eff_ntuples,
+                                   tf_eff_ntuple_names, tf_eff_labels,
+                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff_tuned",
+                                   drawGenMus=True, drawStackPlot=True,
+                                   rootFolder=opts.outDir)
 
 tf_ghosts_ntuples = []
 tf_ghosts_ntuples.extend(len(tf_eff_labels) * [ugmt_singleMu_file])
@@ -392,4 +407,14 @@ for varList in ghostList:
                                   tf_eff_ntuple_names, tf_eff_labels,
                                   tf_eff_line_colours, tf_eff_cuts,
                                   "tf_ghosts", drawGenMus=False,
+                                  drawStackPlot=True, rootFolder=opts.outDir)
+
+tf_tuned_ghosts_ntuples = []
+tf_tuned_ghosts_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_singleMu_file])
+
+for varList in ghostList:
+    generateCombinedGhostPercHist(varList, tf_tuned_ghosts_ntuples,
+                                  tf_eff_ntuple_names, tf_eff_labels,
+                                  tf_eff_line_colours, tf_eff_cuts,
+                                  "tf_ghosts_tuned", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
