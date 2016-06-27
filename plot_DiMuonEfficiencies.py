@@ -1,10 +1,5 @@
 #!/usr/bin/python
 
-# TODO: Merge with plot_... from 808.
-# TODO: Use TF muons to judge ghost distance
-# TODO: Also use TF muons for efficiency and ghost plots
-# TODO: Add dimuon quality cuts
-
 import sys
 import os
 import argparse
@@ -54,13 +49,16 @@ gmtCuts["singleBmtfEtaCoarse"] = ["((tfType1==0) && (tfType2==-10) && (hf1==0))"
 gmtCuts["singleOmtf"] = ["((tfType1==1) && (tfType2==-10))", "omtf"]
 gmtCuts["singleEmtf"] = ["((tfType1==2) && (tfType2==-10))", "emtf"]
 
-gmtCuts["singleBmtf_q4"] = ["((tfType1==0) && (tfType2==-10)) && (qual1 > 4)", "bmtf_q4"]
+gmtCuts["singleBmtf_q4"] = [
+    "((tfType1==0) && (tfType2==-10)) && (qual1 > 4)", "bmtf_q4"]
 gmtCuts["singleBmtfEtaFine_q4"] = ["((tfType1==0) && (tfType2==-10) && (hf1==1)) && (qual1 > 4)",
-                                "bmtfEtaFine_q4"]
+                                   "bmtfEtaFine_q4"]
 gmtCuts["singleBmtfEtaCoarse_q4"] = ["((tfType1==0) && (tfType2==-10) && (hf1==0)) && (qual1 > 4)",
-                                  "bmtfEtaCoarse_q4"]
-gmtCuts["singleOmtf_q4"] = ["((tfType1==1) && (tfType2==-10)) && (qual1 > 4)", "omtf_q4"]
-gmtCuts["singleEmtf_q4"] = ["((tfType1==2) && (tfType2==-10)) && (qual1 > 4)", "emtf_q4"]
+                                     "bmtfEtaCoarse_q4"]
+gmtCuts["singleOmtf_q4"] = [
+    "((tfType1==1) && (tfType2==-10)) && (qual1 > 4)", "omtf_q4"]
+gmtCuts["singleEmtf_q4"] = [
+    "((tfType1==2) && (tfType2==-10)) && (qual1 > 4)", "emtf_q4"]
 
 gmtCuts["diBmtf"] = ["((tfType1==0) && (tfType2==0))", "diBmtf"]
 gmtCuts["diOmtf"] = ["((tfType1==1) && (tfType2==1))", "diOmtf"]
@@ -76,15 +74,18 @@ gmtCuts["diEOmtf"] = [
 gmtCuts["diBEmtf"] = [
     "(((tfType1==0) && (tfType2==2)) || ((tfType1==2) && (tfType2==0)))", "diBEmtf"]
 
-gmtCuts["diBmtf_q4"] = ["((tfType1==0) && (tfType2==0)) && ((qual1 > 4) && (qual2 > 4))", "diBmtf_q4"]
-gmtCuts["diOmtf_q4"] = ["((tfType1==1) && (tfType2==1)) && ((qual1 > 4) && (qual2 > 4))", "diOmtf_q4"]
-gmtCuts["diEmtf_q4"] = ["((tfType1==2) && (tfType2==2)) && ((qual1 > 4) && (qual2 > 4))", "diEmtf_q4"]
+gmtCuts["diBmtf_q4"] = [
+    "((tfType1==0) && (tfType2==0)) && ((qual1 > 4) && (qual2 > 4))", "diBmtf_q4"]
+gmtCuts["diOmtf_q4"] = [
+    "((tfType1==1) && (tfType2==1)) && ((qual1 > 4) && (qual2 > 4))", "diOmtf_q4"]
+gmtCuts["diEmtf_q4"] = [
+    "((tfType1==2) && (tfType2==2)) && ((qual1 > 4) && (qual2 > 4))", "diEmtf_q4"]
 gmtCuts["diBOmtf_q4"] = [
     "(((tfType1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
 gmtCuts["diBOmtfCoarse_q4"] = [
     "(((tfType1==0) && (hf1==0) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBOmtf_q4"]
 gmtCuts["diBOmtfFine_q4"] = ["(((tfType1==0) && (hf1==1) && (tfType2==1)) || ((tfType1==1) && (tfType2==0) && (hf2==1))) && ((qual1 > 4) && (qual2 > 4))",
-                          "diBOmtf_q4"]
+                             "diBOmtf_q4"]
 gmtCuts["diEOmtf_q4"] = [
     "(((tfType1==1) && (tfType2==2)) || ((tfType1==2) && (tfType2==1))) && ((qual1 > 4) && (qual2 > 4))", "diEOmtf_q4"]
 gmtCuts["diBEmtf_q4"] = [
@@ -163,8 +164,8 @@ line_colours.append(32)
 line_colours.append(35)
 line_colours.append(42)
 cuts = []
-cuts.append(gmtCuts["ugmt_diMu-pt1_q4"])
-cuts.extend((len(ugmt_inout_labels)-1) * [gmtCuts["ugmt_diMu-pt1_q4"]])
+cuts.append(gmtCuts["ugmt_diMu-pt1"])
+cuts.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt1_q4"]])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
@@ -232,8 +233,10 @@ for varList in ghostList:
 
 resolution_check_label = []
 resolution_check_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
-resolution_check_label.append(["All muons", "BMTF muons, fine eta, q>4", "uGMT"])
-resolution_check_label.append(["All muons", "BMTF muons, coarse eta, q>4", "uGMT"])
+resolution_check_label.append(
+    ["All muons", "BMTF muons, fine eta, q>4", "uGMT"])
+resolution_check_label.append(
+    ["All muons", "BMTF muons, coarse eta, q>4", "uGMT"])
 resolution_check_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
 resolution_check_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
 resolution_check_ntuple = []
@@ -282,8 +285,10 @@ ghost_distance_label = []
 ghost_distance_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
-ghost_distance_label.append(["All muons", "BMTF+OMTF overlap muons, q>4", "uGMT"])
-ghost_distance_label.append(["All muons", "EMTF+OMTF overlap muons, q>4", "uGMT"])
+ghost_distance_label.append(
+    ["All muons", "BMTF+OMTF overlap muons, q>4", "uGMT"])
+ghost_distance_label.append(
+    ["All muons", "EMTF+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(len(ghost_distance_label) * [ugmt_singleMu_file])
 ghost_distance_ntuple_name = []
@@ -336,7 +341,7 @@ tf_eff_labels.append(
     ["Gen muons", "only OMTF muons, q>4", "uGMT", "diOMTF"])
 tf_eff_labels.append(
     ["Gen muons", "only EMTF muons, q>4", "uGMT", "diEMTF"])
-tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons", "uGMT",
+tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons, q>4", "uGMT",
                       "diBOMTF"])
 tf_eff_labels.append(
     ["Gen muons", "OMTF+EMTF muons, q>4", "uGMT", "diOEMTF"])
