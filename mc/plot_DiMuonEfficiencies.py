@@ -148,7 +148,7 @@ ugmt_inout_labels.append(["Gen muons", "uGMT input, q>4", "uGMT"])
 ugmt_inout_labels.append(["Gen muons", "uGMT output, baseline, q>4", "uGMT"])
 ugmt_inout_labels.append(["Gen muons", "uGMT output, tuned, q>4", "uGMT"])
 jpsi_efficiency_ntuples = []
-jpsi_efficiency_ntuples.extend(len(ugmt_inout_labels)-1 * [ugmt_dimu_file])
+jpsi_efficiency_ntuples.extend((len(ugmt_inout_labels)-1) * [ugmt_dimu_file])
 jpsi_efficiency_ntuples.append(tuned_ugmt_dimu_file)
 ntuple_names = []
 ntuple_names.append("tf_ntuple")
@@ -226,7 +226,7 @@ ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   genCuts["mu-pt1"], [0, 0.6]])
 
 singleMu_ghosting_ntuples = []
-singleMu_ghosting_ntuples.extend(len(ugmt_inout_labels) * [ugmt_singleMu_file])
+singleMu_ghosting_ntuples.extend((len(ugmt_inout_labels)-1) * [ugmt_singleMu_file])
 singleMu_ghosting_ntuples.append(tuned_ugmt_singleMu_file)
 
 for varList in ghostList:
