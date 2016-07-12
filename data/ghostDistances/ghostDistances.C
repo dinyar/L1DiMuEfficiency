@@ -17,6 +17,9 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeTfMuonDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
+// TODO: Only check muons that are in neighbouring sectors
+// TODO: Only check muons that are in neighbouring sector/wedges
+
 double calcGlobalPhi(int locPhi, int tfType, int proc) {
   int globPhi = 0;
   if (tfType == 0) {
@@ -38,7 +41,7 @@ double calcGlobalPhi(int locPhi, int tfType, int proc) {
 void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
 
   gROOT->SetBatch(kTRUE);
-  gStyle->SetOptStat(111110);
+  gStyle->SetOptStat(0);
 
   // make trees and set branch addresses
   const char * ugmtUnpackTree="l1UpgradeTree/L1UpgradeTree";
@@ -149,6 +152,13 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   float muDrBinWidth = (muDrHi-muDrLo)/nMuDrBins;
 
   //make histos
+  TH1D* resolutionUnpackEtaBMTF = new TH1D("resolutionUnpackEtaBMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+  TH1D* resolutionUnpackEtaOMTF = new TH1D("resolutionUnpackEtaOMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+  TH1D* resolutionUnpackEtaEMTF = new TH1D("resolutionUnpackEtaEMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+  TH1D* resolutionReEmuEtaBMTF = new TH1D("resolutionReEmuEtaBMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+  TH1D* resolutionReEmuEtaOMTF = new TH1D("resolutionReEmuEtaOMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+  TH1D* resolutionReEmuEtaEMTF = new TH1D("resolutionReEmuEtaEMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
+
   TH1D* ghostDiffUnpackEtaBOMTFFine = new TH1D("ghostDiffUnpackEtaBOMTFFine", "", nMuDetaBins, muDetaLo, muDetaHi);
   TH1D* ghostDiffUnpackEtaBOMTFCoarse = new TH1D("ghostDiffUnpackEtaBOMTFCoarse", "", nMuDetaBins, muDetaLo, muDetaHi);
   TH1D* ghostDiffUnpackEtaEOMTF = new TH1D("ghostDiffUnpackEtaEOMTF", "", nMuDetaBins, muDetaLo, muDetaHi);
@@ -197,201 +207,264 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   unsigned nEOMTFreemu = 0;
   
   // Plot distance from ghosts
-  if(foundTfUnpackTree) {
-  
-    std::cout << "Running over " << nevents << std::endl;
-  
-    for (Long64_t jentry=0; jentry<nevents;jentry++){
-  
-      if((jentry%1000)==0) std::cout << "Done " << jentry  << " events..." << std::endl;
-  
-      chainTfUnpack->GetEntry(jentry);
-      chainReco->GetEntry(jentry);
-      
-      // Check for only one reco muon
-      if(reco_->nMuons != 1) {
+  std::cout << "Running over " << nevents << std::endl;
+
+  for (Long64_t jentry=0; jentry<nevents;jentry++){
+
+    if((jentry%1000)==0) std::cout << "Done " << jentry  << " events..." << std::endl;
+
+    chainTfUnpack->GetEntry(jentry);
+    chainReco->GetEntry(jentry);
+    
+    // Check for only one reco muon
+    if(reco_->nMuons != 1) {
+      continue;
+    }
+    if(omtfUnpack_->nTfMuons == 1) {
+      double eta = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionUnpackEtaOMTF->Fill(dEta);
+    }
+    if(bmtfUnpack_->nTfMuons == 1) {
+      double eta = 0.010875 * bmtfUnpack_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionUnpackEtaBMTF->Fill(dEta);
+    }
+    if(emtfUnpack_->nTfMuons == 1) {
+      double eta = 0.010875 * emtfUnpack_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionUnpackEtaEMTF->Fill(dEta);
+    }
+    if(omtfUnpack_->nTfMuons == 2) {
+      if(!(omtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[1] > 4)) {
         continue;
       }
-      if(omtfUnpack_->nTfMuons == 2) {
-        if(!(omtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[1] > 4)) {
-          continue;
-        }
-        ++nOMTFunpack;
+      ++nOMTFunpack;
 
-        double phi1 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[1], 1, omtfUnpack_->tfMuonProcessor[1]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+      double phi1 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[1], 1, omtfUnpack_->tfMuonProcessor[1]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[1];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
 
-        ghostDiffUnpackEtaOMTF->Fill(dEta);
-        ghostDiffUnpackPhiOMTF->Fill(dPhi);
-        ghostDiffUnpackROMTF->Fill(dR);
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diOMTF event." << std::endl;
+        std::cout << "eta1: " << omtfUnpack_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2: " << omtfUnpack_->tfMuonHwEta[1] << std::endl;
       }
-      if(emtfUnpack_->nTfMuons == 2) {
-        if(!(emtfUnpack_->tfMuonHwQual[0] > 4 && emtfUnpack_->tfMuonHwQual[1] > 4)) {
-          continue;
-        }
-        ++nEMTFunpack;
 
-        double phi1 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[0], 2, emtfUnpack_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[1], 2, emtfUnpack_->tfMuonProcessor[1]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * emtfUnpack_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * emtfUnpack_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
-
-        ghostDiffUnpackEtaEMTF->Fill(dEta);
-        ghostDiffUnpackPhiEMTF->Fill(dPhi);
-        ghostDiffUnpackREMTF->Fill(dR);
-      }
-      if(bmtfUnpack_->nTfMuons == 1 && omtfUnpack_->nTfMuons == 1) {
-        if(!(bmtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[0] > 4)) {
-          continue;
-        }
-
-        double phi1 = 0.010908 * calcGlobalPhi(bmtfUnpack_->tfMuonHwPhi[0], 0, bmtfUnpack_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * bmtfUnpack_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
-
-        if(bmtfUnpack_->tfMuonHwHF[0] == 1) {
-          ++nBOMTFFineUnpack;
-
-          ghostDiffUnpackEtaBOMTFFine->Fill(dEta);
-          ghostDiffUnpackPhiBOMTFFine->Fill(dPhi);
-          ghostDiffUnpackRBOMTFFine->Fill(dR);
-        } else {
-          ++nBOMTFCoarseUnpack;
-
-          ghostDiffUnpackEtaBOMTFCoarse->Fill(dEta);
-          ghostDiffUnpackPhiBOMTFCoarse->Fill(dPhi);
-          ghostDiffUnpackRBOMTFCoarse->Fill(dR);
-        }
-      }
-      if(emtfUnpack_->nTfMuons == 1 && omtfUnpack_->nTfMuons == 1) {
-        if(!(emtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[0] > 4)) {
-          continue;
-        }
-        ++nEOMTFunpack;
-
-        double phi1 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[0], 2, emtfUnpack_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * emtfUnpack_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
-
-        ghostDiffUnpackEtaEOMTF->Fill(dEta);
-        ghostDiffUnpackPhiEOMTF->Fill(dPhi);
-        ghostDiffUnpackREOMTF->Fill(dR);
-      }
+      ghostDiffUnpackEtaOMTF->Fill(dEta);
+      ghostDiffUnpackPhiOMTF->Fill(dPhi);
+      ghostDiffUnpackROMTF->Fill(dR);
     }
-  }
-  if(foundTfMcTree) {
-    std::cout << "Running over " << nevents << std::endl;
-  
-    for (Long64_t jentry=0; jentry<nevents;jentry++){
-  
-      if((jentry%1000)==0) std::cout << "Done " << jentry  << " events..." << std::endl;
-  
-      chainTfReEmu->GetEntry(jentry);
-      chainReco->GetEntry(jentry);
-      
-      // Check for only one reco muon
-      if(reco_->nMuons != 1) {
+    if(emtfUnpack_->nTfMuons == 2) {
+      if(!(emtfUnpack_->tfMuonHwQual[0] > 4 && emtfUnpack_->tfMuonHwQual[1] > 4)) {
         continue;
       }
-      if(omtfReEmu_->nTfMuons == 2) {
-        if(!(omtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[1] > 4)) {
-          continue;
-        }
-        ++nOMTFreemu;
+      ++nEMTFunpack;
 
-        double phi1 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[1], 1, omtfReEmu_->tfMuonProcessor[1]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * omtfReEmu_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * omtfReEmu_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+      double phi1 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[0], 2, emtfUnpack_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[1], 2, emtfUnpack_->tfMuonProcessor[1]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * emtfUnpack_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * emtfUnpack_->tfMuonHwEta[1];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
 
-        ghostDiffReEmuEtaOMTF->Fill(dEta);
-        ghostDiffReEmuPhiOMTF->Fill(dPhi);
-        ghostDiffReEmuROMTF->Fill(dR);
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diEMTF event." << std::endl;
+        std::cout << "eta1: " << emtfUnpack_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2: " << emtfUnpack_->tfMuonHwEta[1] << std::endl;
       }
-      if(emtfReEmu_->nTfMuons == 2) {
-        if(!(emtfReEmu_->tfMuonHwQual[0] > 4 && emtfReEmu_->tfMuonHwQual[1] > 4)) {
-          continue;
-        }
-        ++nEMTFreemu;
 
-        double phi1 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[0], 2, emtfReEmu_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[1], 2, emtfReEmu_->tfMuonProcessor[1]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * emtfReEmu_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * emtfReEmu_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
-
-        ghostDiffReEmuEtaEMTF->Fill(dEta);
-        ghostDiffReEmuPhiEMTF->Fill(dPhi);
-        ghostDiffReEmuREMTF->Fill(dR);
+      ghostDiffUnpackEtaEMTF->Fill(dEta);
+      ghostDiffUnpackPhiEMTF->Fill(dPhi);
+      ghostDiffUnpackREMTF->Fill(dR);
+    }
+    if(bmtfUnpack_->nTfMuons == 1 && omtfUnpack_->nTfMuons == 1) {
+      if(!(bmtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[0] > 4)) {
+        continue;
       }
-      if(bmtfReEmu_->nTfMuons == 1 && omtfReEmu_->nTfMuons == 1) {
-        if(!(bmtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[0] > 4)) {
-          continue;
-        }
 
-        double phi1 = 0.010908 * calcGlobalPhi(bmtfReEmu_->tfMuonHwPhi[0], 0, bmtfReEmu_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
-        double dPhi = phi1-phi2;
-        double eta1 = 0.010875 * bmtfReEmu_->tfMuonHwEta[0];
-        double eta2 = 0.010875 * omtfReEmu_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+      double phi1 = 0.010908 * calcGlobalPhi(bmtfUnpack_->tfMuonHwPhi[0], 0, bmtfUnpack_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * bmtfUnpack_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
 
-        if(bmtfReEmu_->tfMuonHwHF[0] == 1) {
-          ++nBOMTFFineReemu;
-
-          ghostDiffReEmuEtaBOMTFFine->Fill(dEta);
-          ghostDiffReEmuPhiBOMTFFine->Fill(dPhi);
-          ghostDiffReEmuRBOMTFFine->Fill(dR);
-        } else {
-          ++nBOMTFCoarseReemu;
-
-          ghostDiffReEmuEtaBOMTFCoarse->Fill(dEta);
-          ghostDiffReEmuPhiBOMTFCoarse->Fill(dPhi);
-          ghostDiffReEmuRBOMTFCoarse->Fill(dR);
-        }
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diBOMTF event." << std::endl;
+        std::cout << "eta bmtf: " << bmtfUnpack_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta omtf: " << omtfUnpack_->tfMuonHwEta[0] << std::endl;
       }
-      if(emtfReEmu_->nTfMuons == 1 && omtfReEmu_->nTfMuons == 1) {
-        if(!(emtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[0] > 4)) {
-          continue;
-        }
-        ++nEOMTFreemu;
 
-        double phi1 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[0], 2, emtfReEmu_->tfMuonProcessor[0]);
-        double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
-        double dPhi = phi1-phi2;
-        double eta1 =  0.010875 * emtfReEmu_->tfMuonHwEta[0];
-        double eta2 =  0.010875 * omtfReEmu_->tfMuonHwEta[1];
-        double dEta = eta1-eta2;
-        double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+      if(bmtfUnpack_->tfMuonHwHF[0] == 1) {
+        ++nBOMTFFineUnpack;
 
-        ghostDiffReEmuEtaEOMTF->Fill(dEta);
-        ghostDiffReEmuPhiEOMTF->Fill(dPhi);
-        ghostDiffReEmuREOMTF->Fill(dR);
+        ghostDiffUnpackEtaBOMTFFine->Fill(dEta);
+        ghostDiffUnpackPhiBOMTFFine->Fill(dPhi);
+        ghostDiffUnpackRBOMTFFine->Fill(dR);
+      } else {
+        ++nBOMTFCoarseUnpack;
+
+        ghostDiffUnpackEtaBOMTFCoarse->Fill(dEta);
+        ghostDiffUnpackPhiBOMTFCoarse->Fill(dPhi);
+        ghostDiffUnpackRBOMTFCoarse->Fill(dR);
       }
     }
+    if(emtfUnpack_->nTfMuons == 1 && omtfUnpack_->nTfMuons == 1) {
+      if(!(emtfUnpack_->tfMuonHwQual[0] > 4 && omtfUnpack_->tfMuonHwQual[0] > 4)) {
+        continue;
+      }
+      ++nEOMTFunpack;
+
+      double phi1 = 0.010908 * calcGlobalPhi(emtfUnpack_->tfMuonHwPhi[0], 2, emtfUnpack_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfUnpack_->tfMuonHwPhi[0], 1, omtfUnpack_->tfMuonProcessor[0]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * emtfUnpack_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * omtfUnpack_->tfMuonHwEta[0];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diEOMTF event." << std::endl;
+        std::cout << "eta emtf: " << emtfUnpack_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta omtf: " << omtfUnpack_->tfMuonHwEta[0] << std::endl;
+      }
+
+      ghostDiffUnpackEtaEOMTF->Fill(dEta);
+      ghostDiffUnpackPhiEOMTF->Fill(dPhi);
+      ghostDiffUnpackREOMTF->Fill(dR);
+    }
+
+    chainTfReEmu->GetEntry(jentry);
+    
+    if(omtfReEmu_->nTfMuons == 1) {
+      double eta = 0.010875 * omtfReEmu_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionReEmuEtaOMTF->Fill(dEta);
+    }
+    if(bmtfReEmu_->nTfMuons == 1) {
+      double eta = 0.010875 * bmtfReEmu_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionReEmuEtaBMTF->Fill(dEta);
+    }
+    if(emtfReEmu_->nTfMuons == 1) {
+      double eta = 0.010875 * emtfReEmu_->tfMuonHwEta[0];
+      double dEta = eta - reco_->eta[0];
+      resolutionReEmuEtaEMTF->Fill(dEta);
+    }
+    if(omtfReEmu_->nTfMuons == 2) {
+      if(!(omtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[1] > 4)) {
+        continue;
+      }
+      ++nOMTFreemu;
+
+      double phi1 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[1], 1, omtfReEmu_->tfMuonProcessor[1]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * omtfReEmu_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * omtfReEmu_->tfMuonHwEta[1];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diOMTF reemu event." << std::endl;
+        std::cout << "eta1: " << omtfReEmu_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2: " << omtfReEmu_->tfMuonHwEta[1] << std::endl;
+      }
+
+      ghostDiffReEmuEtaOMTF->Fill(dEta);
+      ghostDiffReEmuPhiOMTF->Fill(dPhi);
+      ghostDiffReEmuROMTF->Fill(dR);
+    }
+    if(emtfReEmu_->nTfMuons == 2) {
+      if(!(emtfReEmu_->tfMuonHwQual[0] > 4 && emtfReEmu_->tfMuonHwQual[1] > 4)) {
+        continue;
+      }
+      ++nEMTFreemu;
+
+      double phi1 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[0], 2, emtfReEmu_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[1], 2, emtfReEmu_->tfMuonProcessor[1]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * emtfReEmu_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * emtfReEmu_->tfMuonHwEta[1];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diEMTF reemu event." << std::endl;
+        std::cout << "eta1: " << emtfReEmu_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2: " << emtfReEmu_->tfMuonHwEta[1] << std::endl;
+      }
+
+      ghostDiffReEmuEtaEMTF->Fill(dEta);
+      ghostDiffReEmuPhiEMTF->Fill(dPhi);
+      ghostDiffReEmuREMTF->Fill(dR);
+    }
+    if(bmtfReEmu_->nTfMuons == 1 && omtfReEmu_->nTfMuons == 1) {
+      if(!(bmtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[0] > 4)) {
+        continue;
+      }
+
+      double phi1 = 0.010908 * calcGlobalPhi(bmtfReEmu_->tfMuonHwPhi[0], 0, bmtfReEmu_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
+      double dPhi = phi1-phi2;
+      double eta1 = 0.010875 * bmtfReEmu_->tfMuonHwEta[0];
+      double eta2 = 0.010875 * omtfReEmu_->tfMuonHwEta[0];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diBOMTF reemu event." << std::endl;
+        std::cout << "eta1 bmtf: " << bmtfReEmu_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2 omtf: " << omtfReEmu_->tfMuonHwEta[0] << std::endl;
+      }
+
+      if(bmtfReEmu_->tfMuonHwHF[0] == 1) {
+        ++nBOMTFFineReemu;
+
+        ghostDiffReEmuEtaBOMTFFine->Fill(dEta);
+        ghostDiffReEmuPhiBOMTFFine->Fill(dPhi);
+        ghostDiffReEmuRBOMTFFine->Fill(dR);
+      } else {
+        ++nBOMTFCoarseReemu;
+
+        ghostDiffReEmuEtaBOMTFCoarse->Fill(dEta);
+        ghostDiffReEmuPhiBOMTFCoarse->Fill(dPhi);
+        ghostDiffReEmuRBOMTFCoarse->Fill(dR);
+      }
+    }
+    if(emtfReEmu_->nTfMuons == 1 && omtfReEmu_->nTfMuons == 1) {
+      if(!(emtfReEmu_->tfMuonHwQual[0] > 4 && omtfReEmu_->tfMuonHwQual[0] > 4)) {
+        continue;
+      }
+      ++nEOMTFreemu;
+
+      double phi1 = 0.010908 * calcGlobalPhi(emtfReEmu_->tfMuonHwPhi[0], 2, emtfReEmu_->tfMuonProcessor[0]);
+      double phi2 = 0.010908 * calcGlobalPhi(omtfReEmu_->tfMuonHwPhi[0], 1, omtfReEmu_->tfMuonProcessor[0]);
+      double dPhi = phi1-phi2;
+      double eta1 =  0.010875 * emtfReEmu_->tfMuonHwEta[0];
+      double eta2 =  0.010875 * omtfReEmu_->tfMuonHwEta[0];
+      double dEta = eta1-eta2;
+      double dR = std::sqrt(TMath::Power(dEta, 2) + TMath::Power(dPhi, 2));
+
+      if (dEta > 0.5) {
+        std::cout << "dEta > 0.5 in diEOMTF reemu event." << std::endl;
+        std::cout << "eta1 emtf: " << emtfReEmu_->tfMuonHwEta[0] << std::endl;
+        std::cout << "eta2 omtf: " << omtfReEmu_->tfMuonHwEta[0] << std::endl;
+      }
+
+      ghostDiffReEmuEtaEOMTF->Fill(dEta);
+      ghostDiffReEmuPhiEOMTF->Fill(dPhi);
+      ghostDiffReEmuREOMTF->Fill(dR);
+    }
   }
+
 
 
   // Report counts
@@ -405,10 +478,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   std::cout << "EMTF:" << std::endl;
   std::cout << "  - Unpack: " << nEMTFunpack << std::endl;
   std::cout << "  - ReEmu:  " << nEMTFreemu << std::endl;
-  std::cout << "BMTF fine/EMTF:" << std::endl;
+  std::cout << "BMTF fine/OMTF:" << std::endl;
   std::cout << "  - Unpack: " << nBOMTFFineUnpack << std::endl;
   std::cout << "  - ReEmu:  " << nBOMTFFineReemu << std::endl;
-  std::cout << "BMTF coarse/EMTF:" << std::endl;
+  std::cout << "BMTF coarse/OMTF:" << std::endl;
   std::cout << "  - Unpack: " << nBOMTFCoarseUnpack << std::endl;
   std::cout << "  - ReEmu:  " << nBOMTFCoarseReemu << std::endl;
   std::cout << "OMTF/EMTF:" << std::endl;
@@ -430,6 +503,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n4.SetTextFont(52);
   n4.SetTextSize(0.04);
 
+  TString plotFolder = "plots/" + run + "/";
+
   // dEta
   
   TCanvas* c1 = new TCanvas;
@@ -447,13 +522,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackEtaEOMTF->SetLineColor(kBlue);
   ghostDiffUnpackEtaEOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackEtaEOMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackEtaEOMTF->SetMarkerStyle(23);
+  ghostDiffUnpackEtaEOMTF->SetMarkerStyle(20);
   ghostDiffUnpackEtaEOMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuEtaEOMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackEtaEOMTF->Draw("E1HIST");
-  ghostDiffUnpackEtaEOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackEtaEOMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuEtaEOMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -468,8 +541,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF/EMTF");
 
-  c1->SaveAs("dEtaEOMTF_" + run + ".pdf");
-  c1->SaveAs("dEtaEOMTF_" + run + ".png");
+  c1->SaveAs(plotFolder + "dEtaEOMTF_" + run + ".pdf");
+  c1->SaveAs(plotFolder + "dEtaEOMTF_" + run + ".png");
 
 
   TCanvas* c2 = new TCanvas;
@@ -486,12 +559,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackEtaBOMTFFine->SetLineColor(kBlue);
   ghostDiffUnpackEtaBOMTFFine->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackEtaBOMTFFine->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackEtaBOMTFFine->SetMarkerStyle(23);
+  ghostDiffUnpackEtaBOMTFFine->SetMarkerStyle(20);
   ghostDiffUnpackEtaBOMTFFine->SetMarkerColor(kBlue);
 
   ghostDiffUnpackEtaBOMTFFine->Draw("E1HIST");
-  ghostDiffUnpackEtaBOMTFFine->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackEtaBOMTFFine->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuEtaBOMTFFine->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -506,8 +577,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF fine/OMTF");
 
-  c2->SaveAs("dEtaBOMTFFine_" + run + ".pdf");
-  c2->SaveAs("dEtaBOMTFFine_" + run + ".png");
+  c2->SaveAs(plotFolder + "dEtaBOMTFFine_" + run + ".pdf");
+  c2->SaveAs(plotFolder + "dEtaBOMTFFine_" + run + ".png");
 
   TCanvas* c21= new TCanvas;
 
@@ -523,12 +594,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackEtaBOMTFCoarse->SetLineColor(kBlue);
   ghostDiffUnpackEtaBOMTFCoarse->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackEtaBOMTFCoarse->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackEtaBOMTFCoarse->SetMarkerStyle(23);
+  ghostDiffUnpackEtaBOMTFCoarse->SetMarkerStyle(20);
   ghostDiffUnpackEtaBOMTFCoarse->SetMarkerColor(kBlue);
 
   ghostDiffUnpackEtaBOMTFCoarse->Draw("E1HIST");
-  ghostDiffUnpackEtaBOMTFCoarse->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackEtaBOMTFCoarse->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuEtaBOMTFCoarse->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -543,8 +612,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF coarse/OMTF");
 
-  c21->SaveAs("dEtaBOMTFCoarse_" + run + ".pdf");
-  c21->SaveAs("dEtaBOMTFCoarse_" + run + ".png");
+  c21->SaveAs(plotFolder + "dEtaBOMTFCoarse_" + run + ".pdf");
+  c21->SaveAs(plotFolder + "dEtaBOMTFCoarse_" + run + ".png");
 
 
   TCanvas* c3 = new TCanvas;
@@ -562,13 +631,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackEtaOMTF->SetLineColor(kBlue);
   ghostDiffUnpackEtaOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackEtaOMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackEtaOMTF->SetMarkerStyle(23);
+  ghostDiffUnpackEtaOMTF->SetMarkerStyle(20);
   ghostDiffUnpackEtaOMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuEtaOMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackEtaOMTF->Draw("E1HIST");
-  ghostDiffUnpackEtaOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackEtaOMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuEtaOMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -583,8 +650,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF");
 
-  c3->SaveAs("dEtaOMTF_" + run + ".pdf");
-  c3->SaveAs("dEtaOMTF_" + run + ".png");
+  c3->SaveAs(plotFolder + "dEtaOMTF_" + run + ".pdf");
+  c3->SaveAs(plotFolder + "dEtaOMTF_" + run + ".png");
 
 
   TCanvas* c4 = new TCanvas;
@@ -602,13 +669,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackEtaEMTF->SetLineColor(kBlue);
   ghostDiffUnpackEtaEMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackEtaEMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackEtaEMTF->SetMarkerStyle(23);
+  ghostDiffUnpackEtaEMTF->SetMarkerStyle(20);
   ghostDiffUnpackEtaEMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuEtaEMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackEtaEMTF->Draw("E1HIST");
-  ghostDiffUnpackEtaEMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackEtaEMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuEtaEMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -623,8 +688,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, EMTF");
 
-  c4->SaveAs("dEtaEMTF_" + run + ".pdf");
-  c4->SaveAs("dEtaEMTF_" + run + ".png");
+  c4->SaveAs(plotFolder + "dEtaEMTF_" + run + ".pdf");
+  c4->SaveAs(plotFolder + "dEtaEMTF_" + run + ".png");
 
 
   // dPhi
@@ -644,13 +709,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackPhiEOMTF->SetLineColor(kBlue);
   ghostDiffUnpackPhiEOMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackPhiEOMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackPhiEOMTF->SetMarkerStyle(23);
+  ghostDiffUnpackPhiEOMTF->SetMarkerStyle(20);
   ghostDiffUnpackPhiEOMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuPhiEOMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackPhiEOMTF->Draw("E1HIST");
-  ghostDiffUnpackPhiEOMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackPhiEOMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuPhiEOMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -665,8 +728,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF/EMTF");
 
-  c5->SaveAs("dPhiEOMTF_" + run + ".pdf");
-  c5->SaveAs("dPhiEOMTF_" + run + ".png");
+  c5->SaveAs(plotFolder + "dPhiEOMTF_" + run + ".pdf");
+  c5->SaveAs(plotFolder + "dPhiEOMTF_" + run + ".png");
 
   TCanvas* c6 = new TCanvas;
 
@@ -682,12 +745,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackPhiBOMTFFine->SetLineColor(kBlue);
   ghostDiffUnpackPhiBOMTFFine->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackPhiBOMTFFine->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackPhiBOMTFFine->SetMarkerStyle(23);
+  ghostDiffUnpackPhiBOMTFFine->SetMarkerStyle(20);
   ghostDiffUnpackPhiBOMTFFine->SetMarkerColor(kBlue);
 
   ghostDiffUnpackPhiBOMTFFine->Draw("E1HIST");
-  ghostDiffUnpackPhiBOMTFFine->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackPhiBOMTFFine->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuPhiBOMTFFine->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -702,8 +763,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF fine/OMTF");
 
-  c6->SaveAs("dPhiBOMTFFine_" + run + ".pdf");
-  c6->SaveAs("dPhiBOMTFFine_" + run + ".png");
+  c6->SaveAs(plotFolder + "dPhiBOMTFFine_" + run + ".pdf");
+  c6->SaveAs(plotFolder + "dPhiBOMTFFine_" + run + ".png");
 
   TCanvas* c61 = new TCanvas;
 
@@ -719,12 +780,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackPhiBOMTFCoarse->SetLineColor(kBlue);
   ghostDiffUnpackPhiBOMTFCoarse->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackPhiBOMTFCoarse->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackPhiBOMTFCoarse->SetMarkerStyle(23);
+  ghostDiffUnpackPhiBOMTFCoarse->SetMarkerStyle(20);
   ghostDiffUnpackPhiBOMTFCoarse->SetMarkerColor(kBlue);
 
   ghostDiffUnpackPhiBOMTFCoarse->Draw("E1HIST");
-  ghostDiffUnpackPhiBOMTFCoarse->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackPhiBOMTFCoarse->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuPhiBOMTFCoarse->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -739,8 +798,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF coarse/OMTF");
 
-  c61->SaveAs("dPhiBOMTFCoarse_" + run + ".pdf");
-  c61->SaveAs("dPhiBOMTFCoarse_" + run + ".png");
+  c61->SaveAs(plotFolder + "dPhiBOMTFCoarse_" + run + ".pdf");
+  c61->SaveAs(plotFolder + "dPhiBOMTFCoarse_" + run + ".png");
 
   TCanvas* c7 = new TCanvas;
 
@@ -757,13 +816,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackPhiOMTF->SetLineColor(kBlue);
   ghostDiffUnpackPhiOMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackPhiOMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackPhiOMTF->SetMarkerStyle(23);
+  ghostDiffUnpackPhiOMTF->SetMarkerStyle(20);
   ghostDiffUnpackPhiOMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuPhiOMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackPhiOMTF->Draw("E1HIST");
-  ghostDiffUnpackPhiOMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackPhiOMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuPhiOMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -778,8 +835,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF");
 
-  c7->SaveAs("dPhiOMTF_" + run + ".pdf");
-  c7->SaveAs("dPhiOMTF_" + run + ".png");
+  c7->SaveAs(plotFolder + "dPhiOMTF_" + run + ".pdf");
+  c7->SaveAs(plotFolder + "dPhiOMTF_" + run + ".png");
 
 
   TCanvas* c8 = new TCanvas;
@@ -797,13 +854,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackPhiEMTF->SetLineColor(kBlue);
   ghostDiffUnpackPhiEMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackPhiEMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackPhiEMTF->SetMarkerStyle(23);
+  ghostDiffUnpackPhiEMTF->SetMarkerStyle(20);
   ghostDiffUnpackPhiEMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuPhiEMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackPhiEMTF->Draw("E1HIST");
-  ghostDiffUnpackPhiEMTF->GetXaxis()->SetTitle("#Delta#phi(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackPhiEMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuPhiEMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -818,8 +873,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, EMTF");
 
-  c8->SaveAs("dPhiEMTF_" + run + ".pdf");
-  c8->SaveAs("dPhiEMTF_" + run + ".png");
+  c8->SaveAs(plotFolder + "dPhiEMTF_" + run + ".pdf");
+  c8->SaveAs(plotFolder + "dPhiEMTF_" + run + ".png");
 
 
   // dR
@@ -839,13 +894,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackREOMTF->SetLineColor(kBlue);
   ghostDiffUnpackREOMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackREOMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackREOMTF->SetMarkerStyle(23);
+  ghostDiffUnpackREOMTF->SetMarkerStyle(20);
   ghostDiffUnpackREOMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuREOMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackREOMTF->Draw("E1HIST");
-  ghostDiffUnpackREOMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackREOMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuREOMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -860,8 +913,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF/EMTF");
 
-  c9->SaveAs("dREOMTF_" + run + ".pdf");
-  c9->SaveAs("dREOMTF_" + run + ".png");
+  c9->SaveAs(plotFolder + "dREOMTF_" + run + ".pdf");
+  c9->SaveAs(plotFolder + "dREOMTF_" + run + ".png");
 
   TCanvas* c10 = new TCanvas;
 
@@ -877,12 +930,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackRBOMTFFine->SetLineColor(kBlue);
   ghostDiffUnpackRBOMTFFine->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackRBOMTFFine->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackRBOMTFFine->SetMarkerStyle(23);
+  ghostDiffUnpackRBOMTFFine->SetMarkerStyle(20);
   ghostDiffUnpackRBOMTFFine->SetMarkerColor(kBlue);
 
   ghostDiffUnpackRBOMTFFine->Draw("E1HIST");
-  ghostDiffUnpackRBOMTFFine->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackRBOMTFFine->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuRBOMTFFine->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -897,8 +948,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF fine/OMTF");
 
-  c10->SaveAs("dRBOMTFFine_" + run + ".pdf");
-  c10->SaveAs("dRBOMTFFine_" + run + ".png");
+  c10->SaveAs(plotFolder + "dRBOMTFFine_" + run + ".pdf");
+  c10->SaveAs(plotFolder + "dRBOMTFFine_" + run + ".png");
 
   TCanvas* c101 = new TCanvas;
 
@@ -914,12 +965,10 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackRBOMTFCoarse->SetLineColor(kBlue);
   ghostDiffUnpackRBOMTFCoarse->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackRBOMTFCoarse->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackRBOMTFCoarse->SetMarkerStyle(23);
+  ghostDiffUnpackRBOMTFCoarse->SetMarkerStyle(20);
   ghostDiffUnpackRBOMTFCoarse->SetMarkerColor(kBlue);
 
   ghostDiffUnpackRBOMTFCoarse->Draw("E1HIST");
-  ghostDiffUnpackRBOMTFCoarse->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackRBOMTFCoarse->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuRBOMTFCoarse->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -934,8 +983,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF coarse/OMTF");
 
-  c101->SaveAs("dRBOMTFCoarse_" + run + ".pdf");
-  c101->SaveAs("dRBOMTFCoarse_" + run + ".png");
+  c101->SaveAs(plotFolder + "dRBOMTFCoarse_" + run + ".pdf");
+  c101->SaveAs(plotFolder + "dRBOMTFCoarse_" + run + ".png");
 
   TCanvas* c11 = new TCanvas;
 
@@ -952,13 +1001,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackROMTF->SetLineColor(kBlue);
   ghostDiffUnpackROMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackROMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackROMTF->SetMarkerStyle(23);
+  ghostDiffUnpackROMTF->SetMarkerStyle(20);
   ghostDiffUnpackROMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuROMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackROMTF->Draw("E1HIST");
-  ghostDiffUnpackROMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackROMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuROMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -973,8 +1020,8 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF");
 
-  c11->SaveAs("dROMTF_" + run + ".pdf");
-  c11->SaveAs("dROMTF_" + run + ".png");
+  c11->SaveAs(plotFolder + "dROMTF_" + run + ".pdf");
+  c11->SaveAs(plotFolder + "dROMTF_" + run + ".png");
 
 
   TCanvas* c12 = new TCanvas;
@@ -992,13 +1039,11 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   ghostDiffUnpackREMTF->SetLineColor(kBlue);
   ghostDiffUnpackREMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
   ghostDiffUnpackREMTF->GetYaxis()->SetTitle("Counts");
-  ghostDiffUnpackREMTF->SetMarkerStyle(23);
+  ghostDiffUnpackREMTF->SetMarkerStyle(20);
   ghostDiffUnpackREMTF->SetMarkerColor(kBlue);
   // ghostDiffReEmuREMTF->GetYaxis()->SetRangeUser(1, 1e3);
 
   ghostDiffUnpackREMTF->Draw("E1HIST");
-  ghostDiffUnpackREMTF->GetXaxis()->SetTitle("#DeltaR(#mu_{L1}, #mu_{Ghost})");
-  ghostDiffUnpackREMTF->GetYaxis()->SetTitle("Counts");
   ghostDiffReEmuREMTF->Draw("same,E1HIST");
   gPad->Modified();
 
@@ -1013,6 +1058,109 @@ void ghostDistances(const char * fname="L1Ntuple_list", TString run="XXXX"){
   n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.15, 0.55, "SingleMu, EMTF");
 
-  c12->SaveAs("dREMTF_" + run + ".pdf");
-  c12->SaveAs("dREMTF_" + run + ".png");
+  c12->SaveAs(plotFolder + "dREMTF_" + run + ".pdf");
+  c12->SaveAs(plotFolder + "dREMTF_" + run + ".png");
+
+  TCanvas* c20 = new TCanvas;
+
+  resolutionReEmuEtaOMTF->SetTitle("");
+  resolutionReEmuEtaOMTF->SetLineWidth(2);
+  resolutionReEmuEtaOMTF->SetLineColor(kOrange);
+  resolutionReEmuEtaOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionReEmuEtaOMTF->GetYaxis()->SetTitle("Counts");
+  resolutionReEmuEtaOMTF->SetMarkerStyle(23);
+  resolutionReEmuEtaOMTF->SetMarkerColor(kOrange);
+
+  resolutionUnpackEtaOMTF->SetLineWidth(2);
+  resolutionUnpackEtaOMTF->SetLineColor(kBlue);
+  resolutionUnpackEtaOMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionUnpackEtaOMTF->GetYaxis()->SetTitle("Counts");
+  resolutionUnpackEtaOMTF->SetMarkerStyle(20);
+  resolutionUnpackEtaOMTF->SetMarkerColor(kBlue);
+
+  resolutionUnpackEtaOMTF->Draw("E1HIST");
+  resolutionReEmuEtaOMTF->Draw("same,E1HIST");
+  gPad->Modified();
+
+  TLegend* leg20 = new TLegend(0.15,0.73,0.7,0.88);
+  leg20->SetFillColor(0);
+  leg20->AddEntry(resolutionReEmuEtaOMTF, "ReEmu","lp");
+  leg20->AddEntry(resolutionUnpackEtaOMTF, "Unpack","lp");
+  leg20->SetBorderSize(0);
+  leg20->SetFillStyle(0);
+  leg20->Draw();
+  n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
+  n4.DrawLatex(0.15, 0.55, "SingleMu, OMTF");
+
+  c20->SaveAs(plotFolder + "dEtaRecoOMTF_" + run + ".pdf");
+  c20->SaveAs(plotFolder + "dEtaRecoOMTF_" + run + ".png");
+
+  TCanvas* c23 = new TCanvas;
+
+  resolutionReEmuEtaBMTF->SetTitle("");
+  resolutionReEmuEtaBMTF->SetLineWidth(2);
+  resolutionReEmuEtaBMTF->SetLineColor(kOrange);
+  resolutionReEmuEtaBMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionReEmuEtaBMTF->GetYaxis()->SetTitle("Counts");
+  resolutionReEmuEtaBMTF->SetMarkerStyle(23);
+  resolutionReEmuEtaBMTF->SetMarkerColor(kOrange);
+
+  resolutionUnpackEtaBMTF->SetLineWidth(2);
+  resolutionUnpackEtaBMTF->SetLineColor(kBlue);
+  resolutionUnpackEtaBMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionUnpackEtaBMTF->GetYaxis()->SetTitle("Counts");
+  resolutionUnpackEtaBMTF->SetMarkerStyle(20);
+  resolutionUnpackEtaBMTF->SetMarkerColor(kBlue);
+
+  resolutionUnpackEtaBMTF->Draw("E1HIST");
+  resolutionReEmuEtaBMTF->Draw("same,E1HIST");
+  gPad->Modified();
+
+  TLegend* leg23 = new TLegend(0.15,0.73,0.7,0.88);
+  leg23->SetFillColor(0);
+  leg23->AddEntry(resolutionReEmuEtaBMTF, "ReEmu","lp");
+  leg23->AddEntry(resolutionUnpackEtaBMTF, "Unpack","lp");
+  leg23->SetBorderSize(0);
+  leg23->SetFillStyle(0);
+  leg23->Draw();
+  n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
+  n4.DrawLatex(0.15, 0.55, "SingleMu, BMTF");
+
+  c23->SaveAs(plotFolder + "dEtaRecoBMTF_" + run + ".pdf");
+  c23->SaveAs(plotFolder + "dEtaRecoBMTF_" + run + ".png");
+
+  TCanvas* c22 = new TCanvas;
+
+  resolutionReEmuEtaEMTF->SetTitle("");
+  resolutionReEmuEtaEMTF->SetLineWidth(2);
+  resolutionReEmuEtaEMTF->SetLineColor(kOrange);
+  resolutionReEmuEtaEMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionReEmuEtaEMTF->GetYaxis()->SetTitle("Counts");
+  resolutionReEmuEtaEMTF->SetMarkerStyle(23);
+  resolutionReEmuEtaEMTF->SetMarkerColor(kOrange);
+
+  resolutionUnpackEtaEMTF->SetLineWidth(2);
+  resolutionUnpackEtaEMTF->SetLineColor(kBlue);
+  resolutionUnpackEtaEMTF->GetXaxis()->SetTitle("#Delta#eta(#mu_{L1}, #mu_{reco})");
+  resolutionUnpackEtaEMTF->GetYaxis()->SetTitle("Counts");
+  resolutionUnpackEtaEMTF->SetMarkerStyle(20);
+  resolutionUnpackEtaEMTF->SetMarkerColor(kBlue);
+
+  resolutionUnpackEtaEMTF->Draw("E1HIST");
+  resolutionReEmuEtaEMTF->Draw("same,E1HIST");
+  gPad->Modified();
+
+  TLegend* leg22 = new TLegend(0.15,0.73,0.7,0.88);
+  leg22->SetFillColor(0);
+  leg22->AddEntry(resolutionReEmuEtaEMTF, "ReEmu","lp");
+  leg22->AddEntry(resolutionUnpackEtaEMTF, "Unpack","lp");
+  leg22->SetBorderSize(0);
+  leg22->SetFillStyle(0);
+  leg22->Draw();
+  n3.DrawLatex(0.15, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
+  n4.DrawLatex(0.15, 0.55, "SingleMu, EMTF");
+
+  c22->SaveAs(plotFolder + "dEtaRecoEMTF_" + run + ".pdf");
+  c22->SaveAs(plotFolder + "dEtaRecoEMTF_" + run + ".png");
+
 }
