@@ -12,7 +12,7 @@ parser.add_argument('--outDir', type=str, default='plots',
 opts = parser.parse_args()
 
 sys.path.append(os.path.join(os.path.dirname(__file__),
-                             "../L1AnalysisHelpers"))
+                             "../../L1AnalysisHelpers"))
 from CreateHistograms import (binningDict, generateCombinedGhostPercHist,
                               generateCombinedEfficiencyHist)
 
@@ -299,8 +299,10 @@ ghost_distance_label.append(
     ["All muons", "EMTF+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_ntuple = []
 ghost_distance_ntuple.extend(len(ghost_distance_label) * [ugmt_singleMu_file])
-ghost_distance_ntuple_name = []
-ghost_distance_ntuple_name.extend(len(ghost_distance_label) * ["tf_ntuple"])
+input_ghost_distance_ntuple_name = []
+input_ghost_distance_ntuple_name.extend(len(ghost_distance_label) * ["tf_ntuple"])
+output_ghost_distance_ntuple_name = []
+output_ghost_distance_ntuple_name.extend(len(ghost_distance_label) * ["ugmt_ntuple"])
 ghost_distance_line_colour = []
 ghost_distance_line_colour.append(30)
 ghost_distance_line_colour.append(36)
@@ -308,13 +310,19 @@ ghost_distance_line_colour.append(48)
 ghost_distance_line_colour.append(8)
 ghost_distance_line_colour.append(28)
 ghost_distance_line_colour.append(35)
-ghost_distance_cuts = []
-ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
-ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
-ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
-ghost_distance_cuts.append(gmtCuts["diBOmtfFine_q4"])
-ghost_distance_cuts.append(gmtCuts["diBOmtfCoarse_q4"])
-ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
+input_ghost_distance_cuts = []
+input_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diBOmtfFine_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diBOmtfCoarse_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
+output_ghost_distance_cuts = []
+output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
 ghostDistanceList = []
 ghostDistanceList.append([["phiResolution", "#Delta#phi(#mu_{L1}#mu_{Ghost})"],
                           binningDict["distSym"],
@@ -331,12 +339,21 @@ ghostDistanceList.append([["ptResolution",
                           genCuts["mu-pt1"], [0, 1.4]])
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
-                                   ghost_distance_ntuple_name,
+                                   input_ghost_distance_ntuple_name,
                                    ghost_distance_label,
                                    ghost_distance_line_colour,
-                                   ghost_distance_cuts, "ghost_distance",
+                                   input_ghost_distance_cuts, "ghost_distance_inputs",
                                    drawGenMus=False, drawDistributions=True, drawStackPlot=True,
-                                   rootFolder=opts.outDir)
+                                   rootFolder=opts.outDir, distLogy=True)
+
+for varList in ghostDistanceList:
+    generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
+                                   output_ghost_distance_ntuple_name,
+                                   ghost_distance_label,
+                                   ghost_distance_line_colour,
+                                   output_ghost_distance_cuts, "ghost_distance_outputs",
+                                   drawGenMus=False, drawDistributions=True, drawStackPlot=True,
+                                   rootFolder=opts.outDir, distLogy=True)
 
 # Plot efficiencies at uGMT ouput split by TF contributions.
 
