@@ -712,7 +712,7 @@ bool findBestGenMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                       L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                       int& l1mu, const int pTcut, const int genMu,
                       const double dRcut) {
-  std::map<int, int> muCands;
+  std::map<int, double> muCands;
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
       continue;
@@ -724,8 +724,8 @@ bool findBestGenMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   }
   int bestMu(-1);
   double bestDr(999);
-  for (std::map<int, int>::iterator it = muCands.begin(); it != muCands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = muCands.begin();
+       it != muCands.end(); ++it) {
     if (it->second < bestDr) {
       bestDr = it->second;
       bestMu = it->first;
