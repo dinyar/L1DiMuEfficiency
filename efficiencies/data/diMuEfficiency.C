@@ -109,12 +109,12 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   }
 
   // OpenWithoutInit
-  TChain* l1SingleDataChain = new TChain(unpackTreepath.c_str());
-  TChain* recoSingleDataChain = new TChain(recoTreepath.c_str());
-  TChain* l1SingleMcChain = new TChain(unpackTreepath.c_str());
-  TChain* genSingleMcChain = new TChain(genTreepath.c_str());
-  TChain* l1DoubleMcChain = new TChain(unpackTreepath.c_str());
-  TChain* genDoubleMcChain = new TChain(genTreepath.c_str());
+  TChain l1SingleDataChain(unpackTreepath.c_str());
+  TChain recoSingleDataChain(recoTreepath.c_str());
+  TChain l1SingleMcChain(unpackTreepath.c_str());
+  TChain genSingleMcChain(genTreepath.c_str());
+  TChain l1DoubleMcChain(unpackTreepath.c_str());
+  TChain genDoubleMcChain(genTreepath.c_str());
   int singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
                                       recoSingleDataChain);
   int singleMcEntries =
@@ -452,13 +452,13 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain& l1Chain,
                 TChain& truthChain) {
   for (unsigned int i = 0; i < listNtuples.size(); i++) {
     std::cout << " -- Adding " << listNtuples[i] << std::endl;
-    l1Chain->Add(listNtuples[i].c_str());
-    truthChain->Add(listNtuples[i].c_str());
+    l1Chain.Add(listNtuples[i].c_str());
+    truthChain.Add(listNtuples[i].c_str());
   }
 
   // Init
   std::cout << "Estimate the number of entries... ";
-  int nentries = l1Chain->GetEntries();
+  int nentries = l1Chain.GetEntries();
   std::cout << nentries << std::endl;
 
   return nentries;
