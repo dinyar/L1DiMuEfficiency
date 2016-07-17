@@ -10,6 +10,8 @@
 #include "TStyle.h"
 #include "TTree.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -33,18 +35,17 @@ const int tagPt = 27;
 bool readFList(std::string fname, std::vector<std::string>& listNtuples);
 int setupTChain(const std::vector<std::string> listNtuples, TChain* unpackChain,
                 TChain* recoChain);
-void getSingleMuDataEfficiency(int nentries, const TChain* l1Chain,
-                               const TChain* recoChain, const int pTcut,
-                               const int etaLow, const int etaHigh,
-                               TH1D& effHist, TGraphAsymmErrors& effErrors);
-void getSingleMuMcEfficiency(int nentries, const TChain* l1Chain,
-                             const TChain* genChain, const int pTcut,
-                             const int etaLow, const int etaHigh, TH1D& effHist,
-                             TGraphAsymmErrors& effErrors);
-void getDoubleMuMcEfficiency(int nentries, const TChain* l1Chain,
-                             const TChain* genChain, const int pT1cut,
-                             const int pT2cut, const int etaLow,
+void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
+                               const int pTcut, const int etaLow,
+                               const int etaHigh, TH1D& effHist,
+                               TGraphAsymmErrors& effErrors);
+void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pTcut, const int etaLow,
                              const int etaHigh, TH1D& effHist,
+                             TGraphAsymmErrors& effErrors);
+void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pT1cut, const int pT2cut,
+                             const int etaLow, const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
@@ -467,10 +468,10 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
   return nentries;
 }
 
-void getSingleMuDataEfficiency(int nentries, const TChain* l1Chain,
-                               const TChain* recoChain, const int pTcut,
-                               const int etaLow, const int etaHigh,
-                               TH1D& effHist, TGraphAsymmErrors& effErrors) {
+void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
+                               const int pTcut, const int etaLow,
+                               const int etaHigh, TH1D& effHist,
+                               TGraphAsymmErrors& effErrors) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
@@ -552,9 +553,9 @@ void getSingleMuDataEfficiency(int nentries, const TChain* l1Chain,
   effHist.Divide(&allEventsHist);
 }
 
-void getSingleMuMcEfficiency(int nentries, const TChain* l1Chain,
-                             const TChain* genChain, const int pTcut,
-                             const int etaLow, const int etaHigh, TH1D& effHist,
+void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pTcut, const int etaLow,
+                             const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
@@ -606,17 +607,16 @@ void getSingleMuMcEfficiency(int nentries, const TChain* l1Chain,
   effHist.Divide(&allEventsHist);
 }
 
-void getDoubleMuMcEfficiency(int nentries, const TChain* l1Chain,
-                             const TChain* genChain, const int pT1cut,
-                             const int pT2cut, const int etaLow,
-                             const int etaHigh, TH1D& effHist,
+void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pT1cut, const int pT2cut,
+                             const int etaLow, const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors) {
   // set branch addresses
-  L1Analysis::L1AnalysisL1UpgradeDataFormat* unpack_ =
+  L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisGeneratorDataFormat* gen_ =
       new L1Analysis::L1AnalysisGeneratorDataFormat();
-  l1Chain->SetBranchAddress("L1Upgrade", &unpack_);
+  l1Chain->SetBranchAddress("L1Upgrade", &l1_);
   genChain->SetBranchAddress("Generator", &gen_);
 
   TH1D allEventsHist =
@@ -670,7 +670,7 @@ void getDoubleMuMcEfficiency(int nentries, const TChain* l1Chain,
 
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1) {
   int dummy;
-  return findGenMuon(gen_, 1, mu1, dummy)
+  return findGenMuon(gen_, 1, mu1, dummy);
 }
 
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
@@ -679,8 +679,8 @@ bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
   for (int i = 0; i < gen_->nPart; ++i) {
     if (abs(gen_->partId[i]) == 13) {
       ++nGenMus;
-      genMu2 = genMu1;
-      genMu1 = i;
+      mu2 = mu1;
+      mu1 = i;
     }
   }
   if (nGenMus != nMus) {
