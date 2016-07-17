@@ -26,7 +26,7 @@ const std::string unpackTreepath("l1UpgradeTree/L1UpgradeTree");
 const std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
 const std::string genTreepath("l1GeneratorTree/L1GenTree");
 // mu bins
-const int nMuBins = 100;
+const int nMuBins = 50;
 const float muLo = 0;
 const float muHi = 100;
 // Tag and probe constants
@@ -612,10 +612,16 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
     allEventsHist.Fill(gen_->partPt[genMu1]);
 
-    int mu = -1;
-    if (!findBestGenMatch(l1_, gen_, mu, pTcut, genMu1, 0.5)) {
+    // TODO: DEBUG
+    if (l1_->nMuons < 1) {
       continue;
     }
+
+    // int mu = -1;
+    // if (!findBestGenMatch(l1_, gen_, mu, pTcut, genMu1, 0.5)) {
+    //   continue;
+    // }
+    /////////////////////////////////////////////////////////////////
 
     effHist.Fill(gen_->partPt[genMu1]);
   }
@@ -669,13 +675,20 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     allEventsHist.Fill(gen_->partPt[genMu1]);
     allEventsHist.Fill(gen_->partPt[genMu2]);
 
-    // Match L1 Muon to gen muon.
-    int mu1 = -1;
-    int mu2 = -1;
-    if (!findBestGenMatches(l1_, gen_, mu1, mu2, pT1cut, pT2cut, genMu1, genMu2,
-                            0.5)) {
+    // TODO: DEBUG
+    if (l1_->nMuons < 1) {
       continue;
     }
+
+    // // Match L1 Muon to gen muon.
+    // int mu1 = -1;
+    // int mu2 = -1;
+    // if (!findBestGenMatches(l1_, gen_, mu1, mu2, pT1cut, pT2cut, genMu1,
+    // genMu2,
+    //                         0.5)) {
+    //   continue;
+    // }
+    ////////////////////////////////////////////////////
 
     effHist.Fill(gen_->partPt[genMu1]);
     effHist.Fill(gen_->partPt[genMu2]);
@@ -948,7 +961,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   // TODO: cmstdr style!!
 
   TCanvas c;
-  TLegend l(0.4, 0.23, 0.6, 0.38);
+  TLegend l(0.7, 0.73, 0.6, 0.88);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
