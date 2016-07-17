@@ -884,7 +884,7 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     hist->GetYaxis()->SetTitle("L1T Efficiency");
     hist->SetMarkerStyle(*marker);
     hist->SetMarkerColor(*colour);
-    l.AddEntry(&(*hist), *histname, "lp");
+    l.AddEntry(&(*hist), histname->c_str(), "lp");
   }
 
   l.SetFillColor(0);
