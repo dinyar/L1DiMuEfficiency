@@ -1,5 +1,5 @@
 #include "TCanvas.h"
-#include "TChain.h"
+#include "TChain->h"
 #include "TFile.h"
 #include "TGraph.h"
 #include "TH1D.h"
@@ -31,18 +31,18 @@ const float muHi = 100;
 const int tagPt = 27;
 
 bool readFList(std::string fname, std::vector<std::string>& listNtuples);
-int setupTChain(const std::vector<std::string> listNtuples, TChain& unpackChain,
-                TChain& recoChain);
-void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
-                               const TChain& recoChain, const int pTcut,
+int setupTChain(const std::vector<std::string> listNtuples, TChain* unpackChain,
+                TChain* recoChain);
+void getSingleMuDataEfficiency(int nentries, const TChain* l1Chain,
+                               const TChain* recoChain, const int pTcut,
                                const int etaLow, const int etaHigh,
                                TH1D& effHist, TGraphAsymmErrors& effErrors);
-void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
-                             const TChain& genChain, const int pTcut,
+void getSingleMuMcEfficiency(int nentries, const TChain* l1Chain,
+                             const TChain* genChain, const int pTcut,
                              const int etaLow, const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors);
-void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
-                             const TChain& genChain, const int pT1cut,
+void getDoubleMuMcEfficiency(int nentries, const TChain* l1Chain,
+                             const TChain* genChain, const int pT1cut,
                              const int pT2cut, const int etaLow,
                              const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors);
@@ -109,12 +109,12 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   }
 
   // OpenWithoutInit
-  TChain l1SingleDataChain(unpackTreepath.c_str());
-  TChain recoSingleDataChain(recoTreepath.c_str());
-  TChain l1SingleMcChain(unpackTreepath.c_str());
-  TChain genSingleMcChain(genTreepath.c_str());
-  TChain l1DoubleMcChain(unpackTreepath.c_str());
-  TChain genDoubleMcChain(genTreepath.c_str());
+  TChain* l1SingleDataChain = new TChain(unpackTreepath.c_str());
+  TChain* recoSingleDataChain = new TChain(recoTreepath.c_str());
+  TChain* l1SingleMcChain = new TChain(unpackTreepath.c_str());
+  TChain* genSingleMcChain = new TChain(genTreepath.c_str());
+  TChain* l1DoubleMcChain = new TChain(unpackTreepath.c_str());
+  TChain* genDoubleMcChain = new TChain(genTreepath.c_str());
   int singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
                                       recoSingleDataChain);
   int singleMcEntries =
@@ -451,24 +451,24 @@ bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
   return true;
 }
 
-int setupTChain(const std::vector<std::string> listNtuples, TChain& l1Chain,
-                TChain& truthChain) {
+int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
+                TChain* truthChain) {
   for (unsigned int i = 0; i < listNtuples.size(); i++) {
     std::cout << " -- Adding " << listNtuples[i] << std::endl;
-    l1Chain.Add(listNtuples[i].c_str());
-    truthChain.Add(listNtuples[i].c_str());
+    l1Chain->Add(listNtuples[i].c_str());
+    truthChain->Add(listNtuples[i].c_str());
   }
 
   // Init
   std::cout << "Estimate the number of entries... ";
-  int nentries = l1Chain.GetEntries();
+  int nentries = l1Chain->GetEntries();
   std::cout << nentries << std::endl;
 
   return nentries;
 }
 
-void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
-                               const TChain& recoChain, const int pTcut,
+void getSingleMuDataEfficiency(int nentries, const TChain* l1Chain,
+                               const TChain* recoChain, const int pTcut,
                                const int etaLow, const int etaHigh,
                                TH1D& effHist, TGraphAsymmErrors& effErrors) {
   // set branch addresses
@@ -476,8 +476,8 @@ void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_ =
       new L1Analysis::L1AnalysisRecoMuon2DataFormat();
-  l1Chain.SetBranchAddress("L1Upgrade", &l1_);
-  recoChain.SetBranchAddress("Muon", &reco_);
+  l1Chain->SetBranchAddress("L1Upgrade", &l1_);
+  recoChain->SetBranchAddress("Muon", &reco_);
 
   // Method:
   // Event with at least two reco muons.
@@ -499,8 +499,8 @@ void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
       std::cout << "Done " << jentry << " events..." << std::endl;
     }
 
-    l1Chain.GetEntry(jentry);
-    recoChain.GetEntry(jentry);
+    l1Chain->GetEntry(jentry);
+    recoChain->GetEntry(jentry);
 
     int nRecoMus(0);
     for (int i = 0; i < reco_->nMuons; ++i) {
@@ -552,8 +552,8 @@ void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
   effHist.Divide(&allEventsHist);
 }
 
-void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
-                             const TChain& genChain, const int pTcut,
+void getSingleMuMcEfficiency(int nentries, const TChain* l1Chain,
+                             const TChain* genChain, const int pTcut,
                              const int etaLow, const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors) {
   // set branch addresses
@@ -561,8 +561,8 @@ void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisGeneratorDataFormat* gen_ =
       new L1Analysis::L1AnalysisGeneratorDataFormat();
-  l1Chain.SetBranchAddress("L1Upgrade", &l1_);
-  genChain.SetBranchAddress("Generator", &gen_);
+  l1Chain->SetBranchAddress("L1Upgrade", &l1_);
+  genChain->SetBranchAddress("Generator", &gen_);
 
   TH1D allEventsHist =
       TH1D("allEventsHist", "", nMuBins, muLo - 0.1, muHi + 0.1);
@@ -577,8 +577,8 @@ void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
       std::cout << "Done " << jentry << " events..." << std::endl;
     }
 
-    l1Chain.GetEntry(jentry);
-    genChain.GetEntry(jentry);
+    l1Chain->GetEntry(jentry);
+    genChain->GetEntry(jentry);
 
     int genMu1 = -1;
     int genMu2 = -1;
@@ -606,8 +606,8 @@ void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
   effHist.Divide(&allEventsHist);
 }
 
-void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
-                             const TChain& genChain, const int pT1cut,
+void getDoubleMuMcEfficiency(int nentries, const TChain* l1Chain,
+                             const TChain* genChain, const int pT1cut,
                              const int pT2cut, const int etaLow,
                              const int etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors) {
@@ -616,8 +616,8 @@ void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisGeneratorDataFormat* gen_ =
       new L1Analysis::L1AnalysisGeneratorDataFormat();
-  l1Chain.SetBranchAddress("L1Upgrade", &unpack_);
-  genChain.SetBranchAddress("Generator", &gen_);
+  l1Chain->SetBranchAddress("L1Upgrade", &unpack_);
+  genChain->SetBranchAddress("Generator", &gen_);
 
   TH1D allEventsHist =
       TH1D("allEventsHist", "", nMuBins, muLo - 0.1, muHi + 0.1);
@@ -632,8 +632,8 @@ void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
       std::cout << "Done " << jentry << " events..." << std::endl;
     }
 
-    l1Chain.GetEntry(jentry);
-    genChain.GetEntry(jentry);
+    l1Chain->GetEntry(jentry);
+    genChain->GetEntry(jentry);
 
     int genMu1 = -1;
     int genMu2 = -1;
