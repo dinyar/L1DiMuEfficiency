@@ -55,19 +55,19 @@ double matchL1toGen(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
 bool findBestGenMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                       L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                       int& l1mu, const int pTcut, const int genMu,
-                      const int dRcut);
+                      const double dRcut);
 bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                         L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                         int& l1mu1, int& l1mu2, const int pT1cut,
                         const int pT2cut, const int genMu1, const int genMu2,
-                        const int dRcut);
+                        const double dRcut);
 double matchL1toReco(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                      L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                      const int l1Mu, const int recoMu);
 bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                        L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                        int& l1mu, const int pTcut, const int recoMu,
-                       const int dRcut);
+                       const double dRcut);
 // TODO:
 // void DrawHistogram(const TH1D& hist, const TGraphAsymmErrors& err,
 //                    const std::string name);
@@ -703,7 +703,7 @@ double matchL1toGen(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
 bool findBestGenMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                       L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                       int& l1mu, const int pTcut, const int genMu,
-                      const int dRcut) {
+                      const double dRcut) {
   std::map<int, int> muCands;
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
@@ -735,7 +735,7 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                         L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                         int& l1mu1, int& l1mu2, const int pT1cut,
                         const int pT2cut, const int genMu1, const int genMu2,
-                        const int dRcut) {
+                        const double dRcut) {
   std::map<int, int> mu1cands, mu2cands;
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
@@ -819,7 +819,7 @@ double matchL1toReco(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
 bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                        L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                        int& l1mu, const int pTcut, const int recoMu,
-                       const int dRcut) {
+                       const double dRcut) {
   std::map<int, int> muCands;
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
