@@ -80,6 +80,327 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name);
 
+void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
+                    std::string diMuMcFile, std::string folder, int mu1cut = 2,
+                    int mu2cut = 2) {
+  std::string plotFolder = "plots/" + folder + "/";
+  const int dir_err =
+      mkdir(plotFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  if (-1 == dir_err) {
+    std::cout << "Error creating directory or directory exists already."
+              << std::endl;
+    return;
+  }
+
+  gStyle->SetOptStat(0);
+
+  std::vector<std::string> listSingleDataNtuples;
+  std::vector<std::string> listSingleMcNtuples;
+  std::vector<std::string> listDoubleMcNtuples;
+
+  bool success = readFList(singleMuDataFile, listSingleDataNtuples);
+  success &= readFList(singleMuMcFile, listSingleMcNtuples);
+  success &= readFList(diMuMcFile, listDoubleMcNtuples);
+
+  if (!success) {
+    std::cout << "Exiting.. " << std::endl;
+    return;
+  }
+
+  // OpenWithoutInit
+  TChain* l1SingleDataChain = new TChain(unpackTreepath.c_str());
+  TChain* recoSingleDataChain = new TChain(recoTreepath.c_str());
+  TChain* l1SingleMcChain = new TChain(unpackTreepath.c_str());
+  TChain* genSingleMcChain = new TChain(genTreepath.c_str());
+  TChain* l1DoubleMcChain = new TChain(unpackTreepath.c_str());
+  TChain* genDoubleMcChain = new TChain(genTreepath.c_str());
+  int singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
+                                      recoSingleDataChain);
+  int singleMcEntries =
+      setupTChain(listSingleMcNtuples, l1SingleMcChain, genSingleMcChain);
+  int doubleMcEntries =
+      setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
+
+  // make histos
+  // BMTF
+  const int bmtfLow = 0;
+  const int bmtfHigh = 0.7;
+  TH1D bmtfSingleMuDataEfficiency("bmtfSingleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D bmtfSingleMuMcEfficiency("bmtfSingleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  TH1D bmtfDoubleMuDataEfficiency("bmtfDoubleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D bmtfDoubleMuMcEfficiency("bmtfDoubleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  // BOMTF
+  const int bomtfLow = 0.7;
+  const int bomtfHigh = 0.9;
+  TH1D bomtfSingleMuDataEfficiency("bomtfSingleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D bomtfSingleMuMcEfficiency("bomtfSingleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D bomtfDoubleMuDataEfficiency("bomtfDoubleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D bomtfDoubleMuMcEfficiency("bomtfDoubleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  // OMTF
+  const int omtfLow = 0.9;
+  const int omtfHigh = 1.15;
+  TH1D omtfSingleMuDataEfficiency("omtfSingleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D omtfSingleMuMcEfficiency("omtfSingleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  TH1D omtfDoubleMuDataEfficiency("omtfDoubleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D omtfDoubleMuMcEfficiency("omtfDoubleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  // EOMTF
+  const int eomtfLow = 1.15;
+  const int eomtfHigh = 1.35;
+  TH1D eomtfSingleMuDataEfficiency("eomtfSingleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D eomtfSingleMuMcEfficiency("eomtfSingleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D eomtfDoubleMuDataEfficiency("eomtfDoubleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D eomtfDoubleMuMcEfficiency("eomtfDoubleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  // EMTF
+  const int emtfLow = 1.35;
+  const int emtfHigh = 2.5;
+  TH1D emtfSingleMuDataEfficiency("emtfSingleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D emtfSingleMuMcEfficiency("emtfSingleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  TH1D emtfDoubleMuDataEfficiency("emtfDoubleMuDataEfficiency", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D emtfDoubleMuMcEfficiency("emtfDoubleMuMcEfficiency", "", nMuBins,
+                                muLo - 0.1, muHi + 0.1);
+  // For correct error bars
+  TGraphAsymmErrors bmtfSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors bmtfSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors bmtfDoubleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors bomtfSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors bomtfSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors bomtfDoubleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors omtfSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors omtfSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors omtfDoubleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors eomtfSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors eomtfSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors eomtfDoubleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors emtfSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors emtfSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors emtfDoubleMuMcErrors = TGraphAsymmErrors();
+
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, bmtfLow, bmtfHigh,
+                            bmtfSingleMuDataEfficiency, bmtfSingleMuDataErrors);
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, bomtfLow, bomtfHigh,
+                            bomtfSingleMuDataEfficiency,
+                            bomtfSingleMuDataErrors);
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, omtfLow, omtfHigh,
+                            omtfSingleMuDataEfficiency, omtfSingleMuDataErrors);
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, eomtfLow, eomtfHigh,
+                            eomtfSingleMuDataEfficiency,
+                            eomtfSingleMuDataErrors);
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, emtfLow, emtfHigh,
+                            emtfSingleMuDataEfficiency, emtfSingleMuDataErrors);
+
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, bmtfLow, bmtfHigh, bmtfSingleMuMcEfficiency,
+                          bmtfSingleMuMcErrors);
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, bomtfLow, bomtfHigh,
+                          bomtfSingleMuMcEfficiency, bomtfSingleMuMcErrors);
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, omtfLow, omtfHigh, omtfSingleMuMcEfficiency,
+                          omtfSingleMuMcErrors);
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, eomtfLow, eomtfHigh,
+                          eomtfSingleMuMcEfficiency, eomtfSingleMuMcErrors);
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, emtfLow, emtfHigh, emtfSingleMuMcEfficiency,
+                          emtfSingleMuMcErrors);
+
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, bmtfLow, bmtfHigh,
+                          bmtfDoubleMuMcEfficiency, bmtfDoubleMuMcErrors);
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, bomtfLow, bomtfHigh,
+                          bomtfDoubleMuMcEfficiency, bomtfDoubleMuMcErrors);
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, omtfLow, omtfHigh,
+                          omtfDoubleMuMcEfficiency, omtfDoubleMuMcErrors);
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, eomtfLow, eomtfHigh,
+                          eomtfDoubleMuMcEfficiency, eomtfDoubleMuMcErrors);
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, emtfLow, emtfHigh,
+                          emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
+
+  std::vector<std::string> regionNames;
+  regionNames.push_back("0 #leq |#eta| < 0.7");
+  regionNames.push_back("0.7 #leq |#eta| < 0.9");
+  regionNames.push_back("0.9 #leq |#eta| < 1.15");
+  regionNames.push_back("1.15 #leq |#eta| < 1.35");
+  regionNames.push_back("1.35 #leq |#eta| < 2.5");
+  std::vector<int> colours;
+  colours.push_back(41);
+  colours.push_back(9);
+  colours.push_back(36);
+  colours.push_back(3);
+  colours.push_back(48);
+  std::vector<int> markers;
+  markers.push_back(24);
+  markers.push_back(25);
+  markers.push_back(26);
+  markers.push_back(27);
+  markers.push_back(32);
+
+  // Drawing the single mu efficiencies now as we're squaring the histograms
+  // later.
+  std::vector<TH1D> singleMuMcEffs;
+  singleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
+  std::vector<TGraphAsymmErrors> singleMuMcErrs;
+  singleMuMcErrs.push_back(bmtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(bomtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(omtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(eomtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(emtfSingleMuMcErrors);
+
+  DrawHistograms(singleMuMcEffs, colours, markers, regionNames, singleMuMcErrs,
+                 plotFolder + "singleMuonEfficiencies_MC");
+
+  std::vector<TH1D> singleMuDataEffs;
+  singleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
+  std::vector<TGraphAsymmErrors> singleMuDataErrs;
+  singleMuDataErrs.push_back(bmtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(bomtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(omtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(eomtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(emtfSingleMuDataErrors);
+
+  DrawHistograms(singleMuDataEffs, colours, markers, regionNames,
+                 singleMuDataErrs, plotFolder + "singleMuonEfficiencies_Data");
+
+  std::vector<TH1D> doubleMuMcEffs;
+  doubleMuMcEffs.push_back(bmtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(oemtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(omtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(eomtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(emtfDoubleMuMcEfficiency);
+  std::vector<TGraphAsymmErrors> doubleMuMcErrs;
+  doubleMuMcErrs.push_back(bmtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(bomtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(omtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(eomtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(emtfDoubleMuMcErrors);
+
+  DrawHistograms(doubleMuMcEffs, colours, markers, regionNames, doubleMuMcErrs,
+                 plotFolder + "doubleMuonEfficiencies_MC");
+
+  TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  bmtfRhoFactor.Sumw2();
+  TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  bomtfRhoFactor.Sumw2();
+  TH1D omtfRhoFactor("omtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  omtfRhoFactor.Sumw2();
+  TH1D eomtfRhoFactor("eomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  eomtfRhoFactor.Sumw2();
+  TH1D emtfRhoFactor("emtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  emtfRhoFactor.Sumw2();
+
+  // Squaring single mu efficiencies to get "naive" double mu efficiencies.
+  bmtfSingleMuMcEfficiency.Multiply(bmtfSingleMuMcEfficiency);
+  bomtfSingleMuMcEfficiency.Multiply(bomtfSingleMuMcEfficiency);
+  omtfSingleMuMcEfficiency.Multiply(omtfSingleMuMcEfficiency);
+  eomtfSingleMuMcEfficiency.Multiply(eomtfSingleMuMcEfficiency);
+  emtfSingleMuMcEfficiency.Multiply(emtfSingleMuMcEfficiency);
+  bmtfSingleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency);
+  bomtfSingleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency);
+  omtfSingleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency);
+  eomtfSingleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency);
+  emtfSingleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency);
+
+  bmtfRhoFactor.Divide(bmtfDoubleMuMcEfficiency, bmtfSingleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+  bomtfRhoFactor.Divide(bomtfDoubleMuMcEfficiency, bomtfSingleMuMcEfficiency, 1,
+                        1,
+                        "");  // Two different datasets, no binomial errors.
+  omtfRhoFactor.Divide(omtfDoubleMuMcEfficiency, omtfSingleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+  eomtfRhoFactor.Divide(eomtfDoubleMuMcEfficiency, eomtfSingleMuMcEfficiency, 1,
+                        1,
+                        "");  // Two different datasets, no binomial errors.
+  emtfRhoFactor.Divide(emtfDoubleMuMcEfficiency, emtfSingleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+
+  bmtfDoubleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency,
+                                      bmtfRhoFactor);
+  bomtfDoubleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency,
+                                       bomtfRhoFactor);
+  omtfDoubleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency,
+                                      omtfRhoFactor);
+  eomtfDoubleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency,
+                                       eomtfRhoFactor);
+  emtfDoubleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency,
+                                      emtfRhoFactor);
+
+  std::vector<TH1D> naiveDoubleMuMcEffs;
+  naiveDoubleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
+
+  DrawHistograms(naiveDoubleMuMcEffs, colours, markers, regionNames,
+                 plotFolder + "naiveDoubleMuonEfficiencies_MC");
+
+  std::vector<TH1D> naiveDoubleMuDataEffs;
+  naiveDoubleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
+
+  DrawHistograms(naiveDoubleMuDataEffs, colours, markers, regionNames,
+                 plotFolder + "naiveDoubleMuonEfficiencies_Data");
+
+  std::vector<TH1D> rhoFactors;
+  rhoFactors.push_back(bmtfRhoFactor);
+  rhoFactors.push_back(bomtfRhoFactor);
+  rhoFactors.push_back(omtfRhoFactor);
+  rhoFactors.push_back(eomtfRhoFactor);
+  rhoFactors.push_back(emtfRhoFactor);
+
+  DrawHistograms(rhoFactors, colours, markers, regionNames,
+                 plotFolder + "rhoFactors");
+
+  std::vector<TH1D> doubleMuDataEffs;
+  doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(oemtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(omtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(eomtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(emtfDoubleMuDataEfficiency);
+
+  DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
+                 plotFolder + "doubleMuonEfficiencies_Data");
+}
+
 bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
   // OpenNtupleList
   std::ifstream flist(fname);
@@ -613,319 +934,4 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   c.SaveAs(name + ".root");
   c.SaveAs(name + ".pdf");
   c.SaveAs(name + ".png");
-}
-
-void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
-                    std::string diMuMcFile, std::string folder, int mu1cut = 11,
-                    int mu2cut = 4) {
-  std::string plotFolder = "plots/" + folder + "/";
-
-  gStyle->SetOptStat(0);
-
-  std::vector<std::string> listSingleDataNtuples;
-  std::vector<std::string> listSingleMcNtuples;
-  std::vector<std::string> listDoubleMcNtuples;
-
-  bool success = readFList(singleMuDataFile, listSingleDataNtuples);
-  success &= readFList(singleMuMcFile, listSingleMcNtuples);
-  success &= readFList(diMuMcFile, listDoubleMcNtuples);
-
-  if (!success) {
-    std::cout << "Exiting.. " << std::endl;
-    return;
-  }
-
-  // OpenWithoutInit
-  TChain* l1SingleDataChain = new TChain(unpackTreepath.c_str());
-  TChain* recoSingleDataChain = new TChain(recoTreepath.c_str());
-  TChain* l1SingleMcChain = new TChain(unpackTreepath.c_str());
-  TChain* genSingleMcChain = new TChain(genTreepath.c_str());
-  TChain* l1DoubleMcChain = new TChain(unpackTreepath.c_str());
-  TChain* genDoubleMcChain = new TChain(genTreepath.c_str());
-  int singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
-                                      recoSingleDataChain);
-  int singleMcEntries =
-      setupTChain(listSingleMcNtuples, l1SingleMcChain, genSingleMcChain);
-  int doubleMcEntries =
-      setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
-
-  // make histos
-  // BMTF
-  const int bmtfLow = 0;
-  const int bmtfHigh = 0.7;
-  TH1D bmtfSingleMuDataEfficiency("bmtfSingleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D bmtfSingleMuMcEfficiency("bmtfSingleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  TH1D bmtfDoubleMuDataEfficiency("bmtfDoubleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D bmtfDoubleMuMcEfficiency("bmtfDoubleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  // BOMTF
-  const int bomtfLow = 0.7;
-  const int bomtfHigh = 0.9;
-  TH1D bomtfSingleMuDataEfficiency("bomtfSingleMuDataEfficiency", "", nMuBins,
-                                   muLo - 0.1, muHi + 0.1);
-  TH1D bomtfSingleMuMcEfficiency("bomtfSingleMuMcEfficiency", "", nMuBins,
-                                 muLo - 0.1, muHi + 0.1);
-  TH1D bomtfDoubleMuDataEfficiency("bomtfDoubleMuDataEfficiency", "", nMuBins,
-                                   muLo - 0.1, muHi + 0.1);
-  TH1D bomtfDoubleMuMcEfficiency("bomtfDoubleMuMcEfficiency", "", nMuBins,
-                                 muLo - 0.1, muHi + 0.1);
-  // OMTF
-  const int omtfLow = 0.9;
-  const int omtfHigh = 1.15;
-  TH1D omtfSingleMuDataEfficiency("omtfSingleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D omtfSingleMuMcEfficiency("omtfSingleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  TH1D omtfDoubleMuDataEfficiency("omtfDoubleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D omtfDoubleMuMcEfficiency("omtfDoubleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  // EOMTF
-  const int eomtfLow = 1.15;
-  const int eomtfHigh = 1.35;
-  TH1D eomtfSingleMuDataEfficiency("eomtfSingleMuDataEfficiency", "", nMuBins,
-                                   muLo - 0.1, muHi + 0.1);
-  TH1D eomtfSingleMuMcEfficiency("eomtfSingleMuMcEfficiency", "", nMuBins,
-                                 muLo - 0.1, muHi + 0.1);
-  TH1D eomtfDoubleMuDataEfficiency("eomtfDoubleMuDataEfficiency", "", nMuBins,
-                                   muLo - 0.1, muHi + 0.1);
-  TH1D eomtfDoubleMuMcEfficiency("eomtfDoubleMuMcEfficiency", "", nMuBins,
-                                 muLo - 0.1, muHi + 0.1);
-  // EMTF
-  const int emtfLow = 1.35;
-  const int emtfHigh = 2.5;
-  TH1D emtfSingleMuDataEfficiency("emtfSingleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D emtfSingleMuMcEfficiency("emtfSingleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  TH1D emtfDoubleMuDataEfficiency("emtfDoubleMuDataEfficiency", "", nMuBins,
-                                  muLo - 0.1, muHi + 0.1);
-  TH1D emtfDoubleMuMcEfficiency("emtfDoubleMuMcEfficiency", "", nMuBins,
-                                muLo - 0.1, muHi + 0.1);
-  // For correct error bars
-  TGraphAsymmErrors bmtfSingleMuDataErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors bmtfSingleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors bmtfDoubleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors bomtfSingleMuDataErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors bomtfSingleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors bomtfDoubleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors omtfSingleMuDataErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors omtfSingleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors omtfDoubleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors eomtfSingleMuDataErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors eomtfSingleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors eomtfDoubleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors emtfSingleMuDataErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors emtfSingleMuMcErrors = TGraphAsymmErrors();
-  TGraphAsymmErrors emtfDoubleMuMcErrors = TGraphAsymmErrors();
-
-  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-                            recoSingleDataChain, pTcut1, bmtfLow, bmtfHigh,
-                            bmtfSingleMuDataEfficiency, bmtfSingleMuDataErrors);
-  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-                            recoSingleDataChain, pTcut1, bomtfLow, bomtfHigh,
-                            bomtfSingleMuDataEfficiency,
-                            bomtfSingleMuDataErrors);
-  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-                            recoSingleDataChain, pTcut1, omtfLow, omtfHigh,
-                            omtfSingleMuDataEfficiency, omtfSingleMuDataErrors);
-  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-                            recoSingleDataChain, pTcut1, eomtfLow, eomtfHigh,
-                            eomtfSingleMuDataEfficiency,
-                            eomtfSingleMuDataErrors);
-  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-                            recoSingleDataChain, pTcut1, emtfLow, emtfHigh,
-                            emtfSingleMuDataEfficiency, emtfSingleMuDataErrors);
-
-  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-                          ptCut1, bmtfLow, bmtfHigh, bmtfSingleMuMcEfficiency,
-                          bmtfSingleMuMcErrors);
-  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-                          ptCut1, bomtfLow, bomtfHigh,
-                          bomtfSingleMuMcEfficiency, bomtfSingleMuMcErrors);
-  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-                          ptCut1, omtfLow, omtfHigh, omtfSingleMuMcEfficiency,
-                          omtfSingleMuMcErrors);
-  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-                          ptCut1, eomtfLow, eomtfHigh,
-                          eomtfSingleMuMcEfficiency, eomtfSingleMuMcErrors);
-  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-                          ptCut1, emtfLow, emtfHigh, emtfSingleMuMcEfficiency,
-                          emtfSingleMuMcErrors);
-
-  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-                          pTcut1, pTcut2, bmtfLow, bmtfHigh,
-                          bmtfDoubleMuMcEfficiency, bmtfDoubleMuMcErrors);
-  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-                          pTcut1, pTcut2, bomtfLow, bomtfHigh,
-                          bomtfDoubleMuMcEfficiency, bomtfDoubleMuMcErrors);
-  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-                          pTcut1, pTcut2, omtfLow, omtfHigh,
-                          omtfDoubleMuMcEfficiency, omtfDoubleMuMcErrors);
-  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-                          pTcut1, pTcut2, eomtfLow, eomtfHigh,
-                          eomtfDoubleMuMcEfficiency, eomtfDoubleMuMcErrors);
-  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-                          pTcut1, pTcut2, emtfLow, emtfHigh,
-                          emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
-
-  std::vector<std::string> regionNames;
-  regionNames.push_back("0 #leq |#eta| < 0.7");
-  regionNames.push_back("0.7 #leq |#eta| < 0.9");
-  regionNames.push_back("0.9 #leq |#eta| < 1.15");
-  regionNames.push_back("1.15 #leq |#eta| < 1.35");
-  regionNames.push_back("1.35 #leq |#eta| < 2.5");
-  std::vector<int> colours;
-  colours.push_back(41);
-  colours.push_back(9);
-  colours.push_back(36);
-  colours.push_back(3);
-  colours.push_back(48);
-  std::vector<int> markers;
-  markers.push_back(24);
-  markers.push_back(25);
-  markers.push_back(26);
-  markers.push_back(27);
-  markers.push_back(32);
-
-  // Drawing the single mu efficiencies now as we're squaring the histograms
-  // later.
-  std::vector<TH1D> singleMuMcEffs;
-  singleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
-  singleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
-  singleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
-  singleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
-  singleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
-  std::vector<TGraphAsymmErrors> singleMuMcErrs;
-  singleMuMcErrs.push_back(bmtfSingleMuMcErrors);
-  singleMuMcErrs.push_back(bomtfSingleMuMcErrors);
-  singleMuMcErrs.push_back(omtfSingleMuMcErrors);
-  singleMuMcErrs.push_back(eomtfSingleMuMcErrors);
-  singleMuMcErrs.push_back(emtfSingleMuMcErrors);
-
-  DrawHistograms(singleMuMcEffs, colours, markers, regionNames, singleMuMcErrs,
-                 "singleMuonEfficiencies_MC");
-
-  std::vector<TH1D> singleMuDataEffs;
-  singleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
-  singleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
-  singleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
-  singleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
-  singleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
-  std::vector<TGraphAsymmErrors> singleMuDataErrs;
-  singleMuDataErrs.push_back(bmtfSingleMuDataErrors);
-  singleMuDataErrs.push_back(bomtfSingleMuDataErrors);
-  singleMuDataErrs.push_back(omtfSingleMuDataErrors);
-  singleMuDataErrs.push_back(eomtfSingleMuDataErrors);
-  singleMuDataErrs.push_back(emtfSingleMuDataErrors);
-
-  DrawHistograms(singleMuDataEffs, colours, markers, regionNames,
-                 singleMuDataErrs, "singleMuonEfficiencies_Data");
-
-  std::vector<TH1D> doubleMuMcEffs;
-  doubleMuMcEffs.push_back(bmtfDoubleMuMcEfficiency);
-  doubleMuMcEffs.push_back(oemtfDoubleMuMcEfficiency);
-  doubleMuMcEffs.push_back(omtfDoubleMuMcEfficiency);
-  doubleMuMcEffs.push_back(eomtfDoubleMuMcEfficiency);
-  doubleMuMcEffs.push_back(emtfDoubleMuMcEfficiency);
-  std::vector<TGraphAsymmErrors> doubleMuMcErrs;
-  doubleMuMcErrs.push_back(bmtfDoubleMuMcErrors);
-  doubleMuMcErrs.push_back(bomtfDoubleMuMcErrors);
-  doubleMuMcErrs.push_back(omtfDoubleMuMcErrors);
-  doubleMuMcErrs.push_back(eomtfDoubleMuMcErrors);
-  doubleMuMcErrs.push_back(emtfDoubleMuMcErrors);
-
-  DrawHistograms(doubleMuMcEffs, colours, markers, regionNames, doubleMuMcErrs,
-                 "doubleMuonEfficiencies_MC");
-
-  TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bmtfRhoFactor.Sumw2();
-  TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bomtfRhoFactor.Sumw2();
-  TH1D omtfRhoFactor("omtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  omtfRhoFactor.Sumw2();
-  TH1D eomtfRhoFactor("eomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  eomtfRhoFactor.Sumw2();
-  TH1D emtfRhoFactor("emtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  emtfRhoFactor.Sumw2();
-
-  // Squaring single mu efficiencies to get "naive" double mu efficiencies.
-  bmtfSingleMuMcEfficiency.Multiply(bmtfSingleMuMcEfficiency);
-  bomtfSingleMuMcEfficiency.Multiply(bomtfSingleMuMcEfficiency);
-  omtfSingleMuMcEfficiency.Multiply(omtfSingleMuMcEfficiency);
-  eomtfSingleMuMcEfficiency.Multiply(eomtfSingleMuMcEfficiency);
-  emtfSingleMuMcEfficiency.Multiply(emtfSingleMuMcEfficiency);
-  bmtfSingleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency);
-  bomtfSingleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency);
-  omtfSingleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency);
-  eomtfSingleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency);
-  emtfSingleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency);
-
-  bmtfRhoFactor.Divide(bmtfDoubleMuMcEfficiency, bmtfSingleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-  bomtfRhoFactor.Divide(bomtfDoubleMuMcEfficiency, bomtfSingleMuMcEfficiency, 1,
-                        1,
-                        "");  // Two different datasets, no binomial errors.
-  omtfRhoFactor.Divide(omtfDoubleMuMcEfficiency, omtfSingleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-  eomtfRhoFactor.Divide(eomtfDoubleMuMcEfficiency, eomtfSingleMuMcEfficiency, 1,
-                        1,
-                        "");  // Two different datasets, no binomial errors.
-  emtfRhoFactor.Divide(emtfDoubleMuMcEfficiency, emtfSingleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-
-  bmtfDoubleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency,
-                                      bmtfRhoFactor);
-  bomtfDoubleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency,
-                                       bomtfRhoFactor);
-  omtfDoubleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency,
-                                      omtfRhoFactor);
-  eomtfDoubleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency,
-                                       eomtfRhoFactor);
-  emtfDoubleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency,
-                                      emtfRhoFactor);
-
-  // TODO: Draw histograms.
-
-  std::vector<TH1D> naiveDoubleMuMcEffs;
-  naiveDoubleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
-
-  DrawHistograms(naiveDoubleMuMcEffs, colours, markers, regionNames,
-                 "naiveDoubleMuonEfficiencies_MC");
-
-  std::vector<TH1D> naiveDoubleMuDataEffs;
-  naiveDoubleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
-
-  DrawHistograms(naiveDoubleMuDataEffs, colours, markers, regionNames,
-                 "naiveDoubleMuonEfficiencies_Data");
-
-  std::vector<TH1D> rhoFactors;
-  rhoFactors.push_back(bmtfRhoFactor);
-  rhoFactors.push_back(bomtfRhoFactor);
-  rhoFactors.push_back(omtfRhoFactor);
-  rhoFactors.push_back(eomtfRhoFactor);
-  rhoFactors.push_back(emtfRhoFactor);
-
-  DrawHistograms(rhoFactors, colours, markers, regionNames, "rhoFactors");
-
-  std::vector<TH1D> doubleMuDataEffs;
-  doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
-  doubleMuDataEffs.push_back(oemtfDoubleMuDataEfficiency);
-  doubleMuDataEffs.push_back(omtfDoubleMuDataEfficiency);
-  doubleMuDataEffs.push_back(eomtfDoubleMuDataEfficiency);
-  doubleMuDataEffs.push_back(emtfDoubleMuDataEfficiency);
-
-  DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
-                 "doubleMuonEfficiencies_Data");
 }
