@@ -1,5 +1,5 @@
 #include "TCanvas.h"
-#include "TChain->h"
+#include "TChain.h"
 #include "TFile.h"
 #include "TGraph.h"
 #include "TH1D.h"
