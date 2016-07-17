@@ -50,7 +50,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                  const int nMus, int& mu1, int& mu2);
-double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat reco_, const int mu1,
+double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_, const int mu1,
                 const int mu2);
 double matchL1toGen(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                     L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
@@ -695,7 +695,7 @@ bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
   return true;
 }
 
-double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat reco_, const int mu1,
+double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_, const int mu1,
                 const int mu2) {
   return sqrt(pow(reco_->eta[mu1] - reco_->eta[mu2], 2) +
               pow(reco_->phi[mu1] - reco_->phi[mu2], 2));
@@ -745,6 +745,9 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                         const int pT2cut, const int genMu1, const int genMu2,
                         const double dRcut) {
   std::map<int, int> mu1cands, mu2cands;
+
+  // Find all L1 muons that can be matched to the two gen muons and pass the pT
+  // cut.
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
       continue;
@@ -759,10 +762,12 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
     }
   }
 
+  // If none could be found we return with false.
   if (mu1cands.size() == 0 || mu2cands.size() == 0) {
     return false;
   }
 
+  // Find the closest L1 candidate to the first gen muon.
   int bestMu1(-1);
   double bestDr1(999);
   for (std::map<int, int>::iterator it = mu1cands.begin(); it != mu1cands.end();
@@ -773,6 +778,8 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
     }
   }
 
+  // Find the closest L1 candidate (that wasn't matched to the first gen muon)
+  // to the second gen muon.
   int bestMu2(-1);
   double bestDr2(999);
   for (std::map<int, int>::iterator it = mu2cands.begin(); it != mu2cands.end();
@@ -784,30 +791,33 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   }
   double dRglobal(bestDr1 + bestDr2);
 
+  // Find the closest L1 candidate to the second gen muon (including the ones
+  // matched before)
   int bestMu22(-1);
   double bestDr22(999);
   for (std::map<int, int>::iterator it = mu2cands.begin(); it != mu2cands.end();
        ++it) {
-    if (it->second < bestDr22 && it->second != bestMu21) {
+    if (it->second < bestDr22) {
       bestDr22 = it->second;
       bestMu22 = it->first;
     }
   }
 
+  // Find the closest L1 candidate to the first gen muon (_excluding_ the one
+  // matched to the second gen muon)
   int bestMu21(-1);
   double bestDr21(999);
   for (std::map<int, int>::iterator it = mu1cands.begin(); it != mu1cands.end();
        ++it) {
-    if (it->second < bestDr21) {
+    if (it->second < bestDr21 && it->second != bestMu22) {
       bestDr21 = it->second;
       bestMu21 = it->first;
     }
   }
   double dRglobal2(bestDr21 + bestDr22);
 
-  if (dRglobal > 1 && dRglobal2 > 1) {
-    return false;
-  } else if (dRglobal2 < dRglobal) {
+  // Compare the sum of dRs for the two scenarios and match accordingly.
+  if (dRglobal2 < dRglobal) {
     l1mu1 = bestMu21;
     l1mu2 = bestMu22;
     return true;
@@ -848,7 +858,7 @@ bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
     }
   }
   l1mu = bestMu;
-  if (bestDr > dR) {
+  if (bestDr > dRcut) {
     return false;
   } else {
     return true;
@@ -860,16 +870,6 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
                        const std::vector<int> markers,
                        const std::vector<std::string>& histnames,
                        const std::string& name) {
-  TLatex n1;
-  n1.SetNDC();
-  n1.SetTextFont(52);
-  n1.SetTextSize(0.04);
-
-  TLatex n2;
-  n2.SetNDC();
-  n2.SetTextFont(52);
-  n2.SetTextSize(0.04);
-
   std::vector<int>::const_iterator colour = colours.begin();
   std::vector<int>::const_iterator marker = markers.begin();
   std::vector<std::string>::const_iterator histname = histnames.begin();
@@ -879,24 +879,21 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     // TODO: Draw horizontal line at '1'?
     hist->SetMinimum(0);
     hist->SetMaximum(1.4);
-    hist->SetLineColor(colour);
+    hist->SetLineColor(*colour);
     hist->GetXaxis()->SetTitle("p_{T}^{reco} (GeV/c)");
     hist->GetYaxis()->SetTitle("L1T Efficiency");
-    hist->SetMarkerStyle(marker);
-    hist->SetMarkerColor(colour);
-    l.AddEntry(hist, histname, "lp");
+    hist->SetMarkerStyle(*marker);
+    hist->SetMarkerColor(*colour);
+    l.AddEntry(*hist, *histname, "lp");
     // TODO: Draw in calling function. (Either with or without errors.. )
   }
 
   l.SetFillColor(0);
   l.SetFillStyle(0);
   l.SetBorderSize(0);
-
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.4, 0.55, "Zero Bias, L1_DoubleMu0");
 }
 
-void DrawHistograms(std::vector<TH1D&> hists, const std::vector<int> colours,
+void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
                     const std::string& name) {
@@ -936,8 +933,8 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++err, ++colour) {
     hist->Draw("same,HIST");
-    err->SetMarkerColor(colour);
-    err->SetLineColor(colour);
+    err->SetMarkerColor(*colour);
+    err->SetLineColor(*colour);
     err->Draw("p,same");
   }
 
