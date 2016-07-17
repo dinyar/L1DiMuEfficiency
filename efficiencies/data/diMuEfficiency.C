@@ -36,15 +36,16 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain& unpackChain,
 void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
                                const TChain& recoChain, const int pTcut,
                                const int etaLow, const int etaHigh,
-                               TH1D& effHist);
+                               TH1D& effHist, TGraphAsymmErrors& effErrors);
 void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
                              const TChain& genChain, const int pTcut,
-                             const int etaLow, const int etaHigh,
-                             TH1D& effHist);
+                             const int etaLow, const int etaHigh, TH1D& effHist,
+                             TGraphAsymmErrors& effErrors);
 void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
                              const TChain& genChain, const int pT1cut,
                              const int pT2cut, const int etaLow,
-                             const int etaHigh, TH1D& effHist);
+                             const int etaHigh, TH1D& effHist,
+                             TGraphAsymmErrors& effErrors);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                  const int nMus, int& mu1, int& mu2);
