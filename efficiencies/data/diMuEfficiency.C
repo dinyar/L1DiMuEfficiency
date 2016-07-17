@@ -81,7 +81,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
-                    const std::vector<TGraphAsymmErrors>& errs,
+                    std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name);
 
 void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
@@ -732,7 +732,7 @@ bool findBestGenMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
     }
   }
   l1mu = bestMu;
-  if (bestDr > dR) {
+  if (bestDr > dRcut) {
     return false;
   } else {
     return true;
@@ -884,7 +884,7 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     hist->GetYaxis()->SetTitle("L1T Efficiency");
     hist->SetMarkerStyle(*marker);
     hist->SetMarkerColor(*colour);
-    l.AddEntry(hist, *histname, "lp");
+    l.AddEntry(&(*hist), *histname, "lp");
     // TODO: Draw in calling function. (Either with or without errors.. )
   }
 
@@ -915,15 +915,15 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   oss1 << name << ".pdf";
   oss2 << name << ".png";
   oss3 << name << ".root";
-  c.SaveAs(oss.str().c_str());
-  c.SaveAs(oss.str().c_str());
-  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss1.str().c_str());
+  c.SaveAs(oss2.str().c_str());
+  c.SaveAs(oss3.str().c_str());
 }
 
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
-                    const std::vector<TGraphAsymmErrors>& errs,
+                    std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name) {
   // TODO: cmstdr style!!
 
