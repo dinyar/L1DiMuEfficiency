@@ -662,7 +662,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   TH1D bmtfDoubleMuMcEfficiency("bmtfDoubleMuMcEfficiency", "", nMuBins,
                                 muLo - 0.1, muHi + 0.1);
   // BOMTF
-  const int bomtfLow = 0.6;
+  const int bomtfLow = 0.7;
   const int bomtfHigh = 0.9;
   TH1D bomtfSingleMuDataEfficiency("bomtfSingleMuDataEfficiency", "", nMuBins,
                                    muLo - 0.1, muHi + 0.1);
@@ -772,6 +772,75 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                           pTcut1, pTcut2, emtfLow, emtfHigh,
                           emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
 
+  std::vector<std::string> regionNames;
+  regionNames.push_back("0 #leq |#eta| < 0.7");
+  regionNames.push_back("0.7 #leq |#eta| < 0.9");
+  regionNames.push_back("0.9 #leq |#eta| < 1.15");
+  regionNames.push_back("1.15 #leq |#eta| < 1.35");
+  regionNames.push_back("1.35 #leq |#eta| < 2.5");
+  std::vector<int> colours;
+  colours.push_back(41);
+  colours.push_back(9);
+  colours.push_back(36);
+  colours.push_back(3);
+  colours.push_back(48);
+  std::vector<int> markers;
+  markers.push_back(24);
+  markers.push_back(25);
+  markers.push_back(26);
+  markers.push_back(27);
+  markers.push_back(32);
+
+  // Drawing the single mu efficiencies now as we're squaring the histograms
+  // later.
+  std::vector<TH1D> singleMuMcEffs;
+  singleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
+  std::vector<TGraphAsymmErrors> singleMuMcErrs;
+  singleMuMcErrs.push_back(bmtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(bomtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(omtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(eomtfSingleMuMcErrors);
+  singleMuMcErrs.push_back(emtfSingleMuMcErrors);
+
+  DrawHistograms(singleMuMcEffs, colours, markers, regionNames, singleMuMcErrs,
+                 "singleMuonEfficiencies_MC");
+
+  std::vector<TH1D> singleMuDataEffs;
+  singleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
+  std::vector<TGraphAsymmErrors> singleMuDataErrs;
+  singleMuDataErrs.push_back(bmtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(bomtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(omtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(eomtfSingleMuDataErrors);
+  singleMuDataErrs.push_back(emtfSingleMuDataErrors);
+
+  DrawHistograms(singleMuDataEffs, colours, markers, regionNames,
+                 singleMuDataErrs, "singleMuonEfficiencies_Data");
+
+  std::vector<TH1D> doubleMuMcEffs;
+  doubleMuMcEffs.push_back(bmtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(oemtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(omtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(eomtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(emtfDoubleMuMcEfficiency);
+  std::vector<TGraphAsymmErrors> doubleMuMcErrs;
+  doubleMuMcErrs.push_back(bmtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(bomtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(omtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(eomtfDoubleMuMcErrors);
+  doubleMuMcErrs.push_back(emtfDoubleMuMcErrors);
+
+  DrawHistograms(doubleMuMcEffs, colours, markers, regionNames, doubleMuMcErrs,
+                 "doubleMuonEfficiencies_MC");
+
   TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
   bmtfRhoFactor.Sumw2();
   TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
@@ -820,4 +889,43 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                       emtfRhoFactor);
 
   // TODO: Draw histograms.
+
+  std::vector<TH1D> naiveDoubleMuMcEffs;
+  naiveDoubleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(oemtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
+
+  DrawHistograms(naiveDoubleMuMcEffs, colours, markers, regionNames,
+                 "naiveDoubleMuonEfficiencies_MC");
+
+  std::vector<TH1D> naiveDoubleMuDataEffs;
+  naiveDoubleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(oemtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
+
+  DrawHistograms(naiveDoubleMuDataEffs, colours, markers, regionNames,
+                 "naiveDoubleMuonEfficiencies_Data");
+
+  std::vector<TH1D> rhoFactors;
+  rhoFactors.push_back(bmtfRhoFactor);
+  rhoFactors.push_back(bomtfRhoFactor);
+  rhoFactors.push_back(omtfRhoFactor);
+  rhoFactors.push_back(eomtfRhoFactor);
+  rhoFactors.push_back(emtfRhoFactor);
+
+  DrawHistograms(rhoFactors, colours, markers, regionNames, "rhoFactors");
+
+  std::vector<TH1D> doubleMuDataEffs;
+  doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(oemtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(omtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(eomtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(emtfDoubleMuDataEfficiency);
+
+  DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
+                 "doubleMuonEfficiencies_Data");
 }
