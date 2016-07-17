@@ -251,11 +251,17 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                           emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
 
   std::vector<std::string> regionNames;
-  regionNames.push_back("0 #leq |#eta| < 0.7");
-  regionNames.push_back("0.7 #leq |#eta| < 0.9");
-  regionNames.push_back("0.9 #leq |#eta| < 1.15");
-  regionNames.push_back("1.15 #leq |#eta| < 1.35");
-  regionNames.push_back("1.35 #leq |#eta| < 2.5");
+  std::ostringstream oss1, oss2, oss3, oss4, oss5;
+  oss1 << bmtfLow << " #leq |#eta| < " << bmtfHigh;
+  oss1 << bomtfLow << " #leq |#eta| < " << bomtfHigh;
+  oss1 << omtfLow << " #leq |#eta| < " << omtfHigh;
+  oss1 << eomtfLow << " #leq |#eta| < " << eomtfHigh;
+  oss1 << emtfLow << " #leq |#eta| < " << emtfHigh;
+  regionNames.push_back(oss1.str());
+  regionNames.push_back(oss2.str());
+  regionNames.push_back(oss3.str());
+  regionNames.push_back(oss4.str());
+  regionNames.push_back(oss5.str());
   std::vector<int> colours;
   colours.push_back(41);
   colours.push_back(9);
@@ -401,8 +407,8 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   rhoFactors.push_back(eomtfRhoFactor);
   rhoFactors.push_back(emtfRhoFactor);
 
-  DrawHistograms(rhoFactors, colours, markers, regionNames,
-                 "#rho" plotFolder + "rhoFactors");
+  DrawHistograms(rhoFactors, colours, markers, regionNames, "#rho",
+                 plotFolder + "rhoFactors");
 
   std::vector<TH1D> doubleMuDataEffs;
   doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
@@ -824,15 +830,20 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   double dRglobal2(bestDr21 + bestDr22);
 
   // Compare the sum of dRs for the two scenarios and match accordingly.
-  if (dRglobal2 < dRglobal) {
+  if ((bestMu1 != bestMu2) && (dRglobal < dRglobal2)) {
+    l1mu1 = bestMu1;
+    l1mu2 = bestMu2;
+    return true;
+  } else if (bestMu21 != bestMu22) {
     l1mu1 = bestMu21;
     l1mu2 = bestMu22;
     return true;
-  } else {
+  } else if (bestMu1 != bestMu2) {
     l1mu1 = bestMu1;
     l1mu2 = bestMu2;
     return true;
   }
+  return false;
 }
 
 double matchL1toReco(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
