@@ -326,40 +326,43 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   emtfRhoFactor.Sumw2();
 
   // Squaring single mu efficiencies to get "naive" double mu efficiencies.
-  bmtfSingleMuMcEfficiency.Multiply(bmtfSingleMuMcEfficiency);
-  bomtfSingleMuMcEfficiency.Multiply(bomtfSingleMuMcEfficiency);
-  omtfSingleMuMcEfficiency.Multiply(omtfSingleMuMcEfficiency);
-  eomtfSingleMuMcEfficiency.Multiply(eomtfSingleMuMcEfficiency);
-  emtfSingleMuMcEfficiency.Multiply(emtfSingleMuMcEfficiency);
-  bmtfSingleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency);
-  bomtfSingleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency);
-  omtfSingleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency);
-  eomtfSingleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency);
-  emtfSingleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency);
+  bmtfSingleMuMcEfficiency.Multiply(&bmtfSingleMuMcEfficiency);
+  bomtfSingleMuMcEfficiency.Multiply(&bomtfSingleMuMcEfficiency);
+  omtfSingleMuMcEfficiency.Multiply(&omtfSingleMuMcEfficiency);
+  eomtfSingleMuMcEfficiency.Multiply(&eomtfSingleMuMcEfficiency);
+  emtfSingleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency);
+  bmtfSingleMuDataEfficiency.Multiply(&bmtfSingleMuDataEfficiency);
+  bomtfSingleMuDataEfficiency.Multiply(&bomtfSingleMuDataEfficiency);
+  omtfSingleMuDataEfficiency.Multiply(&omtfSingleMuDataEfficiency);
+  eomtfSingleMuDataEfficiency.Multiply(&eomtfSingleMuDataEfficiency);
+  emtfSingleMuDataEfficiency.Multiply(&emtfSingleMuDataEfficiency);
 
-  bmtfRhoFactor.Divide(bmtfDoubleMuMcEfficiency, bmtfSingleMuMcEfficiency, 1, 1,
+  bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency, &bmtfSingleMuMcEfficiency, 1,
+                       1,
                        "");  // Two different datasets, no binomial errors.
-  bomtfRhoFactor.Divide(bomtfDoubleMuMcEfficiency, bomtfSingleMuMcEfficiency, 1,
-                        1,
+  bomtfRhoFactor.Divide(&bomtfDoubleMuMcEfficiency, &bomtfSingleMuMcEfficiency,
+                        1, 1,
                         "");  // Two different datasets, no binomial errors.
-  omtfRhoFactor.Divide(omtfDoubleMuMcEfficiency, omtfSingleMuMcEfficiency, 1, 1,
+  omtfRhoFactor.Divide(&omtfDoubleMuMcEfficiency, &omtfSingleMuMcEfficiency, 1,
+                       1,
                        "");  // Two different datasets, no binomial errors.
-  eomtfRhoFactor.Divide(eomtfDoubleMuMcEfficiency, eomtfSingleMuMcEfficiency, 1,
-                        1,
+  eomtfRhoFactor.Divide(&eomtfDoubleMuMcEfficiency, &eomtfSingleMuMcEfficiency,
+                        1, 1,
                         "");  // Two different datasets, no binomial errors.
-  emtfRhoFactor.Divide(emtfDoubleMuMcEfficiency, emtfSingleMuMcEfficiency, 1, 1,
+  emtfRhoFactor.Divide(&emtfDoubleMuMcEfficiency, &emtfSingleMuMcEfficiency, 1,
+                       1,
                        "");  // Two different datasets, no binomial errors.
 
-  bmtfDoubleMuDataEfficiency.Multiply(bmtfSingleMuDataEfficiency,
-                                      bmtfRhoFactor);
-  bomtfDoubleMuDataEfficiency.Multiply(bomtfSingleMuDataEfficiency,
-                                       bomtfRhoFactor);
-  omtfDoubleMuDataEfficiency.Multiply(omtfSingleMuDataEfficiency,
-                                      omtfRhoFactor);
-  eomtfDoubleMuDataEfficiency.Multiply(eomtfSingleMuDataEfficiency,
-                                       eomtfRhoFactor);
-  emtfDoubleMuDataEfficiency.Multiply(emtfSingleMuDataEfficiency,
-                                      emtfRhoFactor);
+  bmtfDoubleMuDataEfficiency.Multiply(&bmtfSingleMuDataEfficiency,
+                                      &bmtfRhoFactor);
+  bomtfDoubleMuDataEfficiency.Multiply(&bomtfSingleMuDataEfficiency,
+                                       &bomtfRhoFactor);
+  omtfDoubleMuDataEfficiency.Multiply(&omtfSingleMuDataEfficiency,
+                                      &omtfRhoFactor);
+  eomtfDoubleMuDataEfficiency.Multiply(&eomtfSingleMuDataEfficiency,
+                                       &eomtfRhoFactor);
+  emtfDoubleMuDataEfficiency.Multiply(&emtfSingleMuDataEfficiency,
+                                      &emtfRhoFactor);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
   naiveDoubleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
@@ -545,8 +548,8 @@ void getSingleMuDataEfficiency(int nentries, const TChain& l1Chain,
       }
     }
   }
-  effErrors.Divide(effHist, allEventsHist);
-  effHist.Divide(allEventsHist);
+  effErrors.Divide(&effHist, &allEventsHist);
+  effHist.Divide(&allEventsHist);
 }
 
 void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
@@ -599,8 +602,8 @@ void getSingleMuMcEfficiency(int nentries, const TChain& l1Chain,
 
     effHist.Fill(gen_->partPt[genMu1]);
   }
-  effErrors.Divide(effHist, allEventsHist);
-  effHist.Divide(allEventsHist);
+  effErrors.Divide(&effHist, &allEventsHist);
+  effHist.Divide(&allEventsHist);
 }
 
 void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
@@ -661,8 +664,8 @@ void getDoubleMuMcEfficiency(int nentries, const TChain& l1Chain,
     effHist.Fill(gen_->partPt[genMu1]);
     effHist.Fill(gen_->partPt[genMu2]);
   }
-  effErrors.Divide(effHist, allEventsHist);
-  effHist.Divide(allEventsHist);
+  effErrors.Divide(&effHist, &allEventsHist);
+  effHist.Divide(&allEventsHist);
 }
 
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1) {
