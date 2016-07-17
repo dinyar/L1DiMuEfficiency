@@ -744,7 +744,7 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                         int& l1mu1, int& l1mu2, const int pT1cut,
                         const int pT2cut, const int genMu1, const int genMu2,
                         const double dRcut) {
-  std::map<int, int> mu1cands, mu2cands;
+  std::map<int, double> mu1cands, mu2cands;
 
   // Find all L1 muons that can be matched to the two gen muons and pass the pT
   // cut.
@@ -770,8 +770,8 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   // Find the closest L1 candidate to the first gen muon.
   int bestMu1(-1);
   double bestDr1(999);
-  for (std::map<int, int>::iterator it = mu1cands.begin(); it != mu1cands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = mu1cands.begin();
+       it != mu1cands.end(); ++it) {
     if (it->second < bestDr1) {
       bestDr1 = it->second;
       bestMu1 = it->first;
@@ -782,8 +782,8 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   // to the second gen muon.
   int bestMu2(-1);
   double bestDr2(999);
-  for (std::map<int, int>::iterator it = mu2cands.begin(); it != mu2cands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = mu2cands.begin();
+       it != mu2cands.end(); ++it) {
     if (it->second < bestDr2 && it->second != bestMu1) {
       bestDr2 = it->second;
       bestMu2 = it->first;
@@ -795,8 +795,8 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   // matched before)
   int bestMu22(-1);
   double bestDr22(999);
-  for (std::map<int, int>::iterator it = mu2cands.begin(); it != mu2cands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = mu2cands.begin();
+       it != mu2cands.end(); ++it) {
     if (it->second < bestDr22) {
       bestDr22 = it->second;
       bestMu22 = it->first;
@@ -807,8 +807,8 @@ bool findBestGenMatches(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   // matched to the second gen muon)
   int bestMu21(-1);
   double bestDr21(999);
-  for (std::map<int, int>::iterator it = mu1cands.begin(); it != mu1cands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = mu1cands.begin();
+       it != mu1cands.end(); ++it) {
     if (it->second < bestDr21 && it->second != bestMu22) {
       bestDr21 = it->second;
       bestMu21 = it->first;
@@ -838,7 +838,7 @@ bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                        L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                        int& l1mu, const int pTcut, const int recoMu,
                        const double dRcut) {
-  std::map<int, int> muCands;
+  std::map<int, double> muCands;
   for (int i = 0; i < upgrade_->nMuons; ++i) {
     if (upgrade_->muonBx[i] != 0) {
       continue;
@@ -850,8 +850,8 @@ bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   }
   int bestMu(-1);
   double bestDr(999);
-  for (std::map<int, int>::iterator it = muCands.begin(); it != muCands.end();
-       ++it) {
+  for (std::map<int, double>::iterator it = muCands.begin();
+       it != muCands.end(); ++it) {
     if (it->second < bestDr) {
       bestDr = it->second;
       bestMu = it->first;
@@ -885,7 +885,6 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     hist->SetMarkerStyle(*marker);
     hist->SetMarkerColor(*colour);
     l.AddEntry(&(*hist), *histname, "lp");
-    // TODO: Draw in calling function. (Either with or without errors.. )
   }
 
   l.SetFillColor(0);
@@ -932,7 +931,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
   prepareHistograms(l, hists, colours, markers, histnames, name);
 
-  std::vector<TGraphAsymmErrors>::const_iterator err = errs.begin();
+  std::vector<TGraphAsymmErrors>::iterator err = errs.begin();
   std::vector<int>::const_iterator colour = colours.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++err, ++colour) {
