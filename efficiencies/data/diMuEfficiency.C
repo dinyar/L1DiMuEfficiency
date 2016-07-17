@@ -862,9 +862,9 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
   n2.SetTextFont(52);
   n2.SetTextSize(0.04);
 
-  std::vector<int>::iterator colour = colours.begin();
-  std::vector<int>::iterator marker = markers.begin();
-  std::vector<std::string>::iterator histname = histnames.begin();
+  std::vector<int>::const_iterator colour = colours.begin();
+  std::vector<int>::const_iterator marker = markers.begin();
+  std::vector<std::string>::const_iterator histname = histnames.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++colour, ++marker, ++histname) {
     // TODO: Set max and min for histograms.
@@ -924,7 +924,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   prepareHistograms(l, hists, colours, markers, histnames, name);
 
   std::vector<TGraphAsymmErrors>::iterator err = errs.begin();
-  std::vector<int>::iterator colour = colours.begin();
+  std::vector<int>::const_iterator colour = colours.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++err, ++colour) {
     hist.Draw("same,HIST");
