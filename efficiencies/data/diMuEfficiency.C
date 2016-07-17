@@ -36,17 +36,17 @@ bool readFList(std::string fname, std::vector<std::string>& listNtuples);
 int setupTChain(const std::vector<std::string> listNtuples, TChain* unpackChain,
                 TChain* recoChain);
 void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
-                               const int pTcut, const int etaLow,
-                               const int etaHigh, TH1D& effHist,
+                               const int pTcut, const double etaLow,
+                               const double etaHigh, TH1D& effHist,
                                TGraphAsymmErrors& effErrors);
 void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
-                             const int pTcut, const int etaLow,
-                             const int etaHigh, TH1D& effHist,
+                             const int pTcut, const double etaLow,
+                             const double etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors);
 void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
                              const int pT1cut, const int pT2cut,
-                             const int etaLow, const int etaHigh, TH1D& effHist,
-                             TGraphAsymmErrors& effErrors);
+                             const double etaLow, const double etaHigh,
+                             TH1D& effHist, TGraphAsymmErrors& effErrors);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                  const int nMus, int& mu1, int& mu2);
@@ -254,10 +254,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::vector<std::string> regionNames;
   std::ostringstream oss1, oss2, oss3, oss4, oss5;
   oss1 << bmtfLow << " #leq |#eta| < " << bmtfHigh;
-  oss1 << bomtfLow << " #leq |#eta| < " << bomtfHigh;
-  oss1 << omtfLow << " #leq |#eta| < " << omtfHigh;
-  oss1 << eomtfLow << " #leq |#eta| < " << eomtfHigh;
-  oss1 << emtfLow << " #leq |#eta| < " << emtfHigh;
+  oss2 << bomtfLow << " #leq |#eta| < " << bomtfHigh;
+  oss3 << omtfLow << " #leq |#eta| < " << omtfHigh;
+  oss4 << eomtfLow << " #leq |#eta| < " << eomtfHigh;
+  oss5 << emtfLow << " #leq |#eta| < " << emtfHigh;
   regionNames.push_back(oss1.str());
   regionNames.push_back(oss2.str());
   regionNames.push_back(oss3.str());
@@ -485,8 +485,8 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
 }
 
 void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
-                               const int pTcut, const int etaLow,
-                               const int etaHigh, TH1D& effHist,
+                               const int pTcut, const double etaLow,
+                               const double etaHigh, TH1D& effHist,
                                TGraphAsymmErrors& effErrors) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
@@ -570,8 +570,8 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
 }
 
 void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
-                             const int pTcut, const int etaLow,
-                             const int etaHigh, TH1D& effHist,
+                             const int pTcut, const double etaLow,
+                             const double etaHigh, TH1D& effHist,
                              TGraphAsymmErrors& effErrors) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
@@ -625,8 +625,8 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
 void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
                              const int pT1cut, const int pT2cut,
-                             const int etaLow, const int etaHigh, TH1D& effHist,
-                             TGraphAsymmErrors& effErrors) {
+                             const double etaLow, const double etaHigh,
+                             TH1D& effHist, TGraphAsymmErrors& effErrors) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
