@@ -50,6 +50,8 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                  const int nMus, int& mu1, int& mu2);
+double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat reco_, const int mu1,
+                const int mu2);
 double matchL1toGen(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                     L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
                     const int l1Mu, const int genMu);
@@ -691,6 +693,12 @@ bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
     return false;
   }
   return true;
+}
+
+double recoDist(L1Analysis::L1AnalysisRecoMuon2DataFormat reco_, const int mu1,
+                const int mu2) {
+  return sqrt(pow(reco_->eta[mu1] - reco_->eta[mu2], 2) +
+              pow(reco_->phi[mu1] - reco_->phi[mu2], 2));
 }
 
 double matchL1toGen(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
