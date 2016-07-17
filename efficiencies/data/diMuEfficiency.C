@@ -899,7 +899,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::string& name) {
   // TODO: cmstdr style!!
 
-  TCanvas c();
+  TCanvas c;
   TLegend l(0.4, 0.23, 0.6, 0.38);
 
   prepareHistograms(l, hists, colours, markers, histnames, name);
@@ -911,9 +911,13 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
   l.Draw("same");
 
-  c.SaveAs(name + ".root");
-  c.SaveAs(name + ".pdf");
-  c.SaveAs(name + ".png");
+  std::ostringstream oss1, oss2, oss3;
+  oss1 << name << ".pdf";
+  oss2 << name << ".png";
+  oss3 << name << ".root";
+  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss.str().c_str());
 }
 
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
@@ -923,7 +927,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::string& name) {
   // TODO: cmstdr style!!
 
-  TCanvas c();
+  TCanvas c;
   TLegend l(0.4, 0.23, 0.6, 0.38);
 
   prepareHistograms(l, hists, colours, markers, histnames, name);
@@ -940,7 +944,11 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
   l.Draw("same");
 
-  c.SaveAs(name + ".root");
-  c.SaveAs(name + ".pdf");
-  c.SaveAs(name + ".png");
+  std::ostringstream oss1, oss2, oss3;
+  oss1 << name << ".pdf";
+  oss2 << name << ".png";
+  oss3 << name << ".root";
+  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss.str().c_str());
 }
