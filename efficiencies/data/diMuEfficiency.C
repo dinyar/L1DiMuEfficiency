@@ -98,6 +98,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
     return;
   }
 
+  gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
 
   std::vector<std::string> listSingleDataNtuples;
