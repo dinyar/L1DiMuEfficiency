@@ -884,7 +884,7 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     hist->GetYaxis()->SetTitle("L1T Efficiency");
     hist->SetMarkerStyle(*marker);
     hist->SetMarkerColor(*colour);
-    l.AddEntry(*hist, *histname, "lp");
+    l.AddEntry(hist, *histname, "lp");
     // TODO: Draw in calling function. (Either with or without errors.. )
   }
 
@@ -932,7 +932,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
   prepareHistograms(l, hists, colours, markers, histnames, name);
 
-  std::vector<TGraphAsymmErrors>::iterator err = errs.begin();
+  std::vector<TGraphAsymmErrors>::const_iterator err = errs.begin();
   std::vector<int>::const_iterator colour = colours.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++err, ++colour) {
@@ -948,7 +948,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   oss1 << name << ".pdf";
   oss2 << name << ".png";
   oss3 << name << ".root";
-  c.SaveAs(oss.str().c_str());
-  c.SaveAs(oss.str().c_str());
-  c.SaveAs(oss.str().c_str());
+  c.SaveAs(oss1.str().c_str());
+  c.SaveAs(oss2.str().c_str());
+  c.SaveAs(oss3.str().c_str());
 }
