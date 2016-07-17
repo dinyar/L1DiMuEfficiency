@@ -877,13 +877,13 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
        ++hist, ++colour, ++marker, ++histname) {
     // TODO: Set max and min for histograms.
     // TODO: Draw horizontal line at '1'?
-    hist.SetMinimum(0);
-    hist.SetMaximum(1.4);
-    hist.SetLineColor(colour);
-    hist.GetXaxis()->SetTitle("p_{T}^{reco} (GeV/c)");
-    hist.GetYaxis()->SetTitle("L1T Efficiency");
-    hist.SetMarkerStyle(marker);
-    hist.SetMarkerColor(colour);
+    hist->SetMinimum(0);
+    hist->SetMaximum(1.4);
+    hist->SetLineColor(colour);
+    hist->GetXaxis()->SetTitle("p_{T}^{reco} (GeV/c)");
+    hist->GetYaxis()->SetTitle("L1T Efficiency");
+    hist->SetMarkerStyle(marker);
+    hist->SetMarkerColor(colour);
     l.AddEntry(hist, histname, "lp");
     // TODO: Draw in calling function. (Either with or without errors.. )
   }
@@ -909,7 +909,7 @@ void DrawHistograms(std::vector<TH1D&> hists, const std::vector<int> colours,
 
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist) {
-    hist.Draw("same,E1HIST");
+    hist->Draw("same,E1HIST");
   }
 
   l.Draw("same");
@@ -935,10 +935,10 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   std::vector<int>::const_iterator colour = colours.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist, ++err, ++colour) {
-    hist.Draw("same,HIST");
-    err.SetMarkerColor(colour);
-    err.SetLineColor(colour);
-    err.Draw("p,same");
+    hist->Draw("same,HIST");
+    err->SetMarkerColor(colour);
+    err->SetLineColor(colour);
+    err->Draw("p,same");
   }
 
   l.Draw("same");
