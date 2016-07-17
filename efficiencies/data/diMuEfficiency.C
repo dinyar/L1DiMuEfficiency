@@ -77,10 +77,11 @@ bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
-                    const std::string& name);
+                    const std::string& type, const std::string& name);
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
+                    const std::string& type,
                     std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name);
 
@@ -88,9 +89,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                     std::string diMuMcFile, std::string folder, int mu1cut = 2,
                     int mu2cut = 2) {
   std::string plotFolder = "plots/" + folder + "/";
+  std::cout << "Creating directory: " << plotFolder << std::endl;
   const int dir_err =
       mkdir(plotFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  if (-1 == dir_err) {
+  if (dir_err == -1) {
     std::cout << "Error creating directory or directory exists already."
               << std::endl;
     return;
@@ -282,7 +284,8 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   singleMuMcErrs.push_back(eomtfSingleMuMcErrors);
   singleMuMcErrs.push_back(emtfSingleMuMcErrors);
 
-  DrawHistograms(singleMuMcEffs, colours, markers, regionNames, singleMuMcErrs,
+  DrawHistograms(singleMuMcEffs, colours, markers, regionNames,
+                 "L1T Efficiency", singleMuMcErrs,
                  plotFolder + "singleMuonEfficiencies_MC");
 
   std::vector<TH1D> singleMuDataEffs;
@@ -299,7 +302,8 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   singleMuDataErrs.push_back(emtfSingleMuDataErrors);
 
   DrawHistograms(singleMuDataEffs, colours, markers, regionNames,
-                 singleMuDataErrs, plotFolder + "singleMuonEfficiencies_Data");
+                 "L1T Efficiency", singleMuDataErrs,
+                 plotFolder + "singleMuonEfficiencies_Data");
 
   std::vector<TH1D> doubleMuMcEffs;
   doubleMuMcEffs.push_back(bmtfDoubleMuMcEfficiency);
@@ -314,7 +318,8 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   doubleMuMcErrs.push_back(eomtfDoubleMuMcErrors);
   doubleMuMcErrs.push_back(emtfDoubleMuMcErrors);
 
-  DrawHistograms(doubleMuMcEffs, colours, markers, regionNames, doubleMuMcErrs,
+  DrawHistograms(doubleMuMcEffs, colours, markers, regionNames,
+                 "L1T Efficiency", doubleMuMcErrs,
                  plotFolder + "doubleMuonEfficiencies_MC");
 
   TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
@@ -375,6 +380,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   naiveDoubleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
 
   DrawHistograms(naiveDoubleMuMcEffs, colours, markers, regionNames,
+                 "L1T Efficiency",
                  plotFolder + "naiveDoubleMuonEfficiencies_MC");
 
   std::vector<TH1D> naiveDoubleMuDataEffs;
@@ -385,6 +391,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   naiveDoubleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
 
   DrawHistograms(naiveDoubleMuDataEffs, colours, markers, regionNames,
+                 "L1T Efficiency",
                  plotFolder + "naiveDoubleMuonEfficiencies_Data");
 
   std::vector<TH1D> rhoFactors;
@@ -395,7 +402,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   rhoFactors.push_back(emtfRhoFactor);
 
   DrawHistograms(rhoFactors, colours, markers, regionNames,
-                 plotFolder + "rhoFactors");
+                 "#rho" plotFolder + "rhoFactors");
 
   std::vector<TH1D> doubleMuDataEffs;
   doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
@@ -405,7 +412,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   doubleMuDataEffs.push_back(emtfDoubleMuDataEfficiency);
 
   DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
-                 plotFolder + "doubleMuonEfficiencies_Data");
+                 "L1T Efficiency", plotFolder + "doubleMuonEfficiencies_Data");
 }
 
 bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
@@ -869,7 +876,7 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
                        const std::vector<int> colours,
                        const std::vector<int> markers,
                        const std::vector<std::string>& histnames,
-                       const std::string& name) {
+                       const std::string& type, const std::string& name) {
   std::vector<int>::const_iterator colour = colours.begin();
   std::vector<int>::const_iterator marker = markers.begin();
   std::vector<std::string>::const_iterator histname = histnames.begin();
@@ -881,7 +888,8 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     hist->SetMaximum(1.4);
     hist->SetLineColor(*colour);
     hist->GetXaxis()->SetTitle("p_{T}^{reco} (GeV/c)");
-    hist->GetYaxis()->SetTitle("L1T Efficiency");
+    // TODO: This needs to be configurable (e.g. for the rho factor)
+    hist->GetYaxis()->SetTitle(type.c_str());
     hist->SetMarkerStyle(*marker);
     hist->SetMarkerColor(*colour);
     l.AddEntry(&(*hist), histname->c_str(), "lp");
@@ -895,13 +903,13 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
-                    const std::string& name) {
+                    const std::string& type, const std::string& name) {
   // TODO: cmstdr style!!
 
   TCanvas c;
   TLegend l(0.4, 0.23, 0.6, 0.38);
 
-  prepareHistograms(l, hists, colours, markers, histnames, name);
+  prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
        ++hist) {
@@ -922,6 +930,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
+                    const std::string& type,
                     std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name) {
   // TODO: cmstdr style!!
@@ -929,7 +938,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   TCanvas c;
   TLegend l(0.4, 0.23, 0.6, 0.38);
 
-  prepareHistograms(l, hists, colours, markers, histnames, name);
+  prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
   std::vector<TGraphAsymmErrors>::iterator err = errs.begin();
   std::vector<int>::const_iterator colour = colours.begin();
