@@ -371,15 +371,15 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
       &eomtfSingleMuMcEfficiency, &eomtfSingleMuMcEfficiency, 1, 1, "B");
   emtfNaiveDoubleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency,
                                          &emtfSingleMuMcEfficiency, 1, 1, "B");
-  bmtfNaiveDoubleDataEfficiency.Multiply(
+  bmtfNaiveDoubleMuDataEfficiency.Multiply(
       &bmtfSingleMuDataEfficiency, &bmtfSingleMuDataEfficiency, 1, 1, "B");
-  bomtfNaiveDoubleDataEfficiency.Multiply(
+  bomtfNaiveDoublMueDataEfficiency.Multiply(
       &bomtfSingleMuDataEfficiency, &bomtfSingleMuDataEfficiency, 1, 1, "B");
-  omtfNaiveDoubleDataEfficiency.Multiply(
+  omtfNaiveDoubleMuDataEfficiency.Multiply(
       &omtfSingleMuDataEfficiency, &omtfSingleMuDataEfficiency, 1, 1, "B");
-  eomtfNaiveDoubleDataEfficiency.Multiply(
+  eomtfNaiveDoublMueDataEfficiency.Multiply(
       &eomtfSingleMuDataEfficiency, &eomtfSingleMuDataEfficiency, 1, 1, "B");
-  emtfNaiveDoubleDataEfficiency.Multiply(
+  emtfNaiveDoubleMuDataEfficiency.Multiply(
       &emtfSingleMuDataEfficiency, &emtfSingleMuDataEfficiency, 1, 1, "B");
 
   bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency,
@@ -999,9 +999,11 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
   std::vector<TGraphAsymmErrors>::iterator err = errs.begin();
   std::vector<int>::const_iterator colour = colours.begin();
+  std::vector<int>::const_iterator marker = markers.begin();
   for (std::vector<TH1D>::iterator hist = hists.begin(); hist != hists.end();
-       ++hist, ++err, ++colour) {
+       ++hist, ++err, ++colour, ++marker) {
     hist->Draw("same,HIST");
+    err->SetMarkerStyle(*marker);
     err->SetMarkerColor(*colour);
     err->SetLineColor(*colour);
     err->Draw("p,same");
