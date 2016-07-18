@@ -29,9 +29,9 @@ const std::string unpackTreepath("l1UpgradeTree/L1UpgradeTree");
 const std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
 const std::string genTreepath("l1GeneratorTree/L1GenTree");
 // mu bins
-const int nMuBins = 50;
+const int nMuBins = 35;
 const float muLo = 0;
-const float muHi = 100;
+const float muHi = 70;
 // Tag and probe constants
 const int tagPt = 27;
 
@@ -312,7 +312,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   // later.
   std::vector<TH1D> singleMuMcEffs;
   singleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
-  singleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
+  singleMuMcEffs.push_back(bomtfSingleMuMcEfficiency);
   singleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
   singleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
   singleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
@@ -329,7 +329,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   std::vector<TH1D> singleMuDataEffs;
   singleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
-  singleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
+  singleMuDataEffs.push_back(bomtfSingleMuDataEfficiency);
   singleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
   singleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
   singleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
@@ -346,7 +346,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   std::vector<TH1D> doubleMuMcEffs;
   doubleMuMcEffs.push_back(bmtfDoubleMuMcEfficiency);
-  doubleMuMcEffs.push_back(eomtfDoubleMuMcEfficiency);
+  doubleMuMcEffs.push_back(bomtfDoubleMuMcEfficiency);
   doubleMuMcEffs.push_back(omtfDoubleMuMcEfficiency);
   doubleMuMcEffs.push_back(eomtfDoubleMuMcEfficiency);
   doubleMuMcEffs.push_back(emtfDoubleMuMcEfficiency);
@@ -423,7 +423,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
   naiveDoubleMuMcEffs.push_back(bmtfNaiveDoubleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(eomtfNaiveDoubleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(bomtfNaiveDoubleMuMcEfficiency);
   naiveDoubleMuMcEffs.push_back(omtfNaiveDoubleMuMcEfficiency);
   naiveDoubleMuMcEffs.push_back(eomtfNaiveDoubleMuMcEfficiency);
   naiveDoubleMuMcEffs.push_back(emtfNaiveDoubleMuMcEfficiency);
@@ -434,7 +434,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   std::vector<TH1D> naiveDoubleMuDataEffs;
   naiveDoubleMuDataEffs.push_back(bmtfNaiveDoubleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(eomtfNaiveDoubleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(bomtfNaiveDoubleMuDataEfficiency);
   naiveDoubleMuDataEffs.push_back(omtfNaiveDoubleMuDataEfficiency);
   naiveDoubleMuDataEffs.push_back(eomtfNaiveDoubleMuDataEfficiency);
   naiveDoubleMuDataEffs.push_back(emtfNaiveDoubleMuDataEfficiency);
@@ -455,7 +455,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   std::vector<TH1D> doubleMuDataEffs;
   doubleMuDataEffs.push_back(bmtfDoubleMuDataEfficiency);
-  doubleMuDataEffs.push_back(eomtfDoubleMuDataEfficiency);
+  doubleMuDataEffs.push_back(bomtfDoubleMuDataEfficiency);
   doubleMuDataEffs.push_back(omtfDoubleMuDataEfficiency);
   doubleMuDataEffs.push_back(eomtfDoubleMuDataEfficiency);
   doubleMuDataEffs.push_back(emtfDoubleMuDataEfficiency);
@@ -468,7 +468,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::vector<TH1D> bmtfDoubleMuDataEff;
   bmtfDoubleMuDataEff.push_back(bmtfDoubleMuDataEfficiency);
   std::vector<TH1D> bomtfDoubleMuDataEff;
-  bomtfDoubleMuDataEff.push_back(eomtfDoubleMuDataEfficiency);
+  bomtfDoubleMuDataEff.push_back(bomtfDoubleMuDataEfficiency);
   std::vector<TH1D> omtfDoubleMuDataEff;
   omtfDoubleMuDataEff.push_back(omtfDoubleMuDataEfficiency);
   std::vector<TH1D> eomtfDoubleMuDataEff;
