@@ -1084,7 +1084,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   // TODO: cmstdr style!!
 
   TCanvas c;
-  TLegend l(0.8, 0.7, 0.95, 0.9);
+  TLegend l(0.2, 0.2, 0.4, 0.4);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
@@ -1119,7 +1119,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   // TODO: cmstdr style!!
 
   TCanvas c;
-  TLegend l(0.8, 0.7, 0.95, 0.9);
+  TLegend l(0.2, 0.2, 0.4, 0.4);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
