@@ -567,11 +567,17 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
       if (!reco_->isTightMuon[i] || (reco_->pt[i] < tagPt)) {
         continue;
       }
-      int tagMu(i);
-      int l1mu1(-1);
-      if (!findBestRecoMatch(l1_, reco_, l1mu1, pTcut, i, 0.5)) {
+      if (reco_->hlt_isomu[i] != 1) {
         continue;
       }
+      if (reco_->iso[i] >= 0.1) {
+        continue;
+      }
+      if (reco_->hlt_isoDeltaR[i] >= 0.3) {
+        continue;
+      }
+      int tagMu(i);
+
       // TODO: Possibly require that outside of eta region?
       for (int j = 0; j < reco_->nMuons; ++j) {
         if (!reco_->isTightMuon[j] || (tagMu == j) ||
@@ -580,7 +586,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
           continue;
         }
         // Check that probe and tag are more than dR=0.5 separated.
-        if (recoDist(reco_, i, j) <= 0.5) {
+        if (recoDist(reco_, tagMu, j) <= 0.5) {
           continue;
         }
         // TODO: Possibly check invariant mass.
@@ -589,10 +595,15 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
           continue;
         }
         allEventsHist.Fill(reco_->pt[j]);
-        int l1mu2(-1);
-        if (!findBestRecoMatch(l1_, reco_, l1mu2, pTcut, j, 0.5)) {
+        int l1mu(-1);
+        if (!findBestRecoMatch(l1_, reco_, l1mu, pTcut, j, 0.5)) {
           continue;
         }
+
+        if (l1_->muonQual[l1mu] < 8) {
+          continue;
+        }
+
         effHist.Fill(reco_->pt[j]);
       }
     }
@@ -620,6 +631,13 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   allEventsHist.Sumw2();
 
   std::cout << "Running over " << nentries << std::endl;
+
+  /////////////////////////////////////////////////////////////////////////////
+  // DEBUG
+  int numAccepted(0);
+  double dRtotal(0);
+  int nMuonsTotal(0);
+  /////////////////////////////////////////////////////////////////////////////
 
   for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
     if ((jentry % 1000) == 0) {
@@ -655,10 +673,34 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     // }
     /////////////////////////////////////////////////////////////////
 
+    int qual(0);
+    for (int i = 0; i < l1_->nMuons; ++i) {
+      if (l1_->muonQual[i] > qual) {
+        qual = l1_->muonQual[i];
+      }
+    }
+
+    if (qual < 8) {
+      continue;
+    }
+
+    int dummy(0);
+    ++numAccepted;
+    nMuonsTotal += l1_->nMuons;
+    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu1);
+
     effHist.Fill(gen_->partPt[genMu1]);
   }
   effErrors.Divide(&effHist, &allEventsHist);
   effHist.Divide(&allEventsHist);
+
+  std::cout << "Region between " << etaLow << " and " << etaHigh << ":"
+            << std::endl;
+  std::cout << "Number accepted: " << numAccepted << std::endl;
+  std::cout << "Average number of muons in accepted events: "
+            << static_cast<double>(nMuonsTotal) / numAccepted << std::endl;
+  std::cout << "Average distance from MC truth: " << dRtotal / numAccepted
+            << std::endl;
 }
 
 void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
@@ -678,6 +720,14 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
   effHist.Sumw2();
   allEventsHist.Sumw2();
+
+  /////////////////////////////////////////////////////////////////////////////
+  // DEBUG
+  int numAccepted(0);
+  int numDistances(0);
+  double dRtotal(0);
+  int nMuonsTotal(0);
+  /////////////////////////////////////////////////////////////////////////////
 
   std::cout << "Running over " << nentries << std::endl;
 
@@ -722,9 +772,39 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     // }
     ////////////////////////////////////////////////////
 
+    int qual1(0);
+    int qual2(0);
+    for (int i = 0; i < l1_->nMuons; ++i) {
+      if (l1_->muonQual[i] > qual1) {
+        qual2 = qual1;
+        qual1 = l1_->muonQual[i];
+      } else if (l1_->muonQual[i] > qual2) {
+        qual2 = l1_->muonQual[i];
+      }
+    }
+    if ((qual1 < 8) && (qual2 < 8)) {
+      continue;
+    }
+
+    int dummy(0);
+    ++numAccepted;
+    nMuonsTotal += l1_->nMuons;
+    numDistances += 2;
+    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu1);
+    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu2);
+
     effHist.Fill(gen_->partPt[genMu1]);
     effHist.Fill(gen_->partPt[genMu2]);
   }
+
+  std::cout << "Region between " << etaLow << " and " << etaHigh << ":"
+            << std::endl;
+  std::cout << "Number accepted: " << numAccepted << std::endl;
+  std::cout << "Average number of muons in accepted events: "
+            << static_cast<double>(nMuonsTotal) / numAccepted << std::endl;
+  std::cout << "Average distance from MC truth: " << dRtotal / numDistances
+            << std::endl;
+
   effErrors.Divide(&effHist, &allEventsHist);
   effHist.Divide(&allEventsHist);
 }
@@ -948,6 +1028,7 @@ void prepareHistograms(TLegend& l, std::vector<TH1D>& hists,
     // TODO: This needs to be configurable (e.g. for the rho factor)
     hist->GetYaxis()->SetTitle(type.c_str());
     hist->SetMarkerStyle(*marker);
+    hist->SetMarkerSize(0.5);
     hist->SetMarkerColor(*colour);
     l.AddEntry(&(*hist), histname->c_str(), "lp");
   }
@@ -1004,6 +1085,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
        ++hist, ++err, ++colour, ++marker) {
     hist->Draw("same,HIST");
     err->SetMarkerStyle(*marker);
+    err->SetMarkerSize(0.5);
     err->SetMarkerColor(*colour);
     err->SetLineColor(*colour);
     err->Draw("p,same");
