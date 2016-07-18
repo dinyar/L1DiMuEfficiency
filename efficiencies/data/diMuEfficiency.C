@@ -1084,7 +1084,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   // TODO: cmstdr style!!
 
   TCanvas c;
-  TLegend l(0.8, 0.73, 0.9, 0.88);
+  TLegend l(0.8, 0.7, 0.95, 0.9);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
@@ -1094,6 +1094,12 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   }
 
   l.Draw("same");
+
+  CMS_lumi(&c, 0, 11);
+
+  c.Update();
+  c.RedrawAxis();
+  c.GetFrame()->Draw();
 
   std::ostringstream oss1, oss2, oss3;
   oss1 << name << ".pdf";
@@ -1113,7 +1119,7 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   // TODO: cmstdr style!!
 
   TCanvas c;
-  TLegend l(0.8, 0.73, 0.9, 0.88);
+  TLegend l(0.8, 0.7, 0.95, 0.9);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
@@ -1131,6 +1137,12 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   }
 
   l.Draw("same");
+
+  CMS_lumi(&c, 0, 11);
+
+  c.Update();
+  c.RedrawAxis();
+  c.GetFrame()->Draw();
 
   std::ostringstream oss1, oss2, oss3;
   oss1 << name << ".pdf";
