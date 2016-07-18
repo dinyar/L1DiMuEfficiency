@@ -140,6 +140,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                   muLo - 0.1, muHi + 0.1);
   TH1D bmtfDoubleMuMcEfficiency("bmtfDoubleMuMcEfficiency", "", nMuBins,
                                 muLo - 0.1, muHi + 0.1);
+  TH1D bmtfNaiveDoubleMuDataEfficiency("bmtfNaiveDoubleMuDataEfficiency", "",
+                                       nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D bmtfNaiveDoubleMuMcEfficiency("bmtfNaiveDoubleMuMcEfficiency", "",
+                                     nMuBins, muLo - 0.1, muHi + 0.1);
   // BOMTF
   const double bomtfLow = 0.7;
   const double bomtfHigh = 0.9;
@@ -151,6 +155,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                    muLo - 0.1, muHi + 0.1);
   TH1D bomtfDoubleMuMcEfficiency("bomtfDoubleMuMcEfficiency", "", nMuBins,
                                  muLo - 0.1, muHi + 0.1);
+  TH1D bomtfNaiveDoubleMuDataEfficiency("bomtfNaiveDoubleMuDataEfficiency", "",
+                                        nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D bomtfNaiveDoubleMuMcEfficiency("bomtfNaiveDoubleMuMcEfficiency", "",
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
   // OMTF
   const double omtfLow = 0.9;
   const double omtfHigh = 1.15;
@@ -162,6 +170,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                   muLo - 0.1, muHi + 0.1);
   TH1D omtfDoubleMuMcEfficiency("omtfDoubleMuMcEfficiency", "", nMuBins,
                                 muLo - 0.1, muHi + 0.1);
+  TH1D omtfNaiveDoubleMuDataEfficiency("omtfNaiveDoubleMuDataEfficiency", "",
+                                       nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D omtfNaiveDoubleMuMcEfficiency("omtfNaiveDoubleMuMcEfficiency", "",
+                                     nMuBins, muLo - 0.1, muHi + 0.1);
   // EOMTF
   const double eomtfLow = 1.15;
   const double eomtfHigh = 1.35;
@@ -173,6 +185,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                    muLo - 0.1, muHi + 0.1);
   TH1D eomtfDoubleMuMcEfficiency("eomtfDoubleMuMcEfficiency", "", nMuBins,
                                  muLo - 0.1, muHi + 0.1);
+  TH1D eomtfNaiveDoubleMuDataEfficiency("eomtfNaiveDoubleMuDataEfficiency", "",
+                                        nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D eomtfNaiveDoubleMuMcEfficiency("eomtfNaiveDoubleMuMcEfficiency", "",
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
   // EMTF
   const double emtfLow = 1.35;
   const double emtfHigh = 2.5;
@@ -184,6 +200,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                   muLo - 0.1, muHi + 0.1);
   TH1D emtfDoubleMuMcEfficiency("emtfDoubleMuMcEfficiency", "", nMuBins,
                                 muLo - 0.1, muHi + 0.1);
+  TH1D emtfNaiveDoubleMuDataEfficiency("emtfNaiveDoubleMuDataEfficiency", "",
+                                       nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D emtfNaiveDoubleMuMcEfficiency("emtfNaiveDoubleMuMcEfficiency", "",
+                                     nMuBins, muLo - 0.1, muHi + 0.1);
   // For correct error bars
   TGraphAsymmErrors bmtfSingleMuDataErrors = TGraphAsymmErrors();
   TGraphAsymmErrors bmtfSingleMuMcErrors = TGraphAsymmErrors();
@@ -341,61 +361,71 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   emtfRhoFactor.Sumw2();
 
   // Squaring single mu efficiencies to get "naive" double mu efficiencies.
-  bmtfSingleMuMcEfficiency.Multiply(&bmtfSingleMuMcEfficiency);
-  bomtfSingleMuMcEfficiency.Multiply(&bomtfSingleMuMcEfficiency);
-  omtfSingleMuMcEfficiency.Multiply(&omtfSingleMuMcEfficiency);
-  eomtfSingleMuMcEfficiency.Multiply(&eomtfSingleMuMcEfficiency);
-  emtfSingleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency);
-  bmtfSingleMuDataEfficiency.Multiply(&bmtfSingleMuDataEfficiency);
-  bomtfSingleMuDataEfficiency.Multiply(&bomtfSingleMuDataEfficiency);
-  omtfSingleMuDataEfficiency.Multiply(&omtfSingleMuDataEfficiency);
-  eomtfSingleMuDataEfficiency.Multiply(&eomtfSingleMuDataEfficiency);
-  emtfSingleMuDataEfficiency.Multiply(&emtfSingleMuDataEfficiency);
+  bmtfNaiveDoubleMuMcEfficiency.Multiply(&bmtfSingleMuMcEfficiency,
+                                         &bmtfSingleMuMcEfficiency, 1, 1, "B");
+  bomtfNaiveDoubleMuMcEfficiency.Multiply(
+      &bomtfSingleMuMcEfficiency, &bomtfSingleMuMcEfficiency, 1, 1, "B");
+  omtfNaiveDoubleMuMcEfficiency.Multiply(&omtfSingleMuMcEfficiency,
+                                         &omtfSingleMuMcEfficiency, 1, 1, "B");
+  eomtfNaiveDoubleMuMcEfficiency.Multiply(
+      &eomtfSingleMuMcEfficiency, &eomtfSingleMuMcEfficiency, 1, 1, "B");
+  emtfNaiveDoubleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency,
+                                         &emtfSingleMuMcEfficiency, 1, 1, "B");
+  bmtfNaiveDoubleDataEfficiency.Multiply(
+      &bmtfSingleMuDataEfficiency, &bmtfSingleMuDataEfficiency, 1, 1, "B");
+  bomtfNaiveDoubleDataEfficiency.Multiply(
+      &bomtfSingleMuDataEfficiency, &bomtfSingleMuDataEfficiency, 1, 1, "B");
+  omtfNaiveDoubleDataEfficiency.Multiply(
+      &omtfSingleMuDataEfficiency, &omtfSingleMuDataEfficiency, 1, 1, "B");
+  eomtfNaiveDoubleDataEfficiency.Multiply(
+      &eomtfSingleMuDataEfficiency, &eomtfSingleMuDataEfficiency, 1, 1, "B");
+  emtfNaiveDoubleDataEfficiency.Multiply(
+      &emtfSingleMuDataEfficiency, &emtfSingleMuDataEfficiency, 1, 1, "B");
 
-  bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency, &bmtfSingleMuMcEfficiency, 1,
-                       1,
+  bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency,
+                       &bmtfNaiveDoubleMuMcEfficiency, 1, 1,
                        "");  // Two different datasets, no binomial errors.
-  bomtfRhoFactor.Divide(&bomtfDoubleMuMcEfficiency, &bomtfSingleMuMcEfficiency,
-                        1, 1,
+  bomtfRhoFactor.Divide(&bomtfDoubleMuMcEfficiency,
+                        &bomtfNaiveDoubleMuMcEfficiency, 1, 1,
                         "");  // Two different datasets, no binomial errors.
-  omtfRhoFactor.Divide(&omtfDoubleMuMcEfficiency, &omtfSingleMuMcEfficiency, 1,
-                       1,
+  omtfRhoFactor.Divide(&omtfDoubleMuMcEfficiency,
+                       &omtfNaiveDoubleMuMcEfficiency, 1, 1,
                        "");  // Two different datasets, no binomial errors.
-  eomtfRhoFactor.Divide(&eomtfDoubleMuMcEfficiency, &eomtfSingleMuMcEfficiency,
-                        1, 1,
+  eomtfRhoFactor.Divide(&eomtfDoubleMuMcEfficiency,
+                        &eomtfNaiveDoubleMuMcEfficiency, 1, 1,
                         "");  // Two different datasets, no binomial errors.
-  emtfRhoFactor.Divide(&emtfDoubleMuMcEfficiency, &emtfSingleMuMcEfficiency, 1,
-                       1,
+  emtfRhoFactor.Divide(&emtfDoubleMuMcEfficiency,
+                       &emtfNaiveDoubleMuMcEfficiency, 1, 1,
                        "");  // Two different datasets, no binomial errors.
 
-  bmtfDoubleMuDataEfficiency.Multiply(&bmtfSingleMuDataEfficiency,
+  bmtfDoubleMuDataEfficiency.Multiply(&bmtfNaiveDoubleMuDataEfficiency,
                                       &bmtfRhoFactor);
-  bomtfDoubleMuDataEfficiency.Multiply(&bomtfSingleMuDataEfficiency,
+  bomtfDoubleMuDataEfficiency.Multiply(&bomtfNaiveDoubleMuDataEfficiency,
                                        &bomtfRhoFactor);
-  omtfDoubleMuDataEfficiency.Multiply(&omtfSingleMuDataEfficiency,
+  omtfDoubleMuDataEfficiency.Multiply(&omtfNaiveDoubleMuDataEfficiency,
                                       &omtfRhoFactor);
-  eomtfDoubleMuDataEfficiency.Multiply(&eomtfSingleMuDataEfficiency,
+  eomtfDoubleMuDataEfficiency.Multiply(&eomtfNaiveDoubleMuDataEfficiency,
                                        &eomtfRhoFactor);
-  emtfDoubleMuDataEfficiency.Multiply(&emtfSingleMuDataEfficiency,
+  emtfDoubleMuDataEfficiency.Multiply(&emtfNaiveDoubleMuDataEfficiency,
                                       &emtfRhoFactor);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
-  naiveDoubleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(omtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(eomtfSingleMuMcEfficiency);
-  naiveDoubleMuMcEffs.push_back(emtfSingleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(bmtfNaiveDoubleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(eomtfNaiveDoubleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(omtfNaiveDoubleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(eomtfNaiveDoubleMuMcEfficiency);
+  naiveDoubleMuMcEffs.push_back(emtfNaiveDoubleMuMcEfficiency);
 
   DrawHistograms(naiveDoubleMuMcEffs, colours, markers, regionNames,
                  "L1T Efficiency",
                  plotFolder + "naiveDoubleMuonEfficiencies_MC");
 
   std::vector<TH1D> naiveDoubleMuDataEffs;
-  naiveDoubleMuDataEffs.push_back(bmtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(omtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(eomtfSingleMuDataEfficiency);
-  naiveDoubleMuDataEffs.push_back(emtfSingleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(bmtfNaiveDoubleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(eomtfNaiveDoubleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(omtfNaiveDoubleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(eomtfNaiveDoubleMuDataEfficiency);
+  naiveDoubleMuDataEffs.push_back(emtfNaiveDoubleMuDataEfficiency);
 
   DrawHistograms(naiveDoubleMuDataEffs, colours, markers, regionNames,
                  "L1T Efficiency",
@@ -420,6 +450,8 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
                  "L1T Efficiency", plotFolder + "doubleMuonEfficiencies_Data");
+
+  // TODO: Draw individual plots for histograms
 }
 
 bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
@@ -676,7 +708,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     allEventsHist.Fill(gen_->partPt[genMu2]);
 
     // TODO: DEBUG
-    if (l1_->nMuons < 1) {
+    if (l1_->nMuons < 2) {
       continue;
     }
 
