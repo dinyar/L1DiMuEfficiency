@@ -687,7 +687,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     int dummy(0);
     ++numAccepted;
     nMuonsTotal += l1_->nMuons;
-    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu1);
+    dRtotal += matchL1toGen(l1_, gen_, dummy, genMu1);
 
     effHist.Fill(gen_->partPt[genMu1]);
   }
@@ -790,8 +790,8 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     ++numAccepted;
     nMuonsTotal += l1_->nMuons;
     numDistances += 2;
-    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu1);
-    dRtotal += matchL1toGen(l1_, gen_, dummy, const int genMu2);
+    dRtotal += matchL1toGen(l1_, gen_, dummy, genMu1);
+    dRtotal += matchL1toGen(l1_, gen_, dummy, genMu2);
 
     effHist.Fill(gen_->partPt[genMu1]);
     effHist.Fill(gen_->partPt[genMu2]);
