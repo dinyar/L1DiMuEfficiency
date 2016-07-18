@@ -373,11 +373,11 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                          &emtfSingleMuMcEfficiency, 1, 1, "B");
   bmtfNaiveDoubleMuDataEfficiency.Multiply(
       &bmtfSingleMuDataEfficiency, &bmtfSingleMuDataEfficiency, 1, 1, "B");
-  bomtfNaiveDoublMueDataEfficiency.Multiply(
+  bomtfNaiveDoubleMuDataEfficiency.Multiply(
       &bomtfSingleMuDataEfficiency, &bomtfSingleMuDataEfficiency, 1, 1, "B");
   omtfNaiveDoubleMuDataEfficiency.Multiply(
       &omtfSingleMuDataEfficiency, &omtfSingleMuDataEfficiency, 1, 1, "B");
-  eomtfNaiveDoublMueDataEfficiency.Multiply(
+  eomtfNaiveDoubleMuDataEfficiency.Multiply(
       &eomtfSingleMuDataEfficiency, &eomtfSingleMuDataEfficiency, 1, 1, "B");
   emtfNaiveDoubleMuDataEfficiency.Multiply(
       &emtfSingleMuDataEfficiency, &emtfSingleMuDataEfficiency, 1, 1, "B");
