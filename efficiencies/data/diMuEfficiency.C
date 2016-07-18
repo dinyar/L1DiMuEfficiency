@@ -10,6 +10,9 @@
 #include "TStyle.h"
 #include "TTree.h"
 
+#include "CMS_lumi.C"
+#include "tdrstyle.C"
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fstream>
@@ -88,6 +91,15 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                     std::string diMuMcFile, std::string folder, int mu1cut = 2,
                     int mu2cut = 2) {
+  setTDRStyle();
+  writeExtraText = true;  // Add "Preliminary"
+  // lumi_13TeV  = "4.9 fb^{-1}";
+  lumi_sqrtS = "13 TeV";  // used with iPeriod = 0, e.g. for simulation-only
+                          // plots (default is an empty string)
+
+  int iPeriod = 0;  // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses
+                    // lumi_sqrtS)
+
   std::string plotFolder = "plots/" + folder + "/";
   std::cout << "Creating directory: " << plotFolder << std::endl;
   const int dir_err =
@@ -451,7 +463,34 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   DrawHistograms(doubleMuDataEffs, colours, markers, regionNames,
                  "L1T Efficiency", plotFolder + "doubleMuonEfficiencies_Data");
 
-  // TODO: Draw individual plots for histograms
+  // Draw individual plots for histograms by being lazy..
+
+  std::vector<TH1D> bmtfDoubleMuDataEff;
+  bmtfDoubleMuDataEff.push_back(bmtfDoubleMuDataEfficiency);
+  std::vector<TH1D> bomtfDoubleMuDataEff;
+  bomtfDoubleMuDataEff.push_back(eomtfDoubleMuDataEfficiency);
+  std::vector<TH1D> omtfDoubleMuDataEff;
+  omtfDoubleMuDataEff.push_back(omtfDoubleMuDataEfficiency);
+  std::vector<TH1D> eomtfDoubleMuDataEff;
+  eomtfDoubleMuDataEff.push_back(eomtfDoubleMuDataEfficiency);
+  std::vector<TH1D> emtfDoubleMuDataEff;
+  emtfDoubleMuDataEff.push_back(emtfDoubleMuDataEfficiency);
+
+  DrawHistograms(bmtfDoubleMuDataEff, colours, markers, regionNames,
+                 "L1T Efficiency",
+                 plotFolder + "bmtfDoubleMuonEfficiencies_Data");
+  DrawHistograms(bomtfDoubleMuDataEff, colours, markers, regionNames,
+                 "L1T Efficiency",
+                 plotFolder + "bomtfDoubleMuonEfficiencies_Data");
+  DrawHistograms(omtfDoubleMuDataEff, colours, markers, regionNames,
+                 "L1T Efficiency",
+                 plotFolder + "omtfDoubleMuonEfficiencies_Data");
+  DrawHistograms(eomtfDoubleMuDataEff, colours, markers, regionNames,
+                 "L1T Efficiency",
+                 plotFolder + "eomtfDoubleMuonEfficiencies_Data");
+  DrawHistograms(emtfDoubleMuDataEff, colours, markers, regionNames,
+                 "L1T Efficiency",
+                 plotFolder + "emtfDoubleMuonEfficiencies_Data");
 }
 
 bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
