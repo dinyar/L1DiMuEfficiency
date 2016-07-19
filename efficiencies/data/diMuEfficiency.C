@@ -818,7 +818,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
-    oss << histFolder << "singleMuDataEff_" << nRegion << ".root";
+    oss << histFolder << "singleMuMcEff_" << nRegion << ".root";
     if (retrieve_hists) {
       f.Open(oss.str().c_str(), "read");
 
@@ -928,7 +928,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
-    oss << histFolder << "singleMuDataEff_" << nRegion << ".root";
+    oss << histFolder << "doubleMuMcEff_" << nRegion << ".root";
     if (retrieve_hists) {
       f.Open(oss.str().c_str(), "read");
 
