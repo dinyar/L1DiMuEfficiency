@@ -190,11 +190,14 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::vector<TH1D> singleMuDataEffs;
   std::vector<TH1D> doubleMuMcEffs;
   for (int i = 0; i < singleMuMcEffNames.size(); ++i) {
-    TH1D dummy1(singleMuMcEffNames.at(i), "", nMuBins, muLo - 0.1, muHi + 0.1);
+    TH1D dummy1(singleMuMcEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
+                muHi + 0.1);
     singleMuMcEffs.push_back(dummy1);
-    TH1D dummy2(singleMuDataEffs.at(i), "", nMuBins, muLo - 0.1, muHi + 0.1);
+    TH1D dummy2(singleMuDataEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
+                muHi + 0.1);
     singleMuDataEffs.push_back(dummy1);
-    TH1D dummy3(doubleMuMcEffs.at(i), "", nMuBins, muLo - 0.1, muHi + 0.1);
+    TH1D dummy3(doubleMuMcEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
+                muHi + 0.1);
     doubleMuMcEffs.push_back(dummy1);
   }
 
@@ -702,13 +705,13 @@ void getSingleMuDataEfficiency(
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) =
+      effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      allEventsHists.at(i) =
+      allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      effHists.at(i).Write();
-      allEventsHists.at(i).Write();
+      effHists.at(nRegion).Write();
+      allEventsHists.at(nRegion).Write();
     }
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
@@ -793,13 +796,13 @@ void getSingleMuMcEfficiency(
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) =
+      effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      allEventsHists.at(i) =
+      allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      effHists.at(i).Write();
-      allEventsHists.at(i).Write();
+      effHists.at(nRegion).Write();
+      allEventsHists.at(nRegion).Write();
     }
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
@@ -894,13 +897,13 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) =
+      effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      allEventsHists.at(i) =
+      allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      effHists.at(i).Write();
-      allEventsHists.at(i).Write();
+      effHists.at(nRegion).Write();
+      allEventsHists.at(nRegion).Write();
     }
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
