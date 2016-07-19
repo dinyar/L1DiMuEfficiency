@@ -42,23 +42,29 @@ const int tagPt = 27;
 bool readFList(std::string fname, std::vector<std::string>& listNtuples);
 int setupTChain(const std::vector<std::string> listNtuples, TChain* unpackChain,
                 TChain* recoChain);
-void getSingleMuDataEfficiency(
-    int nentries, TChain* l1Chain, TChain* recoChain, const int pTcut,
-    const std::vector<double>& etaLows, const std::vector<double>& etaHighs,
-    std::vector<TH1D>& effHists, std::vector<TGraphAsymmErrors>& effErrors,
-    bool retrieve_hists, TFile& f, std::vector<std::string> histNames);
-void getSingleMuMcEfficiency(
-    int nentries, TChain* l1Chain, TChain* genChain, const int pTcut,
-    const std::vector<double>& etaLows, const std::vector<double>& etaHighs,
-    std::vector<TH1D>& effHists, std::vector<TGraphAsymmErrors>& effErrors,
-    bool retrieve_hists, TFile& f, std::vector<std::string> histNames);
+void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
+                               const int pTcut,
+                               const std::vector<double>& etaLows,
+                               const std::vector<double>& etaHighs,
+                               std::vector<TH1D>& effHists,
+                               std::vector<TGraphAsymmErrors>& effErrors,
+                               bool retrieve_hists, std::string filename,
+                               std::vector<std::string> histNames);
+void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pTcut,
+                             const std::vector<double>& etaLows,
+                             const std::vector<double>& etaHighs,
+                             std::vector<TH1D>& effHists,
+                             std::vector<TGraphAsymmErrors>& effErrors,
+                             bool retrieve_hists, std::string filename,
+                             std::vector<std::string> histNames);
 void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
                              const int pT1cut, const int pT2cut,
                              const std::vector<double>& etaLows,
                              const std::vector<double>& etaHighs,
                              std::vector<TH1D>& effHists,
                              std::vector<TGraphAsymmErrors>& effErrors,
-                             bool retrieve_hists, TFile& f,
+                             bool retrieve_hists, std::string filename,
                              std::vector<std::string> histNames);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1);
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
@@ -125,29 +131,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::string histFolder = "hists/";
   std::ostringstream histFilename;
   histFilename << histFolder << folder << ".root";
-  TFile f;
-  if (retrieve_hists) {
-    f.Open(histFilename.str().c_str(), "read");
-  } else {
-    mkdir(histFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    f.Open(histFilename.str().c_str(), "new");
-  }
+  mkdir(histFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
-
-  std::vector<std::string> listSingleDataNtuples;
-  std::vector<std::string> listSingleMcNtuples;
-  std::vector<std::string> listDoubleMcNtuples;
-
-  bool success = readFList(singleMuDataFile, listSingleDataNtuples);
-  success &= readFList(singleMuMcFile, listSingleMcNtuples);
-  success &= readFList(diMuMcFile, listDoubleMcNtuples);
-
-  if (!success) {
-    std::cout << "Exiting.. " << std::endl;
-    return;
-  }
 
   // OpenWithoutInit
   TChain* l1SingleDataChain = new TChain(unpackTreepath.c_str());
@@ -156,12 +143,32 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   TChain* genSingleMcChain = new TChain(genTreepath.c_str());
   TChain* l1DoubleMcChain = new TChain(unpackTreepath.c_str());
   TChain* genDoubleMcChain = new TChain(genTreepath.c_str());
-  int singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
-                                      recoSingleDataChain);
-  int singleMcEntries =
-      setupTChain(listSingleMcNtuples, l1SingleMcChain, genSingleMcChain);
-  int doubleMcEntries =
-      setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
+
+  int singleDataEntries(0);
+  int singleMcEntries(0);
+  int doubleMcEntries(0);
+
+  if (!retrieve_hists) {
+    std::vector<std::string> listSingleDataNtuples;
+    std::vector<std::string> listSingleMcNtuples;
+    std::vector<std::string> listDoubleMcNtuples;
+
+    bool success = readFList(singleMuDataFile, listSingleDataNtuples);
+    success &= readFList(singleMuMcFile, listSingleMcNtuples);
+    success &= readFList(diMuMcFile, listDoubleMcNtuples);
+
+    if (!success) {
+      std::cout << "Exiting.. " << std::endl;
+      return;
+    }
+
+    singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
+                                    recoSingleDataChain);
+    singleMcEntries =
+        setupTChain(listSingleMcNtuples, l1SingleMcChain, genSingleMcChain);
+    doubleMcEntries =
+        setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
+  }
 
   // make histos
   std::vector<std::string> singleMuMcEffNames;
@@ -316,16 +323,16 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
                             recoSingleDataChain, mu1cut, etaLows, etaHighs,
                             singleMuDataEffs, singleMuDataErrs, retrieve_hists,
-                            f, singleMuDataEffNames);
+                            histFilename, singleMuDataEffNames);
 
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
                           mu1cut, etaLows, etaHighs, singleMuMcEffs,
-                          singleMuMcErrs, retrieve_hists, f,
+                          singleMuMcErrs, retrieve_hists, histFilename,
                           singleMuMcEffNames);
 
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
                           mu1cut, mu2cut, etaLows, etaHighs, doubleMuMcEffs,
-                          doubleMuMcErrs, retrieve_hists, f,
+                          doubleMuMcErrs, retrieve_hists, histFilename,
                           doubleMuMcEffNames);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
@@ -596,11 +603,14 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
   return nentries;
 }
 
-void getSingleMuDataEfficiency(
-    int nentries, TChain* l1Chain, TChain* recoChain, const int pTcut,
-    const std::vector<double>& etaLows, const std::vector<double>& etaHighs,
-    std::vector<TH1D>& effHists, std::vector<TGraphAsymmErrors>& effErrors,
-    bool retrieve_hists, TFile& f, std::vector<std::string> histNames) {
+void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
+                               const int pTcut,
+                               const std::vector<double>& etaLows,
+                               const std::vector<double>& etaHighs,
+                               std::vector<TH1D>& effHists,
+                               std::vector<TGraphAsymmErrors>& effErrors,
+                               bool retrieve_hists, std::string filename,
+                               std::vector<std::string> histNames) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
@@ -703,16 +713,22 @@ void getSingleMuDataEfficiency(
       }
     }
   }
+  TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
+      f.Open(histFilename.str().c_str(), "read");
+
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
+      f.Open(histFilename.str().c_str(), "new");
+
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
     }
+    f.Close();
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
@@ -720,11 +736,14 @@ void getSingleMuDataEfficiency(
   }
 }
 
-void getSingleMuMcEfficiency(
-    int nentries, TChain* l1Chain, TChain* genChain, const int pTcut,
-    const std::vector<double>& etaLows, const std::vector<double>& etaHighs,
-    std::vector<TH1D>& effHists, std::vector<TGraphAsymmErrors>& effErrors,
-    bool retrieve_hists, TFile& f, std::vector<std::string> histNames) {
+void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
+                             const int pTcut,
+                             const std::vector<double>& etaLows,
+                             const std::vector<double>& etaHighs,
+                             std::vector<TH1D>& effHists,
+                             std::vector<TGraphAsymmErrors>& effErrors,
+                             bool retrieve_hists, std::string filename,
+                             std::vector<std::string> histNames) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
@@ -794,16 +813,23 @@ void getSingleMuMcEfficiency(
       }
     }
   }
+
+  TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
+      f.Open(histFilename.str().c_str(), "read");
+
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
+      f.Open(histFilename.str().c_str(), "new");
+
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
     }
+    f.Close();
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
@@ -817,7 +843,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
                              const std::vector<double>& etaHighs,
                              std::vector<TH1D>& effHists,
                              std::vector<TGraphAsymmErrors>& effErrors,
-                             bool retrieve_hists, TFile& f,
+                             bool retrieve_hists, std::string filename,
                              std::vector<std::string> histNames) {
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
@@ -895,16 +921,23 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
       }
     }
   }
+
+  TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
+      f.Open(histFilename.str().c_str(), "read");
+
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
+      f.Open(histFilename.str().c_str(), "new");
+
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
     }
+    f.Close();
 
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
