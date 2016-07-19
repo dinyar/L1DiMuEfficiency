@@ -323,16 +323,16 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
                             recoSingleDataChain, mu1cut, etaLows, etaHighs,
                             singleMuDataEffs, singleMuDataErrs, retrieve_hists,
-                            histFilename, singleMuDataEffNames);
+                            histFilename.str(), singleMuDataEffNames);
 
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
                           mu1cut, etaLows, etaHighs, singleMuMcEffs,
-                          singleMuMcErrs, retrieve_hists, histFilename,
+                          singleMuMcErrs, retrieve_hists, histFilename.str(),
                           singleMuMcEffNames);
 
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
                           mu1cut, mu2cut, etaLows, etaHighs, doubleMuMcEffs,
-                          doubleMuMcErrs, retrieve_hists, histFilename,
+                          doubleMuMcErrs, retrieve_hists, histFilename.str(),
                           doubleMuMcEffNames);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
