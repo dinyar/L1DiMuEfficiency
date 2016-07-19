@@ -319,89 +319,25 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                             recoSingleDataChain, mu1cut, etaLows, etaHighs,
                             singleMuDataEffs, singleMuDataErrs);
 
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, totalLow, totalHigh,
-  //                           totalSingleMuDataEfficiency,
-  //                           totalSingleMuDataErrors);
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, bmtfLow, bmtfHigh,
-  //                           bmtfSingleMuDataEfficiency,
-  //                           bmtfSingleMuDataErrors);
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, bomtfLow, bomtfHigh,
-  //                           bomtfSingleMuDataEfficiency,
-  //                           bomtfSingleMuDataErrors);
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, omtfLow, omtfHigh,
-  //                           omtfSingleMuDataEfficiency,
-  //                           omtfSingleMuDataErrors);
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, eomtfLow, eomtfHigh,
-  //                           eomtfSingleMuDataEfficiency,
-  //                           eomtfSingleMuDataErrors);
-  // getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
-  //                           recoSingleDataChain, mu1cut, emtfLow, emtfHigh,
-  //                           emtfSingleMuDataEfficiency,
-  //                           emtfSingleMuDataErrors);
-
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
                           mu1cut, etaLows, etaHighs, singleMuMcEffs,
                           singleMuMcErrs);
 
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, totalLow, totalHigh,
-  //                         totalSingleMuMcEfficiency, totalSingleMuMcErrors);
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, bmtfLow, bmtfHigh,
-  //                         bmtfSingleMuMcEfficiency,
-  //                         bmtfSingleMuMcErrors);
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, bomtfLow, bomtfHigh,
-  //                         bomtfSingleMuMcEfficiency, bomtfSingleMuMcErrors);
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, omtfLow, omtfHigh,
-  //                         omtfSingleMuMcEfficiency,
-  //                         omtfSingleMuMcErrors);
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, eomtfLow, eomtfHigh,
-  //                         eomtfSingleMuMcEfficiency, eomtfSingleMuMcErrors);
-  // getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
-  //                         mu1cut, emtfLow, emtfHigh,
-  //                         emtfSingleMuMcEfficiency,
-  //                         emtfSingleMuMcErrors);
-
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
                           mu1cut, mu2cut, etaLows, etaHighs, doubleMuMcEffs,
                           doubleMuMcErrs);
-
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, totalLow, totalHigh,
-  //                         totalDoubleMuMcEfficiency, totalDoubleMuMcErrors);
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, bmtfLow, bmtfHigh,
-  //                         bmtfDoubleMuMcEfficiency, bmtfDoubleMuMcErrors);
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, bomtfLow, bomtfHigh,
-  //                         bomtfDoubleMuMcEfficiency, bomtfDoubleMuMcErrors);
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, omtfLow, omtfHigh,
-  //                         omtfDoubleMuMcEfficiency, omtfDoubleMuMcErrors);
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, eomtfLow, eomtfHigh,
-  //                         eomtfDoubleMuMcEfficiency, eomtfDoubleMuMcErrors);
-  // getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
-  //                         mu1cut, mu2cut, emtfLow, emtfHigh,
-  //                         emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
   std::vector<TH1D> naiveDoubleMuDataEffs;
   std::vector<TH1D> rhoFactors;
   std::vector<TH1D> doubleMuDataEffs;
 
-  TH1D naiveDoubleMuDataEff;
-  TH1D naiveDoubleMuMcEff;
-  TH1D rhoFactor;
-  TH1D doubleMuDataEff;
+  TH1D naiveDoubleMuDataEff("naiveDoubleMuDataEff", "", nMuBins, muLo - 0.1,
+                            muHi + 0.1);
+  TH1D naiveDoubleMuMcEff("naiveDoubleMuMcEff", "", nMuBins, muLo - 0.1,
+                          muHi + 0.1);
+  TH1D rhoFactor("rhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuDataEff("doubleMuDataEff", "", nMuBins, muLo - 0.1, muHi + 0.1);
   for (int i = 0; i < singleMuMcEffs.size(); ++i) {
     // Squaring single mu efficiencies to get "naive" double mu efficiencies.
     naiveDoubleMuDataEff.Multiply(&(singleMuDataEffs.at(i)),
