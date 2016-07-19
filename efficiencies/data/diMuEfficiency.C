@@ -702,9 +702,10 @@ void getSingleMuDataEfficiency(
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) = *(static_cast<TH1D*>(f.Get(histNames.at(nRegion))));
+      effHists.at(i) =
+          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(i) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion))));
+          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
       effHists.at(i).Write();
       allEventsHists.at(i).Write();
@@ -792,9 +793,10 @@ void getSingleMuMcEfficiency(
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) = *(static_cast<TH1D*>(f.Get(histNames.at(nRegion))));
+      effHists.at(i) =
+          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(i) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion))));
+          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
       effHists.at(i).Write();
       allEventsHists.at(i).Write();
@@ -892,9 +894,10 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      effHists.at(i) = *(static_cast<TH1D*>(f.Get(histNames.at(nRegion))));
+      effHists.at(i) =
+          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(i) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion))));
+          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
       effHists.at(i).Write();
       allEventsHists.at(i).Write();
