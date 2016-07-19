@@ -393,21 +393,6 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   //                         mu1cut, mu2cut, emtfLow, emtfHigh,
   //                         emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
 
-  TH1D totalRhoFactor("totalRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  totalRhoFactor.Sumw2();
-  TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bmtfRhoFactor.Sumw2();
-  TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bomtfRhoFactor.Sumw2();
-  TH1D omtfRhoFactor("omtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  omtfRhoFactor.Sumw2();
-  TH1D eomtfRhoFactor("eomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  eomtfRhoFactor.Sumw2();
-  TH1D emtfRhoFactor("emtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  emtfRhoFactor.Sumw2();
-
-  // TODO: Replace this here with a for loop over vectors
-
   std::vector<TH1D> naiveDoubleMuMcEffs;
   std::vector<TH1D> naiveDoubleMuDataEffs;
   std::vector<TH1D> rhoFactors;
@@ -476,13 +461,13 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                                        doubleMuMcEffs.end());
   std::vector<TGraphAsymmErrors> totalDoubleMuMcErr(doubleMuMcErrs.end() - 1,
                                                     doubleMuMcErrs.end());
-  std::vector<TH1D> totalNaiveDoubleMuDataEff(naiveDoubleMuDataEff.end() - 1,
-                                              naiveDoubleMuDataEff.end());
-  std::vector<TH1D> totalNaiveDoubleMuMcEff(naiveDoubleMuMcEff.end() - 1,
-                                            naiveDoubleMuMcEff.end());
-  std::vector<TH1D> totalRhoFactor(rhoFactor.end() - 1, rhoFactor.end());
-  std::vector<TH1D> totalDoubleMuDataEff(doubleMuDataEff.end() - 1,
-                                         doubleMuDataEff.end());
+  std::vector<TH1D> totalNaiveDoubleMuDataEff(naiveDoubleMuDataEffs.end() - 1,
+                                              naiveDoubleMuDataEffs.end());
+  std::vector<TH1D> totalNaiveDoubleMuMcEff(naiveDoubleMuMcEffs.end() - 1,
+                                            naiveDoubleMuMcEffs.end());
+  std::vector<TH1D> totalRhoFactor(rhoFactors.end() - 1, rhoFactors.end());
+  std::vector<TH1D> totalDoubleMuDataEff(doubleMuDataEffs.end() - 1,
+                                         doubleMuDataEffs.end());
 
   // Removing plot for entire coverage.
   singleMuMcEffs.pop_back();
@@ -491,10 +476,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   singleMuDataErrs.pop_back();
   doubleMuMcEffs.pop_back();
   doubleMuMcErrs.pop_back();
-  naiveDoubleMuDataEff.pop_back();
-  naiveDoubleMuMcEff.pop_back();
-  rhoFactor.pop_back();
-  doubleMuDataEff.pop_back();
+  naiveDoubleMuDataEffs.pop_back();
+  naiveDoubleMuMcEffs.pop_back();
+  rhoFactors.pop_back();
+  doubleMuDataEffs.pop_back();
 
   DrawHistograms(singleMuMcEffs, colours, markers, regionNames,
                  "L1T Efficiency", singleMuMcErrs,
@@ -696,7 +681,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
   // NOTE: Tag can be probe too.
 
   std::vector<TH1D> allEventsHists;
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
     oss << "allEventsHist" << nRegion;
     TH1D allEventsHist =
@@ -756,7 +741,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
         }
         // TODO: Possibly check invariant mass.
         probeMus.push_back(j);
-        for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+        for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
           if ((abs(reco_->eta[j]) < etaLows.at(nRegion)) ||
               (abs(reco_->eta[j]) >= etaHighs.at(nRegion))) {
             continue;
@@ -776,7 +761,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
       }
     }
   }
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
@@ -798,7 +783,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   genChain->SetBranchAddress("Generator", &gen_);
 
   std::vector<TH1D> allEventsHists;
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
     oss << "allEventsHist" << nRegion;
     TH1D allEventsHist =
@@ -831,7 +816,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     }
 
     // Check if in eta region.
-    for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+    for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
       if ((abs(gen_->partEta[genMu1]) < etaLows.at(nRegion)) ||
           (abs(gen_->partEta[genMu1]) >= etaHighs.at(nRegion))) {
         continue;
@@ -853,7 +838,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
       effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
     }
   }
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
@@ -875,7 +860,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   genChain->SetBranchAddress("Generator", &gen_);
 
   std::vector<TH1D> allEventsHists;
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
     oss << "allEventsHist" << nRegion;
     TH1D allEventsHist =
@@ -908,7 +893,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     }
 
     // Check if in eta region.
-    for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+    for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
       if ((abs(gen_->partEta[genMu1]) < etaLows.at(nRegion)) ||
           (abs(gen_->partEta[genMu1]) >= etaHighs.at(nRegion)) ||
           (abs(gen_->partEta[genMu2]) < etaLows.at(nRegion)) ||
@@ -937,7 +922,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
       effHists.at(nRegion).Fill(gen_->partPt[genMu2]);
     }
   }
-  for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
                                  &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
