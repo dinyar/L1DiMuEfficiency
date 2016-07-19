@@ -1199,12 +1199,11 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   c.RedrawAxis();
   c.GetFrame()->Draw();
 
-  std::ostringstream oss1, oss2, oss3;
+  std::ostringstream oss1, oss2;
   oss1 << name << ".pdf";
   oss2 << name << ".png";
   c.SaveAs(oss1.str().c_str());
   c.SaveAs(oss2.str().c_str());
-  c.SaveAs(oss3.str().c_str());
 }
 
 void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
@@ -1241,10 +1240,9 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
   c.RedrawAxis();
   c.GetFrame()->Draw();
 
-  std::ostringstream oss1, oss2, oss3;
+  std::ostringstream oss1, oss2;
   oss1 << name << ".pdf";
   oss2 << name << ".png";
   c.SaveAs(oss1.str().c_str());
   c.SaveAs(oss2.str().c_str());
-  c.SaveAs(oss3.str().c_str());
 }
