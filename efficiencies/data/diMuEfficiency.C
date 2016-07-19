@@ -778,7 +778,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
   }
   for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHist.at(nRegion)));
+                                 &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
   }
 }
@@ -855,7 +855,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   }
   for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHist.at(nRegion)));
+                                 &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
   }
 }
@@ -939,7 +939,7 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   }
   for (int nRegion = 0; nRegion < effHists.length(); ++nRegion) {
     effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHist.at(nRegion)));
+                                 &(allEventsHists.at(nRegion)));
     effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
   }
 }
