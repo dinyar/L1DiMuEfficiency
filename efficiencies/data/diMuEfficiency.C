@@ -141,6 +141,21 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
       setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
 
   // make histos
+  // Full coverage
+  const double totalLow = 0;
+  const double totalHigh = 2.5;
+  TH1D totalSingleMuDataEfficiency("totalSingleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D totalSingleMuMcEfficiency("totalSingleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D totalDoubleMuDataEfficiency("totalDoubleMuDataEfficiency", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D totalDoubleMuMcEfficiency("totalDoubleMuMcEfficiency", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D totalNaiveDoubleMuDataEfficiency("totalNaiveDoubleMuDataEfficiency", "",
+                                        nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D totalNaiveDoubleMuMcEfficiency("totalNaiveDoubleMuMcEfficiency", "",
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
   // BMTF
   const double bmtfLow = 0;
   const double bmtfHigh = 0.7;
@@ -217,6 +232,9 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   TH1D emtfNaiveDoubleMuMcEfficiency("emtfNaiveDoubleMuMcEfficiency", "",
                                      nMuBins, muLo - 0.1, muHi + 0.1);
   // For correct error bars
+  TGraphAsymmErrors totalSingleMuDataErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors totalSingleMuMcErrors = TGraphAsymmErrors();
+  TGraphAsymmErrors totalDoubleMuMcErrors = TGraphAsymmErrors();
   TGraphAsymmErrors bmtfSingleMuDataErrors = TGraphAsymmErrors();
   TGraphAsymmErrors bmtfSingleMuMcErrors = TGraphAsymmErrors();
   TGraphAsymmErrors bmtfDoubleMuMcErrors = TGraphAsymmErrors();
@@ -233,6 +251,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   TGraphAsymmErrors emtfSingleMuMcErrors = TGraphAsymmErrors();
   TGraphAsymmErrors emtfDoubleMuMcErrors = TGraphAsymmErrors();
 
+  getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
+                            recoSingleDataChain, mu1cut, totalLow, totalHigh,
+                            totalSingleMuDataEfficiency,
+                            totalSingleMuDataErrors);
   getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
                             recoSingleDataChain, mu1cut, bmtfLow, bmtfHigh,
                             bmtfSingleMuDataEfficiency, bmtfSingleMuDataErrors);
@@ -252,6 +274,9 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                             emtfSingleMuDataEfficiency, emtfSingleMuDataErrors);
 
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
+                          mu1cut, totalLow, totalHigh,
+                          totalSingleMuMcEfficiency, totalSingleMuMcErrors);
+  getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
                           mu1cut, bmtfLow, bmtfHigh, bmtfSingleMuMcEfficiency,
                           bmtfSingleMuMcErrors);
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
@@ -268,6 +293,9 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                           emtfSingleMuMcErrors);
 
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
+                          mu1cut, mu2cut, totalLow, totalHigh,
+                          totalDoubleMuMcEfficiency, totalDoubleMuMcErrors);
+  getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
                           mu1cut, mu2cut, bmtfLow, bmtfHigh,
                           bmtfDoubleMuMcEfficiency, bmtfDoubleMuMcErrors);
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
@@ -283,8 +311,79 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                           mu1cut, mu2cut, emtfLow, emtfHigh,
                           emtfDoubleMuMcEfficiency, emtfDoubleMuMcErrors);
 
+  TH1D totalRhoFactor("totalRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  totalRhoFactor.Sumw2();
+  TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  bmtfRhoFactor.Sumw2();
+  TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  bomtfRhoFactor.Sumw2();
+  TH1D omtfRhoFactor("omtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  omtfRhoFactor.Sumw2();
+  TH1D eomtfRhoFactor("eomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  eomtfRhoFactor.Sumw2();
+  TH1D emtfRhoFactor("emtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  emtfRhoFactor.Sumw2();
+
+  // Squaring single mu efficiencies to get "naive" double mu efficiencies.
+  totalNaiveDoubleMuMcEfficiency.Multiply(
+      &totalSingleMuMcEfficiency, &totalSingleMuMcEfficiency, 1, 1, "B");
+  bmtfNaiveDoubleMuMcEfficiency.Multiply(&bmtfSingleMuMcEfficiency,
+                                         &bmtfSingleMuMcEfficiency, 1, 1, "B");
+  bomtfNaiveDoubleMuMcEfficiency.Multiply(
+      &bomtfSingleMuMcEfficiency, &bomtfSingleMuMcEfficiency, 1, 1, "B");
+  omtfNaiveDoubleMuMcEfficiency.Multiply(&omtfSingleMuMcEfficiency,
+                                         &omtfSingleMuMcEfficiency, 1, 1, "B");
+  eomtfNaiveDoubleMuMcEfficiency.Multiply(
+      &eomtfSingleMuMcEfficiency, &eomtfSingleMuMcEfficiency, 1, 1, "B");
+  emtfNaiveDoubleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency,
+                                         &emtfSingleMuMcEfficiency, 1, 1, "B");
+
+  totalNaiveDoubleMuDataEfficiency.Multiply(
+      &totalSingleMuDataEfficiency, &totalSingleMuDataEfficiency, 1, 1, "B");
+  bmtfNaiveDoubleMuDataEfficiency.Multiply(
+      &bmtfSingleMuDataEfficiency, &bmtfSingleMuDataEfficiency, 1, 1, "B");
+  bomtfNaiveDoubleMuDataEfficiency.Multiply(
+      &bomtfSingleMuDataEfficiency, &bomtfSingleMuDataEfficiency, 1, 1, "B");
+  omtfNaiveDoubleMuDataEfficiency.Multiply(
+      &omtfSingleMuDataEfficiency, &omtfSingleMuDataEfficiency, 1, 1, "B");
+  eomtfNaiveDoubleMuDataEfficiency.Multiply(
+      &eomtfSingleMuDataEfficiency, &eomtfSingleMuDataEfficiency, 1, 1, "B");
+  emtfNaiveDoubleMuDataEfficiency.Multiply(
+      &emtfSingleMuDataEfficiency, &emtfSingleMuDataEfficiency, 1, 1, "B");
+
+  bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency,
+                       &bmtfNaiveDoubleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+  bomtfRhoFactor.Divide(&bomtfDoubleMuMcEfficiency,
+                        &bomtfNaiveDoubleMuMcEfficiency, 1, 1,
+                        "");  // Two different datasets, no binomial errors.
+  omtfRhoFactor.Divide(&omtfDoubleMuMcEfficiency,
+                       &omtfNaiveDoubleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+  eomtfRhoFactor.Divide(&eomtfDoubleMuMcEfficiency,
+                        &eomtfNaiveDoubleMuMcEfficiency, 1, 1,
+                        "");  // Two different datasets, no binomial errors.
+  emtfRhoFactor.Divide(&emtfDoubleMuMcEfficiency,
+                       &emtfNaiveDoubleMuMcEfficiency, 1, 1,
+                       "");  // Two different datasets, no binomial errors.
+
+  totalDoubleMuDataEfficiency.Multiply(&totalNaiveDoubleMuDataEfficiency,
+                                       &totalRhoFactor);
+  bmtfDoubleMuDataEfficiency.Multiply(&bmtfNaiveDoubleMuDataEfficiency,
+                                      &bmtfRhoFactor);
+  bomtfDoubleMuDataEfficiency.Multiply(&bomtfNaiveDoubleMuDataEfficiency,
+                                       &bomtfRhoFactor);
+  omtfDoubleMuDataEfficiency.Multiply(&omtfNaiveDoubleMuDataEfficiency,
+                                      &omtfRhoFactor);
+  eomtfDoubleMuDataEfficiency.Multiply(&eomtfNaiveDoubleMuDataEfficiency,
+                                       &eomtfRhoFactor);
+  emtfDoubleMuDataEfficiency.Multiply(&emtfNaiveDoubleMuDataEfficiency,
+                                      &emtfRhoFactor);
+
   std::vector<std::string> regionNames;
-  std::ostringstream oss1, oss2, oss3, oss4, oss5;
+  std::ostringstream oss1, oss2, oss3, oss4, oss5, ossTotal;
+  ossTotal << totalLow << " #leq |#eta| < "
+           << totalHigh;  // Will be plotted separately.
   oss1 << bmtfLow << " #leq |#eta| < " << bmtfHigh;
   oss2 << bomtfLow << " #leq |#eta| < " << bomtfHigh;
   oss3 << omtfLow << " #leq |#eta| < " << omtfHigh;
@@ -308,8 +407,6 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   markers.push_back(27);
   markers.push_back(32);
 
-  // Drawing the single mu efficiencies now as we're squaring the histograms
-  // later.
   std::vector<TH1D> singleMuMcEffs;
   singleMuMcEffs.push_back(bmtfSingleMuMcEfficiency);
   singleMuMcEffs.push_back(bomtfSingleMuMcEfficiency);
@@ -361,66 +458,6 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                  "L1T Efficiency", doubleMuMcErrs,
                  plotFolder + "doubleMuonEfficiencies_MC");
 
-  TH1D bmtfRhoFactor("bmtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bmtfRhoFactor.Sumw2();
-  TH1D bomtfRhoFactor("bomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  bomtfRhoFactor.Sumw2();
-  TH1D omtfRhoFactor("omtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  omtfRhoFactor.Sumw2();
-  TH1D eomtfRhoFactor("eomtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  eomtfRhoFactor.Sumw2();
-  TH1D emtfRhoFactor("emtfRhoFactor", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  emtfRhoFactor.Sumw2();
-
-  // Squaring single mu efficiencies to get "naive" double mu efficiencies.
-  bmtfNaiveDoubleMuMcEfficiency.Multiply(&bmtfSingleMuMcEfficiency,
-                                         &bmtfSingleMuMcEfficiency, 1, 1, "B");
-  bomtfNaiveDoubleMuMcEfficiency.Multiply(
-      &bomtfSingleMuMcEfficiency, &bomtfSingleMuMcEfficiency, 1, 1, "B");
-  omtfNaiveDoubleMuMcEfficiency.Multiply(&omtfSingleMuMcEfficiency,
-                                         &omtfSingleMuMcEfficiency, 1, 1, "B");
-  eomtfNaiveDoubleMuMcEfficiency.Multiply(
-      &eomtfSingleMuMcEfficiency, &eomtfSingleMuMcEfficiency, 1, 1, "B");
-  emtfNaiveDoubleMuMcEfficiency.Multiply(&emtfSingleMuMcEfficiency,
-                                         &emtfSingleMuMcEfficiency, 1, 1, "B");
-  bmtfNaiveDoubleMuDataEfficiency.Multiply(
-      &bmtfSingleMuDataEfficiency, &bmtfSingleMuDataEfficiency, 1, 1, "B");
-  bomtfNaiveDoubleMuDataEfficiency.Multiply(
-      &bomtfSingleMuDataEfficiency, &bomtfSingleMuDataEfficiency, 1, 1, "B");
-  omtfNaiveDoubleMuDataEfficiency.Multiply(
-      &omtfSingleMuDataEfficiency, &omtfSingleMuDataEfficiency, 1, 1, "B");
-  eomtfNaiveDoubleMuDataEfficiency.Multiply(
-      &eomtfSingleMuDataEfficiency, &eomtfSingleMuDataEfficiency, 1, 1, "B");
-  emtfNaiveDoubleMuDataEfficiency.Multiply(
-      &emtfSingleMuDataEfficiency, &emtfSingleMuDataEfficiency, 1, 1, "B");
-
-  bmtfRhoFactor.Divide(&bmtfDoubleMuMcEfficiency,
-                       &bmtfNaiveDoubleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-  bomtfRhoFactor.Divide(&bomtfDoubleMuMcEfficiency,
-                        &bomtfNaiveDoubleMuMcEfficiency, 1, 1,
-                        "");  // Two different datasets, no binomial errors.
-  omtfRhoFactor.Divide(&omtfDoubleMuMcEfficiency,
-                       &omtfNaiveDoubleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-  eomtfRhoFactor.Divide(&eomtfDoubleMuMcEfficiency,
-                        &eomtfNaiveDoubleMuMcEfficiency, 1, 1,
-                        "");  // Two different datasets, no binomial errors.
-  emtfRhoFactor.Divide(&emtfDoubleMuMcEfficiency,
-                       &emtfNaiveDoubleMuMcEfficiency, 1, 1,
-                       "");  // Two different datasets, no binomial errors.
-
-  bmtfDoubleMuDataEfficiency.Multiply(&bmtfNaiveDoubleMuDataEfficiency,
-                                      &bmtfRhoFactor);
-  bomtfDoubleMuDataEfficiency.Multiply(&bomtfNaiveDoubleMuDataEfficiency,
-                                       &bomtfRhoFactor);
-  omtfDoubleMuDataEfficiency.Multiply(&omtfNaiveDoubleMuDataEfficiency,
-                                      &omtfRhoFactor);
-  eomtfDoubleMuDataEfficiency.Multiply(&eomtfNaiveDoubleMuDataEfficiency,
-                                       &eomtfRhoFactor);
-  emtfDoubleMuDataEfficiency.Multiply(&emtfNaiveDoubleMuDataEfficiency,
-                                      &emtfRhoFactor);
-
   std::vector<TH1D> naiveDoubleMuMcEffs;
   naiveDoubleMuMcEffs.push_back(bmtfNaiveDoubleMuMcEfficiency);
   naiveDoubleMuMcEffs.push_back(bomtfNaiveDoubleMuMcEfficiency);
@@ -465,6 +502,21 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   // Draw individual plots for histograms by being lazy..
 
+  std::vector<TH1D> totalSingleMuDataEff;
+  totalSingleMuDataEff.push_back(totalSingleMuDataEfficiency);
+  std::vector<TH1D> totalSingleMuMcEff;
+  totalSingleMuMcEff.push_back(totalSingleMuMcEfficiency);
+  std::vector<TH1D> totalDoubleMuMcEff;
+  totalDoubleMuMcEff.push_back(totalDoubleMuMcEfficiency);
+  std::vector<TH1D> totalRhoFactorVec;
+  totalRhoFactorVec.push_back(totalRhoFactor);
+  std::vector<TH1D> totalNaiveDoubleMuDataEff;
+  totalNaiveDoubleMuDataEff.push_back(totalNaiveDoubleMuDataEfficiency);
+  std::vector<TH1D> totalNaiveDoubleMuMcEff;
+  totalNaiveDoubleMuMcEff.push_back(totalNaiveDoubleMuMcEfficiency);
+  std::vector<TH1D> totalDoubleMuDataEff;
+  totalDoubleMuDataEff.push_back(totalDoubleMuDataEfficiency);
+
   std::vector<TH1D> bmtfDoubleMuDataEff;
   bmtfDoubleMuDataEff.push_back(bmtfDoubleMuDataEfficiency);
   std::vector<TH1D> bomtfDoubleMuDataEff;
@@ -476,19 +528,71 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::vector<TH1D> emtfDoubleMuDataEff;
   emtfDoubleMuDataEff.push_back(emtfDoubleMuDataEfficiency);
 
-  DrawHistograms(bmtfDoubleMuDataEff, colours, markers, regionNames,
+  std::vector<std::string> totalName;
+  std::vector<std::string> bmtfName;
+  std::vector<std::string> bomtfName;
+  std::vector<std::string> omtfName;
+  std::vector<std::string> eomtfName;
+  std::vector<std::string> emtfName;
+  totalName.push_back(ossTotal.str());
+  bmtfName.push_back(oss1.str());
+  bomtfName.push_back(oss2.str());
+  omtfName.push_back(oss3.str());
+  eomtfName.push_back(oss4.str());
+  emtfName.push_back(oss5.str());
+
+  std::vector<int> totalColour;
+  totalColour.push_back(kRed);
+  std::vector<int> bmtfColour;
+  bmtfColour.push_back(41);
+  std::vector<int> bomtfColour;
+  bomtfColour.push_back(9);
+  std::vector<int> omtfColour;
+  omtfColour.push_back(36);
+  std::vector<int> eomtfColour;
+  eomtfColour.push_back(3);
+  std::vector<int> emtfColour;
+  emtfColour.push_back(48);
+
+  std::vector<int> totalMarker;
+  totalMarker.push_back(2);
+  std::vector<int> bmtfMarker;
+  bmtfMarker.push_back(24);
+  std::vector<int> bomtfMarker;
+  bomtfMarker.push_back(25);
+  std::vector<int> omtfMarker;
+  omtfMarker.push_back(26);
+  std::vector<int> eomtfMarker;
+  eomtfMarker.push_back(27);
+  std::vector<int> emtfMarker;
+  emtfMarker.push_back(32);
+
+  DrawHistograms(totalSingleMuDataEff, totalColour, markers, totalName,
+                 "L1T Efficiency",
+                 plotFolder + "totalDoubleMuonEfficiencies_Data");
+  DrawHistograms(totalDoubleMuDataEff, totalColour, markers, totalName,
+                 "L1T Efficiency",
+                 plotFolder + "totalDoubleMuonEfficiencies_Data");
+  DrawHistograms(totalDoubleMuDataEff, totalColour, markers, totalName,
+                 "L1T Efficiency",
+                 plotFolder + "totalDoubleMuonEfficiencies_Data");
+  DrawHistograms(totalDoubleMuDataEff, totalColour, markers, totalName,
+                 "L1T Efficiency",
+                 plotFolder + "totalDoubleMuonEfficiencies_Data");
+
+  DrawHistograms(bmtfDoubleMuDataEff, bmtfColour, markers, bmtfName,
                  "L1T Efficiency",
                  plotFolder + "bmtfDoubleMuonEfficiencies_Data");
-  DrawHistograms(bomtfDoubleMuDataEff, colours, markers, regionNames,
+  DrawHistograms(bomtfDoubleMuDataEff, bomtfColour, markers, bomtfName,
                  "L1T Efficiency",
                  plotFolder + "bomtfDoubleMuonEfficiencies_Data");
-  DrawHistograms(omtfDoubleMuDataEff, colours, markers, regionNames,
+  DrawHistograms(omtfDoubleMuDataEff, omtfColour, markers, omtfName,
                  "L1T Efficiency",
                  plotFolder + "omtfDoubleMuonEfficiencies_Data");
-  DrawHistograms(eomtfDoubleMuDataEff, colours, markers, regionNames,
+  DrawHistograms(eomtfDoubleMuDataEff, eomtfColour, markers, eomtfName,
                  "L1T Efficiency",
                  plotFolder + "eomtfDoubleMuonEfficiencies_Data");
-  DrawHistograms(emtfDoubleMuDataEff, colours, markers, regionNames,
+  DrawHistograms(emtfDoubleMuDataEff, emtfColour, markers, emtfName,
                  "L1T Efficiency",
                  plotFolder + "emtfDoubleMuonEfficiencies_Data");
 }
