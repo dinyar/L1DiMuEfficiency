@@ -678,7 +678,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
         // TODO: Possibly check invariant mass.
         probeMus.push_back(j);
         for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-          if ((abs(reco_->eta[j]) >= etaLows.at(nRegion)) ||
+          if ((abs(reco_->eta[j]) >= etaLows.at(nRegion)) &&
               (abs(reco_->eta[j]) < etaHighs.at(nRegion))) {
             allEventsHists.at(nRegion).Fill(reco_->pt[j]);
             int l1mu(-1);
@@ -752,7 +752,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) ||
+      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) &&
           (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion))) {
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
 
@@ -827,9 +827,9 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) ||
-          (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion)) ||
-          (abs(gen_->partEta[genMu2]) >= etaLows.at(nRegion)) ||
+      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) &&
+          (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion)) &&
+          (abs(gen_->partEta[genMu2]) >= etaLows.at(nRegion)) &&
           (abs(gen_->partEta[genMu2]) < etaHighs.at(nRegion))) {
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu2]);
