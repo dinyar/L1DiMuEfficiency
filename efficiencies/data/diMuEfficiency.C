@@ -745,16 +745,16 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
       continue;
     }
 
-    // TODO: DEBUG
-    if (l1_->nMuons < 1) {
-      continue;
-    }
-
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
       if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) &&
           (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion))) {
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
+
+        // TODO: DEBUG
+        if (l1_->nMuons < 1) {
+          continue;
+        }
 
         int qual(0);
         for (int i = 0; i < l1_->nMuons; ++i) {
@@ -820,11 +820,6 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
       continue;
     }
 
-    // TODO: DEBUG
-    if (l1_->nMuons < 2) {
-      continue;
-    }
-
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
       if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) &&
@@ -833,6 +828,11 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
           (abs(gen_->partEta[genMu2]) < etaHighs.at(nRegion))) {
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu2]);
+
+        // TODO: DEBUG
+        if (l1_->nMuons < 2) {
+          continue;
+        }
 
         int qual1(0);
         int qual2(0);
