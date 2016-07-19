@@ -402,7 +402,7 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   TH1D naiveDoubleMuMcEff;
   TH1D rhoFactor;
   TH1D doubleMuDataEff;
-  for (int i = 0; i < singleMuMcEffs.length(); ++i) {
+  for (int i = 0; i < singleMuMcEffs.size(); ++i) {
     // Squaring single mu efficiencies to get "naive" double mu efficiencies.
     naiveDoubleMuDataEff.Multiply(&(singleMuDataEffs.at(i)),
                                   &(singleMuDataEffs.at(i)), 1, 1, "B");
@@ -742,21 +742,20 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
         // TODO: Possibly check invariant mass.
         probeMus.push_back(j);
         for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-          if ((abs(reco_->eta[j]) < etaLows.at(nRegion)) ||
-              (abs(reco_->eta[j]) >= etaHighs.at(nRegion))) {
-            continue;
-          }
-          allEventsHists.at(i).Fill(reco_->pt[j]);
-          int l1mu(-1);
-          if (!findBestRecoMatch(l1_, reco_, l1mu, pTcut, j, 0.5)) {
-            continue;
-          }
+          if ((abs(reco_->eta[j]) >= etaLows.at(nRegion)) ||
+              (abs(reco_->eta[j]) < etaHighs.at(nRegion))) {
+            allEventsHists.at(nRegion).Fill(reco_->pt[j]);
+            int l1mu(-1);
+            if (!findBestRecoMatch(l1_, reco_, l1mu, pTcut, j, 0.5)) {
+              continue;
+            }
 
-          if (l1_->muonQual[l1mu] < 8) {
-            continue;
-          }
+            if (l1_->muonQual[l1mu] < 8) {
+              continue;
+            }
 
-          effHists.at(nRegion).Fill(reco_->pt[j]);
+            effHists.at(nRegion).Fill(reco_->pt[j]);
+          }
         }
       }
     }
@@ -817,25 +816,23 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-      if ((abs(gen_->partEta[genMu1]) < etaLows.at(nRegion)) ||
-          (abs(gen_->partEta[genMu1]) >= etaHighs.at(nRegion))) {
-        continue;
-      }
+      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) ||
+          (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion))) {
+        allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
 
-      allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
-
-      int qual(0);
-      for (int i = 0; i < l1_->nMuons; ++i) {
-        if (l1_->muonQual[i] > qual) {
-          qual = l1_->muonQual[i];
+        int qual(0);
+        for (int i = 0; i < l1_->nMuons; ++i) {
+          if (l1_->muonQual[i] > qual) {
+            qual = l1_->muonQual[i];
+          }
         }
-      }
 
-      if (qual < 8) {
-        continue;
-      }
+        if (qual < 8) {
+          continue;
+        }
 
-      effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
+        effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
+      }
     }
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
@@ -894,32 +891,30 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
     // Check if in eta region.
     for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-      if ((abs(gen_->partEta[genMu1]) < etaLows.at(nRegion)) ||
-          (abs(gen_->partEta[genMu1]) >= etaHighs.at(nRegion)) ||
-          (abs(gen_->partEta[genMu2]) < etaLows.at(nRegion)) ||
-          (abs(gen_->partEta[genMu2]) >= etaHighs.at(nRegion))) {
-        continue;
-      }
+      if ((abs(gen_->partEta[genMu1]) >= etaLows.at(nRegion)) ||
+          (abs(gen_->partEta[genMu1]) < etaHighs.at(nRegion)) ||
+          (abs(gen_->partEta[genMu2]) >= etaLows.at(nRegion)) ||
+          (abs(gen_->partEta[genMu2]) < etaHighs.at(nRegion))) {
+        allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
+        allEventsHists.at(nRegion).Fill(gen_->partPt[genMu2]);
 
-      allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
-      allEventsHists.at(nRegion).Fill(gen_->partPt[genMu2]);
-
-      int qual1(0);
-      int qual2(0);
-      for (int i = 0; i < l1_->nMuons; ++i) {
-        if (l1_->muonQual[i] > qual1) {
-          qual2 = qual1;
-          qual1 = l1_->muonQual[i];
-        } else if (l1_->muonQual[i] > qual2) {
-          qual2 = l1_->muonQual[i];
+        int qual1(0);
+        int qual2(0);
+        for (int i = 0; i < l1_->nMuons; ++i) {
+          if (l1_->muonQual[i] > qual1) {
+            qual2 = qual1;
+            qual1 = l1_->muonQual[i];
+          } else if (l1_->muonQual[i] > qual2) {
+            qual2 = l1_->muonQual[i];
+          }
         }
-      }
-      if ((qual1 < 8) && (qual2 < 8)) {
-        continue;
-      }
+        if ((qual1 < 8) && (qual2 < 8)) {
+          continue;
+        }
 
-      effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
-      effHists.at(nRegion).Fill(gen_->partPt[genMu2]);
+        effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
+        effHists.at(nRegion).Fill(gen_->partPt[genMu2]);
+      }
     }
   }
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
