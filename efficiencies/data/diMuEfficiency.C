@@ -716,14 +716,14 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      f.Open(histFilename.str().c_str(), "read");
+      f.Open(filename.c_str(), "read");
 
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      f.Open(histFilename.str().c_str(), "new");
+      f.Open(filename.c_str(), "new");
 
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
@@ -817,14 +817,14 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      f.Open(histFilename.str().c_str(), "read");
+      f.Open(filename.c_str(), "read");
 
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      f.Open(histFilename.str().c_str(), "new");
+      f.Open(filename.c_str(), "new");
 
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
@@ -925,14 +925,14 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     if (retrieve_hists) {
-      f.Open(histFilename.str().c_str(), "read");
+      f.Open(filename.c_str(), "read");
 
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
     } else {
-      f.Open(histFilename.str().c_str(), "new");
+      f.Open(filename.c_str(), "new");
 
       effHists.at(nRegion).Write();
       allEventsHists.at(nRegion).Write();
