@@ -712,17 +712,23 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
       }
     }
   }
+
   TFile f;
   for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
     std::ostringstream oss;
     oss << histFolder << "singleMuDataEff_" << nRegion << ".root";
     if (retrieve_hists) {
+      std::cout << "Opening file " << oss << std::endl;
       f.Open(oss.str().c_str(), "read");
 
+      std::cout << "Retrieving histogram:" << histNames.at(nRegion) << " and "
+                << allEventsHistNames.at(nRegion) << std::endl;
       effHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
+      std::cout << "..." << std::endl;
       allEventsHists.at(nRegion) =
           *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
+      std::cout << "Done" << std::endl;
     } else {
       f.Open(oss.str().c_str(), "new");
 
