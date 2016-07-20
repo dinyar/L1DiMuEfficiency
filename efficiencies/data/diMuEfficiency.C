@@ -201,10 +201,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
     singleMuMcEffs.push_back(dummy1);
     TH1D dummy2(singleMuDataEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
                 muHi + 0.1);
-    singleMuDataEffs.push_back(dummy1);
+    singleMuDataEffs.push_back(dummy2);
     TH1D dummy3(doubleMuMcEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
                 muHi + 0.1);
-    doubleMuMcEffs.push_back(dummy1);
+    doubleMuMcEffs.push_back(dummy3);
   }
 
   // Full coverage
