@@ -196,15 +196,15 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   std::vector<TH1D> singleMuDataEffs;
   std::vector<TH1D> doubleMuMcEffs;
   for (int i = 0; i < singleMuMcEffNames.size(); ++i) {
-    TH1D dummy1(singleMuMcEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
-                muHi + 0.1);
-    singleMuMcEffs.push_back(dummy1);
-    TH1D dummy2(singleMuDataEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
-                muHi + 0.1);
-    singleMuDataEffs.push_back(dummy2);
-    TH1D dummy3(doubleMuMcEffNames.at(i).c_str(), "", nMuBins, muLo - 0.1,
-                muHi + 0.1);
-    doubleMuMcEffs.push_back(dummy3);
+    TH1D singleMuMcEffHist(singleMuMcEffNames.at(i).c_str(), "", nMuBins,
+                           muLo - 0.1, muHi + 0.1);
+    singleMuMcEffs.push_back(singleMuMcEffHist);
+    TH1D singleMuDataEffHist(singleMuDataEffNames.at(i).c_str(), "", nMuBins,
+                             muLo - 0.1, muHi + 0.1);
+    singleMuDataEffs.push_back(singleMuDataEffHist);
+    TH1D doubleMuMcEffHist(doubleMuMcEffNames.at(i).c_str(), "", nMuBins,
+                           muLo - 0.1, muHi + 0.1);
+    doubleMuMcEffs.push_back(doubleMuMcEffHist);
   }
 
   // Full coverage
@@ -718,7 +718,7 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
     std::ostringstream oss;
     oss << histFolder << "singleMuDataEff_" << nRegion << ".root";
     if (retrieve_hists) {
-      std::cout << "Opening file " << oss << std::endl;
+      std::cout << "Opening file " << oss.str() << std::endl;
       f.Open(oss.str().c_str(), "read");
 
       std::cout << "Retrieving histogram:" << histNames.at(nRegion) << " and "
