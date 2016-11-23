@@ -12,7 +12,7 @@ parser.add_argument('--outDir', type=str, default='plots',
 opts = parser.parse_args()
 
 sys.path.append(os.path.join(os.path.dirname(__file__),
-                             "../../L1AnalysisHelpers"))
+                             "../../../L1AnalysisHelpers"))
 from CreateHistograms import (binningDict, generateCombinedGhostPercHist,
                               generateCombinedEfficiencyHist)
 
@@ -22,10 +22,12 @@ gROOT.Reset()
 gROOT.SetBatch(kTRUE)
 
 # Ntuples to use.
-ugmt_singleMu_file = "baseline/uGMTSingleMuNtuple.root"
-ugmt_dimu_file = "baseline/uGMTDimuonNtuple.root"
-tuned_ugmt_singleMu_file = "tuned/uGMTSingleMuNtuple.root"
-tuned_ugmt_dimu_file = "tuned/uGMTDimuonNtuple.root"
+gmt_singleMu_file = "legacy_gmt/GMTSingleMuNtuple.root"
+gmt_dimu_file = "legacy_gmt/GMTDimuonNtuple.root"
+ugmt_singleMu_file = "20161123_defaultTuning/uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "20161123_defaultTuning/uGMTDimuonNtuple.root"
+tuned_ugmt_singleMu_file = "20161123_tuning_v1/uGMTSingleMuNtuple.root"
+tuned_ugmt_dimu_file = "20161123_tuning_v1/uGMTDimuonNtuple.root"
 
 # Cut dicts
 genCuts = {}
@@ -34,9 +36,11 @@ genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 
 
 gmtCuts = {}
+gmtCuts["gmt_diMu-pt1_q3"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 2) && (qual2 > 2))",
+                               "diMu-pt1"]
 gmtCuts["ugmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
                             "diMu-pt1"]
-gmtCuts["ugmt_diMu-pt1_q4"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 4) && (qual2 > 4))",
+gmtCuts["ugmt_diMu-pt1_q3"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 4) && (qual2 > 4))",
                                "diMu-pt1"]
 
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
@@ -77,7 +81,11 @@ gmtCuts["diBEmtf"] = [
     "(((tfType1==0) && (tfType2==2)) || ((tfType1==2) && (tfType2==0)))", "diBEmtf"]
 
 gmtCuts["diBmtf_q4"] = [
-    "((tfType1==0) && (tfType2==0)) && ((qual1 > 4) && (qual2 > 4))", "diBmtf_q4"]
+    "(tfType1==0) && (tfType2==0) && (qual1 > 4) && (qual2 > 4)", "diBmtf_q4"]
+gmtCuts["diBmtfFine_q4"] = [
+    "(tfType1==0) && (tfType2==0) && (qual1 > 4) && (qual2 > 4) && (hf1 == 1) && (hf2 == 1)", "diBmtfFine_q4"]
+gmtCuts["diBmtfCoarse_q4"] = [
+    "(tfType1==0) && (tfType2==0) && (qual1 > 4) && (qual2 > 4) && ((hf1 == 0) || (hf2 ==0))", "diBmtfCoarse_q4"]
 gmtCuts["diOmtf_q4"] = [
     "((tfType1==1) && (tfType2==1)) && ((qual1 > 4) && (qual2 > 4))", "diOmtf_q4"]
 gmtCuts["diEmtf_q4"] = [
@@ -143,14 +151,17 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 # Plot efficiency for in- and ouput of uGMT w/o splitting into TF contributions
 
 ugmt_inout_labels = []
-ugmt_inout_labels.append(["Gen muons", "uGMT input", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT input, q>4", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT output, baseline, q>4", "uGMT"])
-ugmt_inout_labels.append(["Gen muons", "uGMT output, tuned, q>4", "uGMT"])
+ugmt_inout_labels.append(["RECO muons", "Legacy GMT, q>2", "GMT"])
+ugmt_inout_labels.append(["RECO muons", "uGMT input", "uGMT"])
+ugmt_inout_labels.append(["RECO muons", "uGMT input, q>4", "uGMT"])
+ugmt_inout_labels.append(["RECO muons", "uGMT output, baseline, q>4", "uGMT"])
+ugmt_inout_labels.append(["RECO muons", "uGMT output, tuned, q>4", "uGMT"])
 jpsi_efficiency_ntuples = []
-jpsi_efficiency_ntuples.extend((len(ugmt_inout_labels)-1) * [ugmt_dimu_file])
+jpsi_efficiency_ntuples.append(gmt_dimu_file)
+jpsi_efficiency_ntuples.extend((len(ugmt_inout_labels)-2) * [ugmt_dimu_file])
 jpsi_efficiency_ntuples.append(tuned_ugmt_dimu_file)
 ntuple_names = []
+ntuple_names.append("gmt_ntuple")
 ntuple_names.append("tf_ntuple")
 ntuple_names.append("tf_ntuple")
 ntuple_names.append("ugmt_ntuple")
@@ -169,8 +180,9 @@ line_colours.append(32)
 line_colours.append(35)
 line_colours.append(42)
 cuts = []
+cuts.append(gmtCuts["gmt_diMu-pt1_q3"])
 cuts.append(gmtCuts["ugmt_diMu-pt1"])
-cuts.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt1_q4"]])
+cuts.extend((len(ugmt_inout_labels) - 2) * [gmtCuts["ugmt_diMu-pt1_q3"]])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
@@ -226,7 +238,8 @@ ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   genCuts["mu-pt1"], [0, 0.6]])
 
 singleMu_ghosting_ntuples = []
-singleMu_ghosting_ntuples.extend((len(ugmt_inout_labels)-1) * [ugmt_singleMu_file])
+singleMu_ghosting_ntuples.append(gmt_singleMu_file)
+singleMu_ghosting_ntuples.extend((len(ugmt_inout_labels)-2) * [ugmt_singleMu_file])
 singleMu_ghosting_ntuples.append(tuned_ugmt_singleMu_file)
 
 for varList in ghostList:
@@ -289,8 +302,12 @@ for varList in resolutionCheckList:
 
 ghost_distance_label = []
 ghost_distance_label.append(["All muons", "BMTF muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "BMTF fine muons, q>4", "uGMT"])
+ghost_distance_label.append(["All muons", "BMTF coarse muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "OMTF muons, q>4", "uGMT"])
 ghost_distance_label.append(["All muons", "EMTF muons, q>4", "uGMT"])
+ghost_distance_label.append(
+    ["All muons", "BMTF+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_label.append(
     ["All muons", "BMTF fine+OMTF overlap muons, q>4", "uGMT"])
 ghost_distance_label.append(
@@ -310,17 +327,27 @@ ghost_distance_line_colour.append(48)
 ghost_distance_line_colour.append(8)
 ghost_distance_line_colour.append(28)
 ghost_distance_line_colour.append(35)
+ghost_distance_line_colour.append(25)
+ghost_distance_line_colour.append(15)
+ghost_distance_line_colour.append(5)
 input_ghost_distance_cuts = []
 input_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diBmtfFine_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diBmtfCoarse_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
+input_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diBOmtfFine_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diBOmtfCoarse_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
 output_ghost_distance_cuts = []
 output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
 output_ghost_distance_cuts.append(gmtCuts["diOmtf_q4"])
 output_ghost_distance_cuts.append(gmtCuts["diEmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
+output_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
 output_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
 output_ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
 ghostDistanceList = []
@@ -344,6 +371,14 @@ for varList in ghostDistanceList:
                                    ghost_distance_line_colour,
                                    input_ghost_distance_cuts, "ghost_distance_inputs",
                                    drawGenMus=False, drawDistributions=True, drawStackPlot=True,
+                                   rootFolder=opts.outDir, distLogy=False)
+for varList in ghostDistanceList:
+    generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
+                                   input_ghost_distance_ntuple_name,
+                                   ghost_distance_label,
+                                   ghost_distance_line_colour,
+                                   input_ghost_distance_cuts, "ghost_distance_inputs-logPlots",
+                                   drawGenMus=False, drawDistributions=True, drawStackPlot=True,
                                    rootFolder=opts.outDir, distLogy=True)
 
 for varList in ghostDistanceList:
@@ -359,21 +394,21 @@ for varList in ghostDistanceList:
 
 tf_eff_labels = []
 tf_eff_labels.append(
-    ["Gen muons", "uGMT input", "TF", "uGMTinput"])
+    ["RECO muons", "uGMT input", "TF", "uGMTinput"])
 tf_eff_labels.append(
-    ["Gen muons", "uGMT input, q>4", "TF", "uGMTinput"])
+    ["RECO muons", "uGMT input, q>4", "TF", "uGMTinput"])
 tf_eff_labels.append(
-    ["Gen muons", "only BMTF muons, q>4", "uGMT", "diBMTF"])
+    ["RECO muons", "only BMTF muons, q>4", "uGMT", "diBMTF"])
 tf_eff_labels.append(
-    ["Gen muons", "only OMTF muons, q>4", "uGMT", "diOMTF"])
+    ["RECO muons", "only OMTF muons, q>4", "uGMT", "diOMTF"])
 tf_eff_labels.append(
-    ["Gen muons", "only EMTF muons, q>4", "uGMT", "diEMTF"])
-tf_eff_labels.append(["Gen muons", "BMTF+OMTF muons, q>4", "uGMT",
+    ["RECO muons", "only EMTF muons, q>4", "uGMT", "diEMTF"])
+tf_eff_labels.append(["RECO muons", "BMTF+OMTF muons, q>4", "uGMT",
                       "diBOMTF"])
 tf_eff_labels.append(
-    ["Gen muons", "OMTF+EMTF muons, q>4", "uGMT", "diOEMTF"])
+    ["RECO muons", "OMTF+EMTF muons, q>4", "uGMT", "diOEMTF"])
 tf_eff_labels.append(
-    ["Gen muons", "BMTF+EMTF muons, q>4", "uGMT", "diBEMTF"])
+    ["RECO muons", "BMTF+EMTF muons, q>4", "uGMT", "diBEMTF"])
 tf_eff_ntuples = []
 tf_eff_ntuples.extend(len(tf_eff_labels) * [ugmt_dimu_file])
 tf_eff_ntuple_names = []
@@ -391,7 +426,7 @@ tf_eff_line_colours.append(17)
 tf_eff_line_colours.append(7)
 tf_eff_cuts = []
 tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1"])
-tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1_q4"])
+tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1_q3"])
 tf_eff_cuts.append(gmtCuts["diBmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diOmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diEmtf_q4"])
@@ -406,15 +441,15 @@ for varList in efficiencyList:
                                    drawGenMus=True, drawStackPlot=True,
                                    rootFolder=opts.outDir)
 
-tf_tuned_eff_ntuples = []
-tf_tuned_eff_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_dimu_file])
-
-for varList in efficiencyList:
-    generateCombinedEfficiencyHist(varList, tf_tuned_eff_ntuples,
-                                   tf_eff_ntuple_names, tf_eff_labels,
-                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff_tuned",
-                                   drawGenMus=True, drawStackPlot=True,
-                                   rootFolder=opts.outDir)
+#tf_tuned_eff_ntuples = []
+#tf_tuned_eff_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_dimu_file])
+#
+#for varList in efficiencyList:
+#    generateCombinedEfficiencyHist(varList, tf_tuned_eff_ntuples,
+#                                   tf_eff_ntuple_names, tf_eff_labels,
+#                                   tf_eff_line_colours, tf_eff_cuts, "tf_eff_tuned",
+#                                   drawGenMus=True, drawStackPlot=True,
+#                                   rootFolder=opts.outDir)
 
 tf_ghosts_ntuples = []
 tf_ghosts_ntuples.extend(len(tf_eff_labels) * [ugmt_singleMu_file])
@@ -426,12 +461,12 @@ for varList in ghostList:
                                   "tf_ghosts", drawGenMus=False,
                                   drawStackPlot=True, rootFolder=opts.outDir)
 
-tf_tuned_ghosts_ntuples = []
-tf_tuned_ghosts_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_singleMu_file])
-
-for varList in ghostList:
-    generateCombinedGhostPercHist(varList, tf_tuned_ghosts_ntuples,
-                                  tf_eff_ntuple_names, tf_eff_labels,
-                                  tf_eff_line_colours, tf_eff_cuts,
-                                  "tf_ghosts_tuned", drawGenMus=False,
-                                  drawStackPlot=True, rootFolder=opts.outDir)
+#tf_tuned_ghosts_ntuples = []
+#tf_tuned_ghosts_ntuples.extend(len(tf_eff_labels) * [tuned_ugmt_singleMu_file])
+#
+#for varList in ghostList:
+#    generateCombinedGhostPercHist(varList, tf_tuned_ghosts_ntuples,
+#                                  tf_eff_ntuple_names, tf_eff_labels,
+#                                  tf_eff_line_colours, tf_eff_cuts,
+#                                  "tf_ghosts_tuned", drawGenMus=False,
+#                                  drawStackPlot=True, rootFolder=opts.outDir)

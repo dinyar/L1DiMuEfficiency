@@ -50,8 +50,8 @@ void fillNtuple(int tfMu1,
 void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
                                int nGenMu = 1, std::string outDir = "tmp/") {
   // make trees and set branch addresses
-  const char* ugmtMcTree = "l1UpgradeEmuTree/L1UpgradeTree";
-  const char* tfMcTree = "l1UpgradeTfMuonEmuTree/L1UpgradeTfMuonTree";
+  const char* ugmtMcTree = "l1UpgradeTree/L1UpgradeTree";
+  const char* tfMcTree = "l1UpgradeTfMuonTree/L1UpgradeTfMuonTree";
   const char* genTree = "l1GeneratorTree/L1GenTree";
   const char* recoTree = "l1MuonRecoTree/Muon2RecoTree";
 
@@ -191,7 +191,6 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       std::cout << "Done " << jentry << " events..." << std::endl;
     }
 
-
     chainUgmtMC->GetEntry(jentry);
     chainTfMC->GetEntry(jentry);
 
@@ -305,6 +304,9 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
     if (ugmt_->muonBx[i] != 0) {
       continue;
     }
+    if (ugmt_->muonQual[i] < 8) {
+      continue;
+    }
     if (ugmt_->muonEt[i] > pt1) {
       pt2 = pt1;
       mu2 = mu1;
@@ -324,6 +326,9 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
                  tftype tfType) {
   for (int i = 0; i < tf_->nTfMuons; ++i) {
     if (tf_->tfMuonBx[i] != 0) {
+      continue;
+    }
+    if (tf_->tfMuonHwQual[i] < 8) {
       continue;
     }
     float pT = (tf_->tfMuonHwPt[i] - 1) * 0.5;
