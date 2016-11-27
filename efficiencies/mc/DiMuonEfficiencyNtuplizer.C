@@ -50,8 +50,8 @@ void fillNtuple(int tfMu1,
 void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
                                int nGenMu = 1, std::string outDir = "tmp/") {
   // make trees and set branch addresses
-  const char* ugmtMcTree = "l1UpgradeTree/L1UpgradeTree";
-  const char* tfMcTree = "l1UpgradeTfMuonTree/L1UpgradeTfMuonTree";
+  const char* ugmtMcTree = "l1UpgradeEmuTree/L1UpgradeTree";
+  const char* tfMcTree = "l1UpgradeTfMuonEmuTree/L1UpgradeTfMuonTree";
   const char* genTree = "l1GeneratorTree/L1GenTree";
   const char* recoTree = "l1MuonRecoTree/Muon2RecoTree";
 
@@ -595,6 +595,6 @@ void fillNtuple(int tfMu1,
       tfNtupleValues[i] = tf1_->tfMuonProcessor[tfMu1];
     } else if (contentList.at(i) == "tfProcessor2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonProcessor[tfMu2];
-    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non -filled" fields are initialized to -10 already.
+    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non-filled" fields are initialized to -10 already.
   }
 }

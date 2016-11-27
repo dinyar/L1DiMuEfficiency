@@ -24,10 +24,10 @@ gROOT.SetBatch(kTRUE)
 # Ntuples to use.
 gmt_singleMu_file = "legacy_gmt/GMTSingleMuNtuple.root"
 gmt_dimu_file = "legacy_gmt/GMTDimuonNtuple.root"
-ugmt_singleMu_file = "20161123_defaultTuning/uGMTSingleMuNtuple.root"
-ugmt_dimu_file = "20161123_defaultTuning/uGMTDimuonNtuple.root"
-tuned_ugmt_singleMu_file = "20161123_tuning_v1/uGMTSingleMuNtuple.root"
-tuned_ugmt_dimu_file = "20161123_tuning_v1/uGMTDimuonNtuple.root"
+ugmt_singleMu_file = "20161126_defaultTuning/uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "20161126_defaultTuning/uGMTDimuonNtuple.root"
+tuned_ugmt_singleMu_file = "20161126_tuning_v1/uGMTSingleMuNtuple.root"
+tuned_ugmt_dimu_file = "20161126_tuning_v1/uGMTDimuonNtuple.root"
 
 # Cut dicts
 genCuts = {}
@@ -152,7 +152,6 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
 
 ugmt_inout_labels = []
 ugmt_inout_labels.append(["RECO muons", "Legacy GMT, q>2", "GMT"])
-ugmt_inout_labels.append(["RECO muons", "uGMT input", "uGMT"])
 ugmt_inout_labels.append(["RECO muons", "uGMT input, q>4", "uGMT"])
 ugmt_inout_labels.append(["RECO muons", "uGMT output, baseline, q>4", "uGMT"])
 ugmt_inout_labels.append(["RECO muons", "uGMT output, tuned, q>4", "uGMT"])
@@ -162,7 +161,6 @@ jpsi_efficiency_ntuples.extend((len(ugmt_inout_labels)-2) * [ugmt_dimu_file])
 jpsi_efficiency_ntuples.append(tuned_ugmt_dimu_file)
 ntuple_names = []
 ntuple_names.append("gmt_ntuple")
-ntuple_names.append("tf_ntuple")
 ntuple_names.append("tf_ntuple")
 ntuple_names.append("ugmt_ntuple")
 ntuple_names.append("ugmt_ntuple")
@@ -181,8 +179,7 @@ line_colours.append(35)
 line_colours.append(42)
 cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1_q3"])
-cuts.append(gmtCuts["ugmt_diMu-pt1"])
-cuts.extend((len(ugmt_inout_labels) - 2) * [gmtCuts["ugmt_diMu-pt1_q3"]])
+cuts.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt1_q3"]])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
@@ -394,7 +391,7 @@ for varList in ghostDistanceList:
 
 tf_eff_labels = []
 tf_eff_labels.append(
-    ["RECO muons", "uGMT input", "TF", "uGMTinput"])
+    ["RECO muons", "Legacy GMT", "GMT", "GMToutput"])
 tf_eff_labels.append(
     ["RECO muons", "uGMT input, q>4", "TF", "uGMTinput"])
 tf_eff_labels.append(
@@ -410,9 +407,10 @@ tf_eff_labels.append(
 tf_eff_labels.append(
     ["RECO muons", "BMTF+EMTF muons, q>4", "uGMT", "diBEMTF"])
 tf_eff_ntuples = []
-tf_eff_ntuples.extend(len(tf_eff_labels) * [ugmt_dimu_file])
+tf_eff_ntuples.append(gmt_dimu_file)
+tf_eff_ntuples.extend((len(tf_eff_labels) - 1) * [ugmt_dimu_file])
 tf_eff_ntuple_names = []
-tf_eff_ntuple_names.append("tf_ntuple")
+tf_eff_ntuple_names.append("gmt_ntuple")
 tf_eff_ntuple_names.append("tf_ntuple")
 tf_eff_ntuple_names.extend((len(tf_eff_labels) - 2) * ["ugmt_ntuple"])
 tf_eff_line_colours = []
@@ -425,7 +423,7 @@ tf_eff_line_colours.append(28)
 tf_eff_line_colours.append(17)
 tf_eff_line_colours.append(7)
 tf_eff_cuts = []
-tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1"])
+tf_eff_cuts.append(gmtCuts["gmt_diMu-pt1_q3"])
 tf_eff_cuts.append(gmtCuts["ugmt_diMu-pt1_q3"])
 tf_eff_cuts.append(gmtCuts["diBmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diOmtf_q4"])
@@ -452,7 +450,8 @@ for varList in efficiencyList:
 #                                   rootFolder=opts.outDir)
 
 tf_ghosts_ntuples = []
-tf_ghosts_ntuples.extend(len(tf_eff_labels) * [ugmt_singleMu_file])
+tf_ghosts_ntuples.append(gmt_singleMu_file)
+tf_ghosts_ntuples.extend((len(tf_eff_labels) - 1) * [ugmt_singleMu_file])
 
 for varList in ghostList:
     generateCombinedGhostPercHist(varList, tf_ghosts_ntuples,
