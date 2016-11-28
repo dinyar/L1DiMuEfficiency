@@ -3,11 +3,11 @@
 #include "TNtuple.h"
 #include "TTree.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisGeneratorDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
@@ -16,17 +16,23 @@
 
 enum tftype { bmtf, omtf, emtf, none };
 
+struct coordinateTruth {
+  float eta;
+  float phi;
+};
+
 std::vector<std::string> getNtupleList(std::string fname);
 double calcTFphi(int locPhi, tftype tfType, int proc);
 double calcTFeta(int eta);
 double calcTFpt(int pt);
 void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
-                   int& mu2);
+                   int& mu2, coordinateTruth truthCoords1,
+                   coordinateTruth truthCoords2);
 void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
                  int& mu2, int& pt1, int& pt2,
                  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
                  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
-                 tftype tfType);
+                 coordinateTruth truthCoords1, coordinateTruth truthCoords2);
 std::vector<std::string> generateGenPhysicsQuantities();
 std::vector<std::string> generateUgmtPhysicsQuantities();
 std::vector<std::string> generateTfPhysicsQuantities();
@@ -149,10 +155,11 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     ntupleName = "DimuonNtuple";
   }
 
-  const int dir_err = mkdir(outDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  if (-1 == dir_err)
-  {
-    std::cout << "Error creating directory or directory exists already." << std::endl;
+  const int dir_err =
+      mkdir(outDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  if (-1 == dir_err) {
+    std::cout << "Error creating directory or directory exists already."
+              << std::endl;
   }
 
   std::string gmtNtupleFname(outDir + "/uGMT" + ntupleName + ".root");
@@ -166,12 +173,14 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       nGenMu, generateGenPhysicsQuantities(), generateTfPhysicsQuantities());
 
   std::ostringstream ugmtContentStream;
-  std::copy(ugmtContentList.begin(), ugmtContentList.end()-1, std::ostream_iterator<std::string>(ugmtContentStream, ":"));
+  std::copy(ugmtContentList.begin(), ugmtContentList.end() - 1,
+            std::ostream_iterator<std::string>(ugmtContentStream, ":"));
   ugmtContentStream << *(ugmtContentList.rbegin());
   std::string ugmtContentStr(ugmtContentStream.str());
 
   std::ostringstream tfContentStream;
-  std::copy(tfContentList.begin(), tfContentList.end()-1, std::ostream_iterator<std::string>(tfContentStream, ":"));
+  std::copy(tfContentList.begin(), tfContentList.end() - 1,
+            std::ostream_iterator<std::string>(tfContentStream, ":"));
   tfContentStream << *(tfContentList.rbegin());
   std::string tfContentStr(tfContentStream.str());
 
@@ -194,11 +203,25 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     chainUgmtMC->GetEntry(jentry);
     chainTfMC->GetEntry(jentry);
 
+    coordinateTruth truthCoords1;
+    coordinateTruth truthCoords2;
+
     if (foundReco) {
       chainReco->GetEntry(jentry);
       // Check for correct number of reco muons
       if (reco_->nMuons != nGenMu) {
         continue;
+      }
+
+      truthCoords1.eta = reco_->eta[0];
+      truthCoords1.phi = reco_->phi[0];
+
+      if (nGenMu > 1) {
+        truthCoords2.eta = reco_->eta[1];
+        truthCoords2.phi = reco_->phi[1];
+      } else {
+        truthCoords2.eta = -99999;
+        truthCoords2.phi = -99999;
       }
 
       fillNtuple(reco_, ugmtContentList, ugmtNtupleValues);
@@ -219,6 +242,18 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
           continue;
         }
       }
+
+      truthCoords1.eta = gen_->partEta[genMu1];
+      truthCoords1.phi = gen_->partPhi[genMu1];
+
+      if (nGenMu > 1) {
+        truthCoords2.eta = gen_->partEta[genMu2];
+        truthCoords2.phi = gen_->partPhi[genMu2];
+      } else {
+        truthCoords2.eta = -99999;
+        truthCoords2.phi = -99999;
+      }
+
       fillNtuple(gen_, genMu1, genMu2, ugmtContentList, ugmtNtupleValues);
       fillNtuple(gen_, genMu1, genMu2, tfContentList, tfNtupleValues);
     }
@@ -235,9 +270,12 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2;
     int tfMu1 = -1;
     int tfMu2 = -1;
-    findTFMuons(bmtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, tftype::bmtf);
-    findTFMuons(omtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, tftype::omtf);
-    findTFMuons(emtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, tftype::emtf);
+    findTFMuons(bmtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
+                truthCoords2);
+    findTFMuons(omtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
+                truthCoords2);
+    findTFMuons(emtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
+                truthCoords2);
 
     // Fill ugmt ntuple
     ugmtFile->cd();
@@ -296,10 +334,9 @@ double calcTFeta(int eta) { return 0.010875 * eta; }
 
 double calcTFpt(int pt) { return 0.5 * (pt - 1); }
 
-void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
-                   int& mu2) {
-  float pt1 = 0;
-  float pt2 = 0;
+void findUgmtMuon(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
+                  int& mu2, coordinateTruth truthCoord, float& pt1,
+                  float& pt2) {
   for (int i = 0; i < ugmt_->nMuons; ++i) {
     if (ugmt_->muonBx[i] != 0) {
       continue;
@@ -307,6 +344,13 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
     if (ugmt_->muonQual[i] < 8) {
       continue;
     }
+    double dEta = ugmt_->muonEta[i] - truthCoord.eta;
+    // double dPhi = ugmt_->muonPhi[i] - truthCoords1.phi;
+    // double dR = std::sqrt(std::pow(dEta, 2) + std::pow(dPhi, 2));
+    if (dEta > 0.3) {
+      continue;
+    }
+
     if (ugmt_->muonEt[i] > pt1) {
       pt2 = pt1;
       mu2 = mu1;
@@ -319,11 +363,21 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
   }
 }
 
-void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
-                 int& mu2, int& pt1, int& pt2,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
-                 tftype tfType) {
+void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
+                   int& mu2, coordinateTruth truthCoords1,
+                   coordinateTruth truthCoords2) {
+  float pt1 = 0;
+  float pt2 = 0;
+
+  findUgmtMuon(ugmt, mu1, mu2, truthCoords1, pt1, pt2);
+  findUgmtMuon(ugmt, mu1, mu2, truthCoords2, pt1, pt2);
+}
+
+void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
+                int& mu2, int& pt1, int& pt2,
+                L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
+                coordinateTruth truthCoord) {
   for (int i = 0; i < tf_->nTfMuons; ++i) {
     if (tf_->tfMuonBx[i] != 0) {
       continue;
@@ -331,6 +385,11 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
     if (tf_->tfMuonHwQual[i] < 8) {
       continue;
     }
+    double dEta = tf_->tfMuonHwEta[i] - truthCoord.eta;
+    if (dEta > 0.3) {
+      continue;
+    }
+
     float pT = (tf_->tfMuonHwPt[i] - 1) * 0.5;
     if (pT > pt1) {
       pt2 = pt1;
@@ -345,6 +404,15 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
       tf2 = tf_;
     }
   }
+}
+
+void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
+                 int& mu2, int& pt1, int& pt2,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
+                 coordinateTruth truthCoords1, coordinateTruth truthCoords2) {
+  findTfMuon(tf_, mu1, mu2, pt1, pt2, tf1, tf2, truthCoords1);
+  findTfMuon(tf_, mu1, mu2, pt1, pt2, tf1, tf2, truthCoords2);
 }
 
 std::vector<std::string> generateGenPhysicsQuantities() {
@@ -455,8 +523,10 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
   if (genMu2 > -1) {
     TLorentzVector mu1;
     TLorentzVector mu2;
-    mu1.SetPtEtaPhiE(gen_->partPt[genMu1], gen_->partEta[genMu1], gen_->partPhi[genMu1], gen_->partE[genMu1]);
-    mu2.SetPtEtaPhiE(gen_->partPt[genMu2], gen_->partEta[genMu2], gen_->partPhi[genMu2], gen_->partE[genMu2]);
+    mu1.SetPtEtaPhiE(gen_->partPt[genMu1], gen_->partEta[genMu1],
+                     gen_->partPhi[genMu1], gen_->partE[genMu1]);
+    mu2.SetPtEtaPhiE(gen_->partPt[genMu2], gen_->partEta[genMu2],
+                     gen_->partPhi[genMu2], gen_->partE[genMu2]);
     jPsi = mu1 + mu2;
   }
   for (int i = 0; i < contentList.size(); ++i) {
@@ -527,7 +597,9 @@ void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
       } else if (muIdx >= 36 && muIdx < 72) {
         ugmtNtupleValues[i] = 0;  // BMTF
       }
-    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non -filled" fields are initialized to -10 already.
+    }  // Don't need a catch-all case as we're calling the fill function for
+       // gen/reco where all "non -filled" fields are initialized to -10
+       // already.
   }
 }
 
@@ -588,13 +660,14 @@ void fillNtuple(int tfMu1,
     } else if (contentList.at(i) == "ch2" && tfMu2 != -1) {
       tfNtupleValues[i] = std::pow(-1, tf2_->tfMuonHwSign[tfMu2]);
     } else if (contentList.at(i) == "tfType1") {
-      tfNtupleValues[i] = tfType1; 
+      tfNtupleValues[i] = tfType1;
     } else if (contentList.at(i) == "tfType2" && tfMu2 != -1) {
-      tfNtupleValues[i] = tfType2; 
+      tfNtupleValues[i] = tfType2;
     } else if (contentList.at(i) == "tfProcessor1") {
       tfNtupleValues[i] = tf1_->tfMuonProcessor[tfMu1];
     } else if (contentList.at(i) == "tfProcessor2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonProcessor[tfMu2];
-    }  // Don't need a catch-all case as we're calling the fill function for gen/reco where all "non-filled" fields are initialized to -10 already.
+    }  // Don't need a catch-all case as we're calling the fill function for
+       // gen/reco where all "non-filled" fields are initialized to -10 already.
   }
 }
