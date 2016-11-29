@@ -28,8 +28,13 @@ double calcTFpt(int pt);
 void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
                    int& mu2, const coordinateTruth& truthCoords1,
                    const coordinateTruth& truthCoords2);
-void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2, int& mu1, int& mu2, const coordinateTruth& truthCoords1, const coordinateTruth& truthCoords2);
+void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
+                 int& mu1, int& mu2, const coordinateTruth& truthCoords1,
+                 const coordinateTruth& truthCoords2);
 std::vector<std::string> generateGenPhysicsQuantities();
 std::vector<std::string> generateUgmtPhysicsQuantities();
 std::vector<std::string> generateTfPhysicsQuantities();
@@ -255,15 +260,10 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       fillNtuple(gen_, genMu1, genMu2, tfContentList, tfNtupleValues);
     }
 
-    //std::cout << "\n\n#######################################################################################\nFinding uGMT mus.\n";
-
     // Find two highest pT uGMT muons
     int ugmtMu1 = -1;
     int ugmtMu2 = -1;
     findUgmtMuons(ugmtMC_, ugmtMu1, ugmtMu2, truthCoords1, truthCoords2);
-    //std::cout << "uGMT mu1: " << ugmtMu1 << ", uGMT mu2: " << ugmtMu2 << "\n";
-
-    //std::cout << "Finding TF mus.\n";
 
     // Find two highest pT TF muons
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1;
@@ -272,9 +272,6 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
     int tfMu2 = -1;
     findTFMuons(bmtfMC_, omtfMC_, emtfMC_, tf1, tf2, tfMu1, tfMu2, truthCoords1,
                 truthCoords2);
-
-    //std::cout << "TF mu1: " << tfMu1 << ", TF mu2: " << tfMu2 << "\n";
-    
 
     // Fill ugmt ntuple
     ugmtFile->cd();
@@ -349,16 +346,13 @@ void findUgmtMuon(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu,
       continue;
     }
     double dEtaTmp = std::abs(ugmt_->muonEta[i] - truthCoord.eta);
-    //std::cout << "dEta: " << dEtaTmp << "\n";
-    // double dPhi = ugmt_->muonPhi[i] - truthCoords1.phi;
-    // double dR = std::sqrt(std::pow(dEta, 2) + std::pow(dPhi, 2));
-    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that muon exists)
+    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that
+    // muon exists)
     if ((dEtaTmp > 0.3) && (std::abs(truthCoord.eta) < 3)) {
       continue;
     }
 
     if (ugmt_->muonEt[i] > pT) {
-      //std::cout << "selecting muon " << i << " as first uGMT mu. pt: " << ugmt_->muonEt[i] << "\n";
       pT = ugmt_->muonEt[i];
       mu = i;
       dEta = dEtaTmp;
@@ -375,44 +369,33 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
   int mu11 = -1;
   int mu12 = -1;
 
-  //std::cout << "First try for uGMT:\n";
-
   findUgmtMuon(ugmt_, mu11, truthCoords1, dEta1_tmp, -1);
   findUgmtMuon(ugmt_, mu12, truthCoords2, dEta2_tmp, mu11);
   double dEta1 = dEta1_tmp + dEta2_tmp;
-
-  //std::cout << "dEta: " << dEta1 << ", mu1: " << mu11 << ", mu2: " << mu12 << "\n";
 
   dEta1_tmp = 999;
   dEta2_tmp = 999;
 
   int mu21 = -1;
   int mu22 = -1;
- 
-  //std::cout << "Second try for uGMT:\n";
 
   findUgmtMuon(ugmt_, mu22, truthCoords2, dEta2_tmp, -1);
   findUgmtMuon(ugmt_, mu21, truthCoords1, dEta1_tmp, mu22);
   double dEta2 = dEta1_tmp + dEta2_tmp;
 
-  //std::cout << "dEta: " << dEta2 << ", mu1: " << mu21 << ", mu2: " << mu22 << "\n";
-
-  if(dEta1 < dEta2) {
+  if (dEta1 < dEta2) {
     mu1 = mu11;
     mu2 = mu12;
   } else {
     mu1 = mu21;
     mu2 = mu22;
   }
-
-  //std::cout << "Chose mu1: " << mu1 << ", mu2: " << mu2 << "\n";
-
 }
 
-void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf, int& mu,
-                float& pt, 
-                const coordinateTruth& truthCoord, double& dEta, const int veto) {
-  //std::cout << "looping over " << tf_->nTfMuons << " TF muons.\n";
+void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_,
+                L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf, int& mu,
+                float& pt, const coordinateTruth& truthCoord, double& dEta,
+                const int veto) {
   for (int i = 0; i < tf_->nTfMuons; ++i) {
     if (i == veto) {
       continue;
@@ -424,8 +407,8 @@ void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, L1Analysis
       continue;
     }
     double dEtaTmp = std::abs(calcTFeta(tf_->tfMuonHwEta[i]) - truthCoord.eta);
-    //std::cout << "dEta: " << dEtaTmp << "\n";
-    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that muon exists)
+    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that
+    // muon exists)
     if ((dEtaTmp > 0.3) && (std::abs(truthCoord.eta) < 3)) {
       continue;
     }
@@ -433,7 +416,6 @@ void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, L1Analysis
     // Select highest pT muon.
     float pT_tmp = (tf_->tfMuonHwPt[i] - 1) * 0.5;
     if (pT_tmp > pt) {
-      //std::cout << "selecting muon " << i << " as first tf mu. pt: " << pT_tmp << "\n";
       pt = pT_tmp;
       mu = i;
       tf = tf_;
@@ -442,8 +424,13 @@ void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, L1Analysis
   }
 }
 
-void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_, 
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2, int& mu1, int& mu2, const coordinateTruth& truthCoords1, const coordinateTruth& truthCoords2) {
+void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
+                 int& mu1, int& mu2, const coordinateTruth& truthCoords1,
+                 const coordinateTruth& truthCoords2) {
   double dEta1_tmp = 999;
   double dEta2_tmp = 999;
   float pt1 = 0;
@@ -460,18 +447,17 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analy
   findTfMuon(bmtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
   findTfMuon(omtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
   findTfMuon(emtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
-  if(tf11 == bmtf_) {
+  if (tf11 == bmtf_) {
     bmtf_veto = mu11;
-  } else if(tf11 == omtf_) {
+  } else if (tf11 == omtf_) {
     omtf_veto = mu11;
-  } else if(tf11 == emtf_) {
+  } else if (tf11 == emtf_) {
     emtf_veto = mu11;
   }
   findTfMuon(bmtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, bmtf_veto);
   findTfMuon(omtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, omtf_veto);
   findTfMuon(emtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, emtf_veto);
   double dEta1 = dEta1_tmp + dEta2_tmp;
-
 
   dEta1_tmp = 999;
   dEta2_tmp = 999;
@@ -489,11 +475,11 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analy
   findTfMuon(bmtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
   findTfMuon(omtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
   findTfMuon(emtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
-  if(tf22 == bmtf_) {
+  if (tf22 == bmtf_) {
     bmtf_veto = mu22;
-  } else if(tf22 == omtf_) {
+  } else if (tf22 == omtf_) {
     omtf_veto = mu22;
-  } else if(tf22 == emtf_) {
+  } else if (tf22 == emtf_) {
     emtf_veto = mu22;
   }
   findTfMuon(bmtf_, tf21, mu21, pt1, truthCoords1, dEta1_tmp, bmtf_veto);
