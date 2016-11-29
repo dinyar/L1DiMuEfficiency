@@ -26,13 +26,10 @@ double calcTFphi(int locPhi, tftype tfType, int proc);
 double calcTFeta(int eta);
 double calcTFpt(int pt);
 void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
-                   int& mu2, coordinateTruth truthCoords1,
-                   coordinateTruth truthCoords2);
-void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
-                 int& mu2, int& pt1, int& pt2,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
-                 coordinateTruth truthCoords1, coordinateTruth truthCoords2);
+                   int& mu2, const coordinateTruth& truthCoords1,
+                   const coordinateTruth& truthCoords2);
+void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_,
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2, int& mu1, int& mu2, const coordinateTruth& truthCoords1, const coordinateTruth& truthCoords2);
 std::vector<std::string> generateGenPhysicsQuantities();
 std::vector<std::string> generateUgmtPhysicsQuantities();
 std::vector<std::string> generateTfPhysicsQuantities();
@@ -258,24 +255,26 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       fillNtuple(gen_, genMu1, genMu2, tfContentList, tfNtupleValues);
     }
 
+    //std::cout << "\n\n#######################################################################################\nFinding uGMT mus.\n";
+
     // Find two highest pT uGMT muons
     int ugmtMu1 = -1;
     int ugmtMu2 = -1;
-    findUgmtMuons(ugmtMC_, ugmtMu1, ugmtMu2);
+    findUgmtMuons(ugmtMC_, ugmtMu1, ugmtMu2, truthCoords1, truthCoords2);
+    //std::cout << "uGMT mu1: " << ugmtMu1 << ", uGMT mu2: " << ugmtMu2 << "\n";
+
+    //std::cout << "Finding TF mus.\n";
 
     // Find two highest pT TF muons
-    int pt1 = 0;
-    int pt2 = 0;
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf1;
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2;
     int tfMu1 = -1;
     int tfMu2 = -1;
-    findTFMuons(bmtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
+    findTFMuons(bmtfMC_, omtfMC_, emtfMC_, tf1, tf2, tfMu1, tfMu2, truthCoords1,
                 truthCoords2);
-    findTFMuons(omtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
-                truthCoords2);
-    findTFMuons(emtfMC_, tfMu1, tfMu2, pt1, pt2, tf1, tf2, truthCoords1,
-                truthCoords2);
+
+    //std::cout << "TF mu1: " << tfMu1 << ", TF mu2: " << tfMu2 << "\n";
+    
 
     // Fill ugmt ntuple
     ugmtFile->cd();
@@ -334,85 +333,185 @@ double calcTFeta(int eta) { return 0.010875 * eta; }
 
 double calcTFpt(int pt) { return 0.5 * (pt - 1); }
 
-void findUgmtMuon(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
-                  int& mu2, coordinateTruth truthCoord, float& pt1,
-                  float& pt2) {
+void findUgmtMuon(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu,
+                  const coordinateTruth& truthCoord, double& dEta,
+                  const int veto) {
+  float pT = 0;
+  dEta = 999;
   for (int i = 0; i < ugmt_->nMuons; ++i) {
+    if (i == veto) {
+      continue;
+    }
     if (ugmt_->muonBx[i] != 0) {
       continue;
     }
     if (ugmt_->muonQual[i] < 8) {
       continue;
     }
-    double dEta = ugmt_->muonEta[i] - truthCoord.eta;
+    double dEtaTmp = std::abs(ugmt_->muonEta[i] - truthCoord.eta);
+    //std::cout << "dEta: " << dEtaTmp << "\n";
     // double dPhi = ugmt_->muonPhi[i] - truthCoords1.phi;
     // double dR = std::sqrt(std::pow(dEta, 2) + std::pow(dPhi, 2));
-    if (dEta > 0.3) {
+    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that muon exists)
+    if ((dEtaTmp > 0.3) && (std::abs(truthCoord.eta) < 3)) {
       continue;
     }
 
-    if (ugmt_->muonEt[i] > pt1) {
-      pt2 = pt1;
-      mu2 = mu1;
-      pt1 = ugmt_->muonEt[i];
-      mu1 = i;
-    } else if (ugmt_->muonEt[i] > pt2) {
-      pt2 = ugmt_->muonEt[i];
-      mu2 = i;
+    if (ugmt_->muonEt[i] > pT) {
+      //std::cout << "selecting muon " << i << " as first uGMT mu. pt: " << ugmt_->muonEt[i] << "\n";
+      pT = ugmt_->muonEt[i];
+      mu = i;
+      dEta = dEtaTmp;
     }
   }
 }
 
 void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
-                   int& mu2, coordinateTruth truthCoords1,
-                   coordinateTruth truthCoords2) {
-  float pt1 = 0;
-  float pt2 = 0;
+                   int& mu2, const coordinateTruth& truthCoords1,
+                   const coordinateTruth& truthCoords2) {
+  double dEta1_tmp = 999;
+  double dEta2_tmp = 999;
 
-  findUgmtMuon(ugmt, mu1, mu2, truthCoords1, pt1, pt2);
-  findUgmtMuon(ugmt, mu1, mu2, truthCoords2, pt1, pt2);
+  int mu11 = -1;
+  int mu12 = -1;
+
+  //std::cout << "First try for uGMT:\n";
+
+  findUgmtMuon(ugmt_, mu11, truthCoords1, dEta1_tmp, -1);
+  findUgmtMuon(ugmt_, mu12, truthCoords2, dEta2_tmp, mu11);
+  double dEta1 = dEta1_tmp + dEta2_tmp;
+
+  //std::cout << "dEta: " << dEta1 << ", mu1: " << mu11 << ", mu2: " << mu12 << "\n";
+
+  dEta1_tmp = 999;
+  dEta2_tmp = 999;
+
+  int mu21 = -1;
+  int mu22 = -1;
+ 
+  //std::cout << "Second try for uGMT:\n";
+
+  findUgmtMuon(ugmt_, mu22, truthCoords2, dEta2_tmp, -1);
+  findUgmtMuon(ugmt_, mu21, truthCoords1, dEta1_tmp, mu22);
+  double dEta2 = dEta1_tmp + dEta2_tmp;
+
+  //std::cout << "dEta: " << dEta2 << ", mu1: " << mu21 << ", mu2: " << mu22 << "\n";
+
+  if(dEta1 < dEta2) {
+    mu1 = mu11;
+    mu2 = mu12;
+  } else {
+    mu1 = mu21;
+    mu2 = mu22;
+  }
+
+  //std::cout << "Chose mu1: " << mu1 << ", mu2: " << mu2 << "\n";
+
 }
 
-void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
-                int& mu2, int& pt1, int& pt2,
-                L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
-                L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
-                coordinateTruth truthCoord) {
+void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf, int& mu,
+                float& pt, 
+                const coordinateTruth& truthCoord, double& dEta, const int veto) {
+  //std::cout << "looping over " << tf_->nTfMuons << " TF muons.\n";
   for (int i = 0; i < tf_->nTfMuons; ++i) {
+    if (i == veto) {
+      continue;
+    }
     if (tf_->tfMuonBx[i] != 0) {
       continue;
     }
     if (tf_->tfMuonHwQual[i] < 8) {
       continue;
     }
-    double dEta = tf_->tfMuonHwEta[i] - truthCoord.eta;
-    if (dEta > 0.3) {
+    double dEtaTmp = std::abs(calcTFeta(tf_->tfMuonHwEta[i]) - truthCoord.eta);
+    //std::cout << "dEta: " << dEtaTmp << "\n";
+    // Match L1 mu to truth in eta only if the truth value is sane (i.e. that muon exists)
+    if ((dEtaTmp > 0.3) && (std::abs(truthCoord.eta) < 3)) {
       continue;
     }
 
-    float pT = (tf_->tfMuonHwPt[i] - 1) * 0.5;
-    if (pT > pt1) {
-      pt2 = pt1;
-      mu2 = mu1;
-      tf2 = tf1;
-      pt1 = pT;
-      mu1 = i;
-      tf1 = tf_;
-    } else if (pT > pt2) {
-      pt2 = pT;
-      mu2 = i;
-      tf2 = tf_;
+    // Select highest pT muon.
+    float pT_tmp = (tf_->tfMuonHwPt[i] - 1) * 0.5;
+    if (pT_tmp > pt) {
+      //std::cout << "selecting muon " << i << " as first tf mu. pt: " << pT_tmp << "\n";
+      pt = pT_tmp;
+      mu = i;
+      tf = tf_;
+      dEta = dEtaTmp;
     }
   }
 }
 
-void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_, int& mu1,
-                 int& mu2, int& pt1, int& pt2,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1,
-                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2,
-                 coordinateTruth truthCoords1, coordinateTruth truthCoords2) {
-  findTfMuon(tf_, mu1, mu2, pt1, pt2, tf1, tf2, truthCoords1);
-  findTfMuon(tf_, mu1, mu2, pt1, pt2, tf1, tf2, truthCoords2);
+void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* omtf_, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* emtf_, 
+                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf1, L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat*& tf2, int& mu1, int& mu2, const coordinateTruth& truthCoords1, const coordinateTruth& truthCoords2) {
+  double dEta1_tmp = 999;
+  double dEta2_tmp = 999;
+  float pt1 = 0;
+  float pt2 = 0;
+  int bmtf_veto = -1;
+  int omtf_veto = -1;
+  int emtf_veto = -1;
+
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf11;
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf12;
+  int mu11 = -1;
+  int mu12 = -1;
+
+  findTfMuon(bmtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
+  findTfMuon(omtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
+  findTfMuon(emtf_, tf11, mu11, pt1, truthCoords1, dEta1_tmp, -1);
+  if(tf11 == bmtf_) {
+    bmtf_veto = mu11;
+  } else if(tf11 == omtf_) {
+    omtf_veto = mu11;
+  } else if(tf11 == emtf_) {
+    emtf_veto = mu11;
+  }
+  findTfMuon(bmtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, bmtf_veto);
+  findTfMuon(omtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, omtf_veto);
+  findTfMuon(emtf_, tf12, mu12, pt2, truthCoords2, dEta2_tmp, emtf_veto);
+  double dEta1 = dEta1_tmp + dEta2_tmp;
+
+
+  dEta1_tmp = 999;
+  dEta2_tmp = 999;
+  pt1 = 0;
+  pt2 = 0;
+  bmtf_veto = -1;
+  omtf_veto = -1;
+  emtf_veto = -1;
+
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf21;
+  L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf22;
+  int mu21 = -1;
+  int mu22 = -1;
+
+  findTfMuon(bmtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
+  findTfMuon(omtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
+  findTfMuon(emtf_, tf22, mu22, pt2, truthCoords2, dEta2_tmp, -1);
+  if(tf22 == bmtf_) {
+    bmtf_veto = mu22;
+  } else if(tf22 == omtf_) {
+    omtf_veto = mu22;
+  } else if(tf22 == emtf_) {
+    emtf_veto = mu22;
+  }
+  findTfMuon(bmtf_, tf21, mu21, pt1, truthCoords1, dEta1_tmp, bmtf_veto);
+  findTfMuon(omtf_, tf21, mu21, pt1, truthCoords1, dEta1_tmp, omtf_veto);
+  findTfMuon(emtf_, tf21, mu21, pt1, truthCoords1, dEta1_tmp, emtf_veto);
+  double dEta2 = dEta1_tmp + dEta2_tmp;
+
+  if (dEta1 < dEta2) {
+    mu1 = mu11;
+    mu2 = mu12;
+    tf1 = tf11;
+    tf2 = tf12;
+  } else {
+    mu1 = mu21;
+    mu2 = mu22;
+    tf1 = tf21;
+    tf2 = tf22;
+  }
 }
 
 std::vector<std::string> generateGenPhysicsQuantities() {
@@ -518,7 +617,6 @@ void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
 void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
                 float ntupleValues[]) {
-  // TODO: Missing charge!
   TLorentzVector jPsi;
   if (genMu2 > -1) {
     TLorentzVector mu1;
@@ -542,6 +640,10 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
       ntupleValues[i] = gen_->partPhi[genMu1];
     } else if (contentList.at(i) == "phi2_gen") {
       ntupleValues[i] = gen_->partPhi[genMu2];
+    } else if (contentList.at(i) == "ch1_gen") {
+      ntupleValues[i] = gen_->partCh[0];
+    } else if (contentList.at(i) == "ch2_gen") {
+      ntupleValues[i] = gen_->partCh[1];
     } else if (contentList.at(i) == "pT_jpsi") {
       ntupleValues[i] = jPsi.Pt();
     } else if (contentList.at(i) == "eta_jpsi") {
@@ -559,27 +661,27 @@ void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
                 float ugmtNtupleValues[]) {
   // TODO: Missing track addresses, HF bit, processor
   for (int i = 0; i < contentList.size(); ++i) {
-    if (contentList.at(i) == "pT1") {
+    if (contentList.at(i) == "pT1" && ugmtMu1 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonEt[ugmtMu1];
     } else if (contentList.at(i) == "pT2" && ugmtMu2 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonEt[ugmtMu2];
-    } else if (contentList.at(i) == "eta1") {
+    } else if (contentList.at(i) == "eta1" && ugmtMu1 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonEta[ugmtMu1];
     } else if (contentList.at(i) == "eta2" && ugmtMu2 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonEta[ugmtMu2];
-    } else if (contentList.at(i) == "phi1") {
+    } else if (contentList.at(i) == "phi1" && ugmtMu1 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonPhi[ugmtMu1];
     } else if (contentList.at(i) == "phi2" && ugmtMu2 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonPhi[ugmtMu2];
-    } else if (contentList.at(i) == "qual1") {
+    } else if (contentList.at(i) == "qual1" && ugmtMu1 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonQual[ugmtMu1];
     } else if (contentList.at(i) == "qual2" && ugmtMu2 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonQual[ugmtMu2];
-    } else if (contentList.at(i) == "ch1") {
+    } else if (contentList.at(i) == "ch1" && ugmtMu1 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonChg[ugmtMu1];
     } else if (contentList.at(i) == "ch2" && ugmtMu2 != -1) {
       ugmtNtupleValues[i] = ugmt_->muonChg[ugmtMu2];
-    } else if (contentList.at(i) == "tfType1") {
+    } else if (contentList.at(i) == "tfType1" && ugmtMu1 != -1) {
       int muIdx = ugmt_->muonTfMuonIdx[ugmtMu1];
       if (muIdx < 18 || muIdx >= 90) {
         ugmtNtupleValues[i] = 2;  // EMTF
@@ -609,14 +711,16 @@ void fillNtuple(int tfMu1,
                 L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf2_,
                 std::vector<std::string> contentList, float tfNtupleValues[]) {
   tftype tfType1 = tftype::none;
-  if (tf1_->tfMuonTrackFinderType[tfMu1] == 0) {
-    tfType1 = tftype::bmtf;
-  } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 1 ||
-             tf1_->tfMuonTrackFinderType[tfMu1] == 2) {
-    tfType1 = tftype::omtf;
-  } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 3 ||
-             tf1_->tfMuonTrackFinderType[tfMu1] == 4) {
-    tfType1 = tftype::emtf;
+  if (tfMu1 != -1) {
+    if (tf1_->tfMuonTrackFinderType[tfMu1] == 0) {
+      tfType1 = tftype::bmtf;
+    } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 1 ||
+               tf1_->tfMuonTrackFinderType[tfMu1] == 2) {
+      tfType1 = tftype::omtf;
+    } else if (tf1_->tfMuonTrackFinderType[tfMu1] == 3 ||
+               tf1_->tfMuonTrackFinderType[tfMu1] == 4) {
+      tfType1 = tftype::emtf;
+    }
   }
 
   tftype tfType2 = tftype::none;
@@ -633,37 +737,37 @@ void fillNtuple(int tfMu1,
   }
 
   for (int i = 0; i < contentList.size(); ++i) {
-    if (contentList.at(i) == "pT1") {
+    if (contentList.at(i) == "pT1" && tfMu1 != -1) {
       tfNtupleValues[i] = calcTFpt(tf1_->tfMuonHwPt[tfMu1]);
     } else if (contentList.at(i) == "pT2" && tfMu2 != -1) {
       tfNtupleValues[i] = calcTFpt(tf2_->tfMuonHwPt[tfMu2]);
-    } else if (contentList.at(i) == "eta1") {
+    } else if (contentList.at(i) == "eta1" && tfMu1 != -1) {
       tfNtupleValues[i] = calcTFeta(tf1_->tfMuonHwEta[tfMu1]);
     } else if (contentList.at(i) == "eta2" && tfMu2 != -1) {
       tfNtupleValues[i] = calcTFeta(tf2_->tfMuonHwEta[tfMu2]);
-    } else if (contentList.at(i) == "hf1") {
+    } else if (contentList.at(i) == "hf1" && tfMu1 != -1) {
       tfNtupleValues[i] = tf1_->tfMuonHwHF[tfMu1];
     } else if (contentList.at(i) == "hf2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonHwHF[tfMu2];
-    } else if (contentList.at(i) == "phi1") {
+    } else if (contentList.at(i) == "phi1" && tfMu1 != -1) {
       tfNtupleValues[i] = calcTFphi(tf1_->tfMuonHwPhi[tfMu1], tfType1,
                                     tf1_->tfMuonProcessor[tfMu1]);
     } else if (contentList.at(i) == "phi2" && tfMu2 != -1) {
       tfNtupleValues[i] = calcTFphi(tf2_->tfMuonHwPhi[tfMu2], tfType2,
                                     tf2_->tfMuonProcessor[tfMu2]);
-    } else if (contentList.at(i) == "qual1") {
+    } else if (contentList.at(i) == "qual1" && tfMu1 != -1) {
       tfNtupleValues[i] = tf1_->tfMuonHwQual[tfMu1];
     } else if (contentList.at(i) == "qual2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonHwQual[tfMu2];
-    } else if (contentList.at(i) == "ch1") {
+    } else if (contentList.at(i) == "ch1" && tfMu1 != -1) {
       tfNtupleValues[i] = std::pow(-1, tf1_->tfMuonHwSign[tfMu1]);
     } else if (contentList.at(i) == "ch2" && tfMu2 != -1) {
       tfNtupleValues[i] = std::pow(-1, tf2_->tfMuonHwSign[tfMu2]);
-    } else if (contentList.at(i) == "tfType1") {
+    } else if (contentList.at(i) == "tfType1" && tfMu1 != -1) {
       tfNtupleValues[i] = tfType1;
     } else if (contentList.at(i) == "tfType2" && tfMu2 != -1) {
       tfNtupleValues[i] = tfType2;
-    } else if (contentList.at(i) == "tfProcessor1") {
+    } else if (contentList.at(i) == "tfProcessor1" && tfMu1 != -1) {
       tfNtupleValues[i] = tf1_->tfMuonProcessor[tfMu1];
     } else if (contentList.at(i) == "tfProcessor2" && tfMu2 != -1) {
       tfNtupleValues[i] = tf2_->tfMuonProcessor[tfMu2];
