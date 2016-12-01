@@ -1,4 +1,4 @@
 {
   gROOT->ProcessLine(
-      ".x DiMuonEfficiencyNtuplizer.C(\"file_list_singleMu-tuning_v1\", 1, \"20161129_tuning_v1\")");
+      ".x DiMuonEfficiencyNtuplizer.C(\"file_list_singleMu\", 1, \"20161201_defaultTuning\")");
 }

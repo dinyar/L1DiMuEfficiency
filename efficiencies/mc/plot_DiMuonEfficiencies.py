@@ -14,7 +14,7 @@ opts = parser.parse_args()
 sys.path.append(os.path.join(os.path.dirname(__file__),
                              "../../../L1AnalysisHelpers"))
 from CreateHistograms import (binningDict, generateCombinedGhostPercHist,
-                              generateCombinedEfficiencyHist)
+                              generateCombinedEfficiencyHist, generate2DRateHist)
 
 from ROOT import gROOT, kTRUE
 
@@ -38,10 +38,19 @@ genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
 gmtCuts = {}
 gmtCuts["gmt_diMu-pt1_q3"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 2) && (qual2 > 2))",
                                "diMu-pt1"]
+gmtCuts["gmt_diMu-pt11-4_q3"] = ["((pT1 > 11) && (pT2 > 4)) && ((qual1 > 2) && (qual2 > 2))",
+                               "diMu-pt11-4"]
+gmtCuts["gmt_diMu-pt12-5_q3"] = ["((pT1 > 12) && (pT2 > 5)) && ((qual1 > 2) && (qual2 > 2))",
+                               "diMu-pt12-5"]
+
 gmtCuts["ugmt_diMu-pt1"] = ["((pT1 > 1) && (pT2 > 1))",
                             "diMu-pt1"]
 gmtCuts["ugmt_diMu-pt1_q3"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 4) && (qual2 > 4))",
                                "diMu-pt1"]
+gmtCuts["ugmt_diMu-pt11-4_q3"] = ["((pT1 > 11) && (pT2 > 4)) && ((qual1 > 4) && (qual2 > 4))",
+                               "diMu-pt11-4"]
+gmtCuts["ugmt_diMu-pt12-5_q3"] = ["((pT1 > 12) && (pT2 > 5)) && ((qual1 > 4) && (qual2 > 4))",
+                               "diMu-pt12-5"]
 
 gmtCuts["bmtf"] = ["(tfType1==0)", "bmtf"]
 gmtCuts["omtf"] = ["(tfType1==1)", "omtf"]
@@ -102,7 +111,23 @@ gmtCuts["diBEmtf_q4"] = [
     "(((tfType1==0) && (tfType2==2)) || ((tfType1==2) && (tfType2==0))) && ((qual1 > 4) && (qual2 > 4))", "diBEmtf_q4"]
 
 
-# TODO: Do these plots also for maxQual!
+twoDlist = []
+twoDlist.append(["dRvsPt", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT_jpsi", gmtCuts["ugmt_diMu-pt1_q3"]])
+twoDlist.append(["dRvsPt1", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT1_gen", gmtCuts["ugmt_diMu-pt1_q3"]])
+twoDlist.append(["dRvsPt2", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT2_gen", gmtCuts["ugmt_diMu-pt1_q3"]])
+twoDlist.append(["PtvsPt", binningDict["pt140Fine"], binningDict["pt140Fine"], "pT1_gen:pT2_gen",genCuts["diMu-pt1"]])
+
+for varList in twoDlist:
+    generate2DRateHist(varList, ugmt_dimu_file, "tf_ntuple")
+
+twoDlist_ugmt = []
+twoDlist_ugmt.append(["dRvsPt_ugmt", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT_jpsi", gmtCuts["ugmt_diMu-pt1_q3"]])
+twoDlist_ugmt.append(["dRvsPt1_ugmt", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT1_gen", gmtCuts["ugmt_diMu-pt1_q3"]])
+twoDlist_ugmt.append(["dRvsPt2_ugmt", binningDict["pt140Fine"], binningDict["distWide"], "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2):pT2_gen",genCuts["diMu-pt1"]])
+twoDlist_ugmt.append(["PtvsPt_ugmt", binningDict["pt140Fine"], binningDict["pt140Fine"], "pT1_gen:pT2_gen", gmtCuts["ugmt_diMu-pt1_q3"]])
+
+for varList in twoDlist_ugmt:
+    generate2DRateHist(varList, ugmt_dimu_file, "ugmt_ntuple")
 
 efficiencyList = []
 # Entries: Label for histogram (Will be used for filename and title) |
@@ -119,24 +144,24 @@ efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
-                       binningDict["etaFineRestr"], "eta1_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
-                       binningDict["etaFineRestr"], "eta2_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
-                       binningDict["phiFineRestr"], "phi1_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
-                       binningDict["phiFineRestr"], "phi2_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT1_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
-efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
-                       binningDict["pt140Fine"], "pT2_gen",
-                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
+#                       binningDict["etaFineRestr"], "eta1_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
+#                       binningDict["etaFineRestr"], "eta2_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
+#                       binningDict["phiFineRestr"], "phi1_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
+#                       binningDict["phiFineRestr"], "phi2_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
+#                       binningDict["pt140Fine"], "pT1_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
+#                       binningDict["pt140Fine"], "pT2_gen",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
 efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
                        binningDict["etaFineRestr"], "eta_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
@@ -181,49 +206,67 @@ cuts = []
 cuts.append(gmtCuts["gmt_diMu-pt1_q3"])
 cuts.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt1_q3"]])
 
+cuts_lowPt = []
+cuts_lowPt.append(gmtCuts["gmt_diMu-pt11-4_q3"])
+cuts_lowPt.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt11-4_q3"]])
+
+cuts_highPt = []
+cuts_highPt.append(gmtCuts["gmt_diMu-pt12-5_q3"])
+cuts_highPt.extend((len(ugmt_inout_labels) - 1) * [gmtCuts["ugmt_diMu-pt12-5_q3"]])
+
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
                                    ugmt_inout_labels, line_colours, cuts,
                                    "jPsi_efficiency",
+                                   rootFolder=opts.outDir)
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
+                                   ugmt_inout_labels, line_colours, cuts_lowPt,
+                                   "jPsi_efficiency_lowPt",
+                                   rootFolder=opts.outDir)
+for varList in efficiencyList:
+    generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
+                                   ugmt_inout_labels, line_colours, cuts_highPt,
+                                   "jPsi_efficiency_highPt",
                                    rootFolder=opts.outDir)
 
 # Plot ghosting probability for in- and output of uGMT w/o splitting into TFs
 
 ghostList = []
 # NOTE: If no L1 muon at all deltaX will be 0! This will lead to inefficiencies
-ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
-                  binningDict["distVeryWide"],
-                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "abs(eta1-eta2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "abs(phi1-phi2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
-                  binningDict["distNarrow"],
-                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
-                  binningDict["etaFineRestr"], "eta1",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
-                  binningDict["phiFineRestr"], "phi1",
-                  genCuts["mu-pt1"], [0, 0.6]])
-ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
-                  binningDict["pt140Fine"], "pT1",
-                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaEta_L1", "#Delta#eta(#mu#mu_{Ghost})"],
+#                  binningDict["distVeryWide"],
+#                  "abs(eta1-eta2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaPhi_L1", "#Delta#phi(#mu#mu_{Ghost})"],
+#                  binningDict["distVeryWide"],
+#                  "abs(phi1-phi2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaR_L1", "#DeltaR(#mu#mu_{Ghost})"],
+#                  binningDict["distVeryWide"],
+#                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaEta_L1-zoom", "#Delta#eta(#mu#mu_{Ghost})"],
+#                  binningDict["distNarrow"],
+#                  "abs(eta1-eta2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaPhi_L1-zoom", "#Delta#phi(#mu#mu_{Ghost})"],
+#                  binningDict["distNarrow"],
+#                  "abs(phi1-phi2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["deltaR_L1-zoom", "#DeltaR(#mu#mu_{Ghost})"],
+#                  binningDict["distNarrow"],
+#                  "sqrt((eta1-eta2)**2+(phi1-phi2)**2)",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["mu1_L1Eta", "#eta(leading #mu_{L1})"],
+#                  binningDict["etaFineRestr"], "eta1",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["mu1_L1Phi", "#phi(leading #mu_{L1})"],
+#                  binningDict["phiFineRestr"], "phi1",
+#                  genCuts["mu-pt1"], [0, 0.6]])
+#ghostList.append([["mu1_L1Pt", "p_{T}(leading #mu_{L1}) [GeV/c]"],
+#                  binningDict["pt140Fine"], "pT1",
+#                  genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_genEta", "#eta(#mu)"],
                   binningDict["etaFineRestr"], "eta1_gen",
                   genCuts["mu-pt1"], [0, 0.6]])
@@ -232,7 +275,7 @@ ghostList.append([["mu1_genPhi", "#phi(#mu)"],
                   genCuts["mu-pt1"], [0, 0.6]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
                   binningDict["pt140Fine"], "pT1_gen",
-                  genCuts["mu-pt1"], [0, 0.6]])
+                  genCuts["mu-pt1"], [0, 0.3]])
 
 singleMu_ghosting_ntuples = []
 singleMu_ghosting_ntuples.append(gmt_singleMu_file)
@@ -244,6 +287,16 @@ for varList in ghostList:
                                   ntuple_names, ugmt_inout_labels,
                                   line_colours, cuts,
                                   "singleMu_ghosts", rootFolder=opts.outDir)
+for varList in ghostList:
+    generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples,
+                                  ntuple_names, ugmt_inout_labels,
+                                  line_colours, cuts_lowPt,
+                                  "singleMu_ghosts_lowPt", rootFolder=opts.outDir)
+for varList in ghostList:
+    generateCombinedGhostPercHist(varList, singleMu_ghosting_ntuples,
+                                  ntuple_names, ugmt_inout_labels,
+                                  line_colours, cuts_highPt,
+                                  "singleMu_ghosts_highPt", rootFolder=opts.outDir)
 
 # Plotting resolution of track finder inputs.
 
@@ -430,7 +483,6 @@ tf_eff_cuts.append(gmtCuts["diOmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diEmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diBOmtf_q4"])
 tf_eff_cuts.append(gmtCuts["diEOmtf_q4"])
-tf_eff_cuts.append(gmtCuts["diBEmtf_q4"])
 
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, tf_eff_ntuples,
@@ -469,3 +521,25 @@ for varList in ghostList:
 #                                  tf_eff_line_colours, tf_eff_cuts,
 #                                  "tf_ghosts_tuned", drawGenMus=False,
 #                                  drawStackPlot=True, rootFolder=opts.outDir)
+#efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
+#                       binningDict["distWide"],
+#                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
+#                       binningDict["etaFineRestr"], "eta_jpsi",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
+#                       binningDict["phiFineRestr"], "phi_jpsi",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+#efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
+#                       binningDict["pt140Fine"], "pT_jpsi",
+#                       genCuts["diMu-pt1"], [0, 1.4]])
+
+
+# varlist entries:
+# 0: descriptive string used for caption and filename (what is plotted)
+# 1: Binning for first variable
+# 2: Binning for second variable
+# 3: Variables to plot (in the form x1:x2)
+# 4: physical cuts
+# def generate2DRateHist(varList, ntuple_file, dataset="")
