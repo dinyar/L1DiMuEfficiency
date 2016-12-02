@@ -158,7 +158,7 @@ efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
-                       genCuts["diMu - jpsiPt40to80"], [0, 1.4]])
+                       genCuts["diMu-jpsiPt40to80"], [0, 1.4]])
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
