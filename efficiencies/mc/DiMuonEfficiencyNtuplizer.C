@@ -391,7 +391,7 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
     mu2 = mu22;
   }
 
-  if(ugmt_->muonEt[mu1] < ugmt_->muonEt[mu2]) {
+  if((mu1 > -1) && (mu2 > -1) && (ugmt_->muonEt[mu1] < ugmt_->muonEt[mu2])) {
     int tmp {mu1};
     mu1 = mu2;
     mu2 = tmp;
@@ -506,7 +506,7 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_,
     tf2 = tf22;
   }
 
-  if (tf1->tfMuonHwPt[mu1] < tf2->tfMuonHwPt[mu2]) {
+  if ((mu1 > -1) && (mu2 > -1) && (tf1->tfMuonHwPt[mu1] < tf2->tfMuonHwPt[mu2])) {
     int tmpMu {mu1};
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tmpTf {tf1};
     mu1 = mu2;
