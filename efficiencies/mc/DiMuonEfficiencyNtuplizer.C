@@ -41,7 +41,7 @@ std::vector<std::string> generateTfPhysicsQuantities();
 std::vector<std::string> createContentList(
     int nGenMu, std::vector<std::string> genPhysicsQuantities,
     std::vector<std::string> l1PhysicsQuantities);
-void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
+void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_, int recoMu1, int recoMu2,
                 std::vector<std::string> contentList, float ntupleValues[]);
 void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
                 int genMu2, std::vector<std::string> contentList,
@@ -215,19 +215,29 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
         continue;
       }
 
-      truthCoords1.eta = reco_->eta[0];
-      truthCoords1.phi = reco_->phi[0];
+      int recoMu1 {0};
+      int recoMu2 {-1};
+
+      if((nGenMu > 1) && (reco_->muonEt[0] < reco_->muonEt[1])) {
+        recoMu1 = 1;
+        recoMu2 = 0;
+      } else if(nGenMu > 1) {
+        recoMu2 = 1;
+      } 
+
+      truthCoords1.eta = reco_->eta[recoMu1];
+      truthCoords1.phi = reco_->phi[recoMu1];
 
       if (nGenMu > 1) {
-        truthCoords2.eta = reco_->eta[1];
-        truthCoords2.phi = reco_->phi[1];
+        truthCoords2.eta = reco_->eta[recoMu2];
+        truthCoords2.phi = reco_->phi[recoMu2];
       } else {
         truthCoords2.eta = -99999;
         truthCoords2.phi = -99999;
       }
 
-      fillNtuple(reco_, ugmtContentList, ugmtNtupleValues);
-      fillNtuple(reco_, tfContentList, tfNtupleValues);
+      fillNtuple(reco_, recoMu1, recoMu2, ugmtContentList, ugmtNtupleValues);
+      fillNtuple(reco_, recoMu1, recoMu2, tfContentList, tfNtupleValues);
     } else {
       chainGen->GetEntry(jentry);
       int genMu1 = -1;
@@ -240,9 +250,16 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
           genMu2 = genMu1;
           genMu1 = i;
         }
-        if (nGenMus != nGenMu) {
-          continue;
-        }
+      }
+
+      if (nGenMus != nGenMu) {
+        continue;
+      }
+
+      if((genMu1 > -1) && (genMu2 > -1) && (gen_->partPt[genMu1] < gen_->partPt[genMu2])) {
+        int tmp {genMu1};
+        genMu1 = genMu2;
+        genMu2 = tmp;
       }
 
       truthCoords1.eta = gen_->partEta[genMu1];
@@ -577,33 +594,33 @@ std::vector<std::string> createContentList(
   return contentList;
 }
 
-void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
+void fillNtuple(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_, int recoMu1, int recoMu2,
                 std::vector<std::string> contentList, float ntupleValues[]) {
   TLorentzVector jPsi;
   if (reco_->nMuons > 1) {
     TLorentzVector mu1;
     TLorentzVector mu2;
-    mu1.SetPtEtaPhiE(reco_->pt[0], reco_->eta[0], reco_->phi[0], reco_->e[0]);
-    mu2.SetPtEtaPhiE(reco_->pt[1], reco_->eta[1], reco_->phi[1], reco_->e[1]);
+    mu1.SetPtEtaPhiE(reco_->pt[recoMu1], reco_->eta[recoMu1], reco_->phi[recoMu1], reco_->e[recoMu1]);
+    mu2.SetPtEtaPhiE(reco_->pt[recoMu2], reco_->eta[recoMu2], reco_->phi[recoMu2], reco_->e[recoMu2]);
     jPsi = mu1 + mu2;
   }
   for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1_gen") {
-      ntupleValues[i] = reco_->pt[0];
+      ntupleValues[i] = reco_->pt[recoMu1];
     } else if (contentList.at(i) == "pT2_gen") {
-      ntupleValues[i] = reco_->pt[1];
+      ntupleValues[i] = reco_->pt[recoMu2];
     } else if (contentList.at(i) == "eta1_gen") {
-      ntupleValues[i] = reco_->eta[0];
+      ntupleValues[i] = reco_->eta[recoMu1];
     } else if (contentList.at(i) == "eta2_gen") {
-      ntupleValues[i] = reco_->eta[1];
+      ntupleValues[i] = reco_->eta[recoMu2];
     } else if (contentList.at(i) == "phi1_gen") {
-      ntupleValues[i] = reco_->phi[0];
+      ntupleValues[i] = reco_->phi[recoMu1];
     } else if (contentList.at(i) == "phi2_gen") {
-      ntupleValues[i] = reco_->phi[1];
+      ntupleValues[i] = reco_->phi[recoMu2];
     } else if (contentList.at(i) == "ch1_gen") {
-      ntupleValues[i] = reco_->charge[0];
+      ntupleValues[i] = reco_->charge[recoMu1];
     } else if (contentList.at(i) == "ch2_gen") {
-      ntupleValues[i] = reco_->charge[1];
+      ntupleValues[i] = reco_->charge[recoMu2];
     } else if (contentList.at(i) == "pT_jpsi") {
       ntupleValues[i] = jPsi.Pt();
     } else if (contentList.at(i) == "eta_jpsi") {
