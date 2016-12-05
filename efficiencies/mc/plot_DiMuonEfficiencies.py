@@ -33,10 +33,14 @@ tuned_ugmt_dimu_file = "20161201_tuning_v1/uGMTDimuonNtuple.root"
 # Cut dicts
 genCuts = {}
 genCuts["mu-pt1"] = ["(pT1_gen > 1)", "mu-ptGen1"]
-genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1))", "diMu-ptGen1"]
+genCuts["diMu-pt1"] = ["((pT1_gen > 1) && (pT2_gen > 1) && (abs(eta1_gen) < 2.4) && (abs(eta2_gen) < 2.4))", "diMu-ptGen1"]
+genCuts["diMu-pt1_bmtf"] = ["((pT1_gen > 1) && (pT2_gen > 1) && (abs(eta1_gen) < 0.8) && (abs(eta2_gen) < 0.8))", "diMu-ptGen1_bmtf"]
+genCuts["diMu-pt1_omtf"] = ["((pT1_gen > 1) && (pT2_gen > 1) && (abs(eta1_gen) > 0.8) && (abs(eta2_gen) > 0.8) && (abs(eta1_gen) < 1.2) && (abs(eta2_gen) < 1.2))", "diMu-ptGen1_omtf"]
+genCuts["diMu-pt1_emtf"] = ["((pT1_gen > 1) && (pT2_gen > 1) && (abs(eta1_gen) > 1.2) && (abs(eta2_gen) > 1.2) && (abs(eta1_gen) < 2.4) && (abs(eta2_gen) < 2.4))", "diMu-ptGen1_emtf"]
 genCuts[
     "diMu-jpsiPt40to80"] = ["((pT_jpsi > 40) && (pT_jpsi < 80))", "diMu-jpsiPt40to80"]
 genCuts["diMu-jpsiPt80"] = ["(pT_jpsi > 80)", "diMu-jpsiPt80"]
+genCuts["diMu-pt1_separated"] = ["((pT1_gen > 1) && (pT2_gen > 1) && (abs(eta1_gen) < 2.4) && (abs(eta2_gen) < 2.4) && (sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2) > 0.4))", "diMu-ptGen1_separated"]
 
 gmtCuts = {}
 gmtCuts["gmt_diMu-pt1_q3"] = ["((pT1 > 1) && (pT2 > 1)) && ((qual1 > 2) && (qual2 > 2))",
@@ -158,29 +162,41 @@ efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       genCuts["diMu-pt1_bmtf"], [0, 1.4]])
+efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       genCuts["diMu-pt1_omtf"], [0, 1.4]])
+efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       genCuts["diMu-pt1_emtf"], [0, 1.4]])
+efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-jpsiPt40to80"], [0, 1.4]])
 efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distWide"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-jpsiPt80"], [0, 1.4]])
-# efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
-#                       binningDict["etaFineRestr"], "eta1_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
-# efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
-#                       binningDict["etaFineRestr"], "eta2_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
-# efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
-#                       binningDict["phiFineRestr"], "phi1_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
-# efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
-#                       binningDict["phiFineRestr"], "phi2_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
-# efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
-#                       binningDict["pt140Fine"], "pT1_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
-# efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
-#                       binningDict["pt140Fine"], "pT2_gen",
-#                       genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
+                      binningDict["etaFineRestr"], "eta1_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
+                      binningDict["etaFineRestr"], "eta2_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
+                      binningDict["phiFineRestr"], "phi1_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
+                      binningDict["phiFineRestr"], "phi2_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
+                      binningDict["pt140Fine"], "pT1_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
+efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
+                      binningDict["pt140Fine"], "pT2_gen",
+                      genCuts["diMu-pt1"], [0, 1.4]])
 efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
                        binningDict["etaFineRestr"], "eta_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
@@ -191,6 +207,45 @@ efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
                        binningDict["pt140Fine"], "pT_jpsi",
                        genCuts["diMu-pt1"], [0, 1.4]])
 
+efficiencyList.append([["deltaEta_gen", "#Delta#eta(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "abs(eta1_gen-eta2_gen)",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["deltaPhi_gen", "#Delta#phi(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "abs(phi1_gen-phi2_gen)",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
+                       binningDict["distWide"],
+                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu1_genEta", "#eta(leading #mu)"],
+                      binningDict["etaFineRestr"], "eta1_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu2_genEta", "#eta(trailing #mu)"],
+                      binningDict["etaFineRestr"], "eta2_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu1_genPhi", "#phi(leading #mu)"],
+                      binningDict["phiFineRestr"], "phi1_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu2_genPhi", "#phi(trailing #mu)"],
+                      binningDict["phiFineRestr"], "phi2_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu1_genPt", "p_{T}(leading #mu) [GeV/c]"],
+                      binningDict["pt140Fine"], "pT1_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["mu2_genPt", "p_{T}(trailing #mu) [GeV/c]"],
+                      binningDict["pt140Fine"], "pT2_gen",
+                      genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["jPsi_genEta", "#eta(J/#Psi)"],
+                       binningDict["etaFineRestr"], "eta_jpsi",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["jPsi_genPhi", "#phi(J/#Psi)"],
+                       binningDict["phiFineRestr"], "phi_jpsi",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
+efficiencyList.append([["jPsi_genPt", "p_{T}(J/#Psi) [GeV/c]"],
+                       binningDict["pt140Fine"], "pT_jpsi",
+                       genCuts["diMu-pt1_separated"], [0, 1.4]])
 
 # Plot efficiency for in- and ouput of uGMT w/o splitting into TF contributions
 
@@ -239,17 +294,17 @@ for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
                                    ugmt_inout_labels, line_colours, cuts,
                                    "jPsi_efficiency",
-                                   rootFolder=opts.outDir)
+                                   rootFolder=opts.outDir, drawDistributions=True)
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
                                    ugmt_inout_labels, line_colours, cuts_lowPt,
                                    "jPsi_efficiency_lowPt",
-                                   rootFolder=opts.outDir)
+                                   rootFolder=opts.outDir, drawDistributions=True)
 for varList in efficiencyList:
     generateCombinedEfficiencyHist(varList, jpsi_efficiency_ntuples, ntuple_names,
                                    ugmt_inout_labels, line_colours, cuts_highPt,
                                    "jPsi_efficiency_highPt",
-                                   rootFolder=opts.outDir)
+                                   rootFolder=opts.outDir, drawDistributions=True)
 
 # Plot ghosting probability for in- and output of uGMT w/o splitting into TFs
 
