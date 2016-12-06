@@ -408,12 +408,11 @@ void findUgmtMuons(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int& mu1,
     mu2 = mu22;
   }
 
-  if((mu1 > -1) && (mu2 > -1) && (ugmt_->muonEt[mu1] < ugmt_->muonEt[mu2])) {
-    int tmp {mu1};
+  if ((mu1 > -1) && (mu2 > -1) && (ugmt_->muonEt[mu1] < ugmt_->muonEt[mu2])) {
+    int tmp{mu1};
     mu1 = mu2;
     mu2 = tmp;
   }
-
 }
 
 void findTfMuon(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tf_,
@@ -523,9 +522,10 @@ void findTFMuons(L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* bmtf_,
     tf2 = tf22;
   }
 
-  if ((mu1 > -1) && (mu2 > -1) && (tf1->tfMuonHwPt[mu1] < tf2->tfMuonHwPt[mu2])) {
-    int tmpMu {mu1};
-    L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tmpTf {tf1};
+  if ((mu1 > -1) && (mu2 > -1) &&
+      (tf1->tfMuonHwPt[mu1] < tf2->tfMuonHwPt[mu2])) {
+    int tmpMu{mu1};
+    L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat* tmpTf{tf1};
     mu1 = mu2;
     tf1 = tf2;
     mu2 = tmpMu;
@@ -554,6 +554,7 @@ std::vector<std::string> generateUgmtPhysicsQuantities() {
   physicsQuantities.push_back("trkAddr");
   physicsQuantities.push_back("tfType");
   physicsQuantities.push_back("tfProcessor");
+  physicsQuantities.push_back("invMass");
 
   return physicsQuantities;
 }
@@ -580,6 +581,9 @@ std::vector<std::string> createContentList(
        it != l1PhysicsQuantities.end(); ++it) {
     contentList.push_back(*it + "1");
     contentList.push_back(*it + "2");
+    if (nGenMu > 1) {
+      contentList.push_back(*it + "_jpsi");
+    }
   }
 
   for (std::vector<std::string>::iterator it = genPhysicsQuantities.begin();
@@ -678,6 +682,17 @@ void fillNtuple(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int genMu1,
 void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
                 int ugmtMu2, std::vector<std::string> contentList,
                 float ugmtNtupleValues[]) {
+  TLorentzVector jPsi;
+  if (ugmtMu2 > -1) {
+    TLorentzVector mu1;
+    TLorentzVector mu2;
+    mu1.SetPtEtaPhiM(ugmt_->muonEt[ugmtMu1], ugmt_->muonEta[ugmtMu1],
+                     ugmt_->muonPhi[ugmtMu1], 0.105);
+    mu2.SetPtEtaPhiM(ugmt_->muonEt[ugmtMu2], ugmt_->muonEta[ugmtMu2],
+                     ugmt_->muonPhi[ugmtMu2], 0.105);
+    jPsi = mu1 + mu2;
+  }
+
   // TODO: Missing track addresses, HF bit, processor
   for (int i = 0; i < contentList.size(); ++i) {
     if (contentList.at(i) == "pT1" && ugmtMu1 != -1) {
