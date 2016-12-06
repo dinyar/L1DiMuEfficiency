@@ -1,4 +1,20 @@
-DiMuNtuple.root
-GMTDiMuEfficiency_C.d
-plots/
+*.pyc
+efficiencies/mc/plots
+efficiencies/mc/20161126_defaultTuning/
+efficiencies/mc/20161126_tuning_v1/
+efficiencies/mc/20161128_defaultTuning/
+efficiencies/mc/20161128_tuning_v1/
+efficiencies/mc/20161129_defaultTuning/
+efficiencies/mc/20161129_tuning_v1/
+efficiencies/mc/20161201_defaultTuning/
+efficiencies/mc/20161201_tuning_v1/
+efficiencies/mc/20161205_defaultTuning/
+efficiencies/mc/20161205_tuning_v1/
+efficiencies/mc/legacy_gmt/
+efficiencies/mc/grid/jpsi/crab_projects/
+efficiencies/mc/grid/singleMu/crab_projects/
+efficiencies/mc/testDiMuonEfficiencyNtuplizer.C
+efficiencies/mc/testDiMuonGhostingNtuplizer.C
+efficiencies/mc/file_list_jPsi-test
+efficiencies/mc/test_results/
 

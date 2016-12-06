@@ -25,10 +25,10 @@ gROOT.SetBatch(kTRUE)
 # Ntuples to use.
 gmt_singleMu_file = "legacy_gmt/GMTSingleMuNtuple.root"
 gmt_dimu_file = "legacy_gmt/GMTDimuonNtuple.root"
-ugmt_singleMu_file = "20161201_defaultTuning/uGMTSingleMuNtuple.root"
-ugmt_dimu_file = "20161201_defaultTuning/uGMTDimuonNtuple.root"
-tuned_ugmt_singleMu_file = "20161201_tuning_v1/uGMTSingleMuNtuple.root"
-tuned_ugmt_dimu_file = "20161201_tuning_v1/uGMTDimuonNtuple.root"
+ugmt_singleMu_file = "20161205_defaultTuning/uGMTSingleMuNtuple.root"
+ugmt_dimu_file = "20161205_defaultTuning/uGMTDimuonNtuple.root"
+tuned_ugmt_singleMu_file = "20161205_tuning_v1/uGMTSingleMuNtuple.root"
+tuned_ugmt_dimu_file = "20161205_tuning_v1/uGMTDimuonNtuple.root"
 
 # Cut dicts
 genCuts = {}
