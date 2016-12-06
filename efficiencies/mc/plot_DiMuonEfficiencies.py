@@ -474,6 +474,16 @@ input_ghost_distance_cuts.append(gmtCuts["diBOmtf_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diBOmtfFine_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diBOmtfCoarse_q4"])
 input_ghost_distance_cuts.append(gmtCuts["diEOmtf_q4"])
+input_ghost_distance_axis_ranges = []
+input_ghost_distance_axis_ranges.append(75000)
+input_ghost_distance_axis_ranges.append(60000)
+input_ghost_distance_axis_ranges.append(6000)
+input_ghost_distance_axis_ranges.append(2400)
+input_ghost_distance_axis_ranges.append(700000)
+input_ghost_distance_axis_ranges.append(70000)
+input_ghost_distance_axis_ranges.append(65000)
+input_ghost_distance_axis_ranges.append(6500)
+input_ghost_distance_axis_ranges.append(40000)
 output_ghost_distance_cuts = []
 output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
 output_ghost_distance_cuts.append(gmtCuts["diBmtf_q4"])
@@ -493,19 +503,24 @@ ghostDistanceList.append([["etaResolution", "#Delta#eta(#mu_{L1}#mu_{Ghost})"],
                           binningDict["distSym"],
                           "eta1-eta2",
                           genCuts["mu-pt1"], [0, 1.4]])
-ghostDistanceList.append([["ptResolution",
-                           "#Delta p_{T}(#mu_{L1}#mu_{Ghost})"],
-                          binningDict["pt140Fine"],
-                          "pT1-pT2",
-                          genCuts["mu-pt1"], [0, 1.4]])
+# ghostDistanceList.append([["ptResolution",
+#                            "#Delta p_{T}(#mu_{L1}#mu_{Ghost})"],
+#                           binningDict["pt140Fine"],
+#                           "pT1-pT2",
+#                           genCuts["mu-pt1"], [0, 1.4]])
+
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
                                    input_ghost_distance_ntuple_name,
                                    ghost_distance_label,
                                    ghost_distance_line_colour,
-                                   input_ghost_distance_cuts, "ghost_distance_inputs",
-                                   drawGenMus=False, drawDistributions=True, drawStackPlot=True,
-                                   rootFolder=opts.outDir, distLogy=False)
+                                   input_ghost_distance_cuts,
+                                   "ghost_distance_inputs",
+                                   drawGenMus=False, drawDistributions=True,
+                                   drawStackPlot=True,
+                                   rootFolder=opts.outDir,
+                                   distLogy=False,
+                                   maxDistRanges=input_ghost_distance_axis_ranges)
 for varList in ghostDistanceList:
     generateCombinedEfficiencyHist(varList, ghost_distance_ntuple,
                                    input_ghost_distance_ntuple_name,
