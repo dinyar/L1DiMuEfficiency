@@ -207,7 +207,6 @@ efficiencyList.append([["deltaR_gen_close", "#DeltaR(#mu^{-}#mu^{+})"],
                        binningDict["distVeryNarrow"],
                        "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
                        genCuts["diMu-pt1"], [0, 1.4]])
-distVeryNarrow
 #efficiencyList.append([["deltaR_gen", "#DeltaR(#mu^{-}#mu^{+})"],
 #                       binningDict["distWide"],
 #                       "sqrt((eta1_gen-eta2_gen)**2+(phi1_gen-phi2_gen)**2)",
@@ -399,7 +398,7 @@ ghostList.append([["mu1_genPhi", "#phi(#mu)"],
                   binningDict["phiFineRestr"], "phi1_gen",
                   genCuts["mu-pt1"], [0, 0.7]])
 ghostList.append([["mu1_genPt", "p_{T}(#mu) [GeV/c]"],
-                  binningDict["pt140Fine"], "pT1_gen",
+                  binningDict["pt80Fine"], "pT1_gen",
                   genCuts["mu-pt1"], [0, 0.3]])
 
 singleMu_ghosting_ntuples = []
