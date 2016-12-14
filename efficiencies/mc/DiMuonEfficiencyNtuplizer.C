@@ -218,7 +218,7 @@ void DiMuonEfficiencyNtuplizer(std::string fname = "L1Ntuple_list",
       int recoMu1 {0};
       int recoMu2 {-1};
 
-      if((nGenMu > 1) && (reco_->muonEt[0] < reco_->muonEt[1])) {
+      if((nGenMu > 1) && (reco_->pt[0] < reco_->pt[1])) {
         recoMu1 = 1;
         recoMu2 = 0;
       } else if(nGenMu > 1) {
@@ -733,6 +733,8 @@ void fillNtuple(L1Analysis::L1AnalysisL1UpgradeDataFormat* ugmt_, int ugmtMu1,
       } else if (muIdx >= 36 && muIdx < 72) {
         ugmtNtupleValues[i] = 0;  // BMTF
       }
+    } else if (contentList.at(i) == "invMass_jpsi" && ugmtMu2 != -1) {
+      ugmtNtupleValues[i] = jPsi.M();
     }  // Don't need a catch-all case as we're calling the fill function for
        // gen/reco where all "non -filled" fields are initialized to -10
        // already.
