@@ -21,7 +21,8 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
-bool readFList(std::string fname, std::vector<std::string>& listNtuples);
+bool readFList(std::string fname, std::vector<std::string>& listNtuples,
+               std::string l1Treepath, std::string recoTreepath);
 int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
                 TChain* truthChain);
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
@@ -45,7 +46,7 @@ void diMuRates(const char* file_list_baseline,
   TString plotFolder = "plots/" + run + "/" + folder + "/";
   mkdir("plots/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("plots/run/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  mkdir(plotFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir(plotFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   gStyle->SetOptStat(0);
 
@@ -53,23 +54,26 @@ void diMuRates(const char* file_list_baseline,
   std::vector<std::string> listNtuplesConservative;
   std::vector<std::string> listNtuplesAggressive;
 
-  bool success = readFList(file_list_baseline, listNtuplesBaseline);
-  success &= readFList(file_list_conservative, listNtuplesConservative);
-  success &= readFList(file_list_aggressive, listNtuplesAggressive);
+  std::string l1Treepath("l1UpgradeEmuTree/L1UpgradeTree");
+  std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
+
+  bool success = readFList(file_list_baseline, listNtuplesBaseline, l1Treepath,
+                           recoTreepath);
+  success &= readFList(file_list_conservative, listNtuplesConservative,
+                       l1Treepath, recoTreepath);
+  success &= readFList(file_list_aggressive, listNtuplesAggressive, l1Treepath,
+                       recoTreepath);
 
   if (!success) {
     std::cout << "Couldn't read NTuple file list. Exiting.. " << std::endl;
     return;
   }
 
-  std::string reEmuTreepath("l1UpgradeEmuTree/L1UpgradeTree");
-  std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
-
-  TChain* chainL1Baseline = new TChain(reEmuTreepath.c_str());
+  TChain* chainL1Baseline = new TChain(l1Treepath.c_str());
   TChain* chainRecoBaseline = new TChain(recoTreepath.c_str());
-  TChain* chainL1Conservative = new TChain(reEmuTreepath.c_str());
+  TChain* chainL1Conservative = new TChain(l1Treepath.c_str());
   TChain* chainRecoConservative = new TChain(recoTreepath.c_str());
-  TChain* chainL1Aggressive = new TChain(reEmuTreepath.c_str());
+  TChain* chainL1Aggressive = new TChain(l1Treepath.c_str());
   TChain* chainRecoAggressive = new TChain(recoTreepath.c_str());
 
   int baselineEntries{0};
@@ -77,11 +81,11 @@ void diMuRates(const char* file_list_baseline,
   int aggressiveEntries{0};
 
   baselineEntries =
-      setupTChain(file_list_baseline, chainL1Baseline, chainRecoBaseline);
-  conservativeEntries = setupTChain(file_list_conservative, chainL1Conservative,
-                                    chainRecoConservative);
-  aggressiveEntries =
-      setupTChain(file_list_aggressive, chainL1Aggressive, chainRecoAggressive);
+      setupTChain(listNtuplesBaseline, chainL1Baseline, chainRecoBaseline);
+  conservativeEntries = setupTChain(listNtuplesConservative,
+                                    chainL1Conservative, chainRecoConservative);
+  aggressiveEntries = setupTChain(listNtuplesAggressive, chainL1Aggressive,
+                                  chainRecoAggressive);
 
   // mu bins
   int nMuBins = 25;
@@ -94,68 +98,66 @@ void diMuRates(const char* file_list_baseline,
   int tfBinWidth = 1;
 
   // make histos
-  TH1D* doubleMuGhostRatesBaseline = new TH1D("doubleMuGhostRatesBaseline", "",
-                                              nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuGhostRatesTrailingBaseline =
-      new TH1D("doubleMuGhostRatesTrailingBaseline", "", nMuBins, muLo - 0.1,
-               muHi + 0.1);
-  TH1D* muGhostRatesOpenBaseline = new TH1D(
-      "doubleMuGhostRatesOpenBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuGhostRatesOpenTrailingBaseline =
-      new TH1D("doubleMuGhostRatesOpenTrailingBaseline", "", nMuBins,
-               muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesBaseline =
-      new TH1D("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesTrailingBaseline = new TH1D(
-      "doubleMuRatesTrailingBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenBaseline = new TH1D("doubleMuRatesOpenBaseline", "",
-                                             nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenTrailingBaseline = new TH1D(
-      "doubleMuRatesOpenTrailingBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesBaseline("doubleMuGhostRatesBaseline", "", nMuBins,
+                                  muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingBaseline =
+      ("doubleMuGhostRatesTrailingBaseline", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenBaseline("doubleMuGhostRatesOpenBaseline", "",
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingBaseline =
+      ("doubleMuGhostRatesOpenTrailingBaseline", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuRatesBaseline =
+      ("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesTrailingBaseline("doubleMuRatesTrailingBaseline", "",
+                                     nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenBaseline("doubleMuRatesOpenBaseline", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenTrailingBaseline("doubleMuRatesOpenTrailingBaseline",
+                                         "", nMuBins, muLo - 0.1, muHi + 0.1);
 
-  TH1D* doubleMuGhostRatesConservative = new TH1D(
-      "doubleMuGhostRatesConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuGhostRatesTrailingConservative =
-      new TH1D("doubleMuGhostRatesTrailingConservative", "", nMuBins,
-               muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesOpenConservative =
-      new TH1D("doubleMuGhostRatesOpenConservative", "", nMuBins, muLo - 0.1,
-               muHi + 0.1);
-  TH1D* doubleMuGhostRatesOpenTrailingConservative =
-      new TH1D("doubleMuGhostRatesOpenTrailingConservative", "", nMuBins,
-               muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesConservative = new TH1D("doubleMuRatesConservative", "",
-                                             nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesTrailingConservative = new TH1D(
-      "doubleMuRatesTrailingConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenConservative = new TH1D(
-      "doubleMuRatesOpenConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenTrailingConservative =
-      new TH1D("doubleMuRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
-               muHi + 0.1);
+  TH1D doubleMuGhostRatesConservative("doubleMuGhostRatesConservative", "",
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingConservative =
+      ("doubleMuGhostRatesTrailingConservative", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenConservative =
+      ("doubleMuGhostRatesOpenConservative", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingConservative =
+      ("doubleMuGhostRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuRatesConservative("doubleMuRatesConservative", "", nMuBins,
+                                 muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesTrailingConservative("doubleMuRatesTrailingConservative",
+                                         "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenConservative("doubleMuRatesOpenConservative", "",
+                                     nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenTrailingConservative =
+      ("doubleMuRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
 
-  TH1D* doubleMuGhostRatesAggressive = new TH1D(
-      "doubleMuGhostRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuGhostRatesTrailingAggressive =
-      new TH1D("doubleMuGhostRatesTrailingAggressive", "", nMuBins, muLo - 0.1,
-               muHi + 0.1);
-  TH1D* muGhostRatesOpenAggressive = new TH1D(
-      "doubleMuGhostRatesOpenAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuGhostRatesOpenTrailingAggressive =
-      new TH1D("doubleMuGhostRatesOpenTrailingAggressive", "", nMuBins,
-               muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesAggressive =
-      new TH1D("doubleMuRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesTrailingAggressive = new TH1D(
-      "doubleMuRatesTrailingAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenAggressive = new TH1D(
-      "doubleMuRatesOpenAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* doubleMuRatesOpenTrailingAggressive =
-      new TH1D("doubleMuRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
-               muHi + 0.1);
+  TH1D doubleMuGhostRatesAggressive("doubleMuGhostRatesAggressive", "", nMuBins,
+                                    muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingAggressive =
+      ("doubleMuGhostRatesTrailingAggressive", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenAggressive("doubleMuGhostRatesOpenAggressive", "",
+                                        nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingAggressive =
+      ("doubleMuGhostRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
+  TH1D doubleMuRatesAggressive =
+      ("doubleMuRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesTrailingAggressive("doubleMuRatesTrailingAggressive", "",
+                                       nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenAggressive("doubleMuRatesOpenAggressive", "", nMuBins,
+                                   muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuRatesOpenTrailingAggressive =
+      ("doubleMuRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
+       muHi + 0.1);
 
-  // TODO: Modify from here!
-  // TODO: Pass histograms into plotting function along with chains etc.
   getMuonRates(
       nCollBunches, baselineEntries, chainL1Baseline, chainRecoBaseline, mu1cut,
       mu2cut, doubleMuGhostRatesBaseline, doubleMuGhostRatesTrailingBaseline,
@@ -220,7 +222,8 @@ void diMuRates(const char* file_list_baseline,
                  "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run);
 }
 
-bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
+bool readFList(std::string fname, std::vector<std::string>& listNtuples,
+               std::string l1Treepath, std::string recoTreepath) {
   // OpenNtupleList
   std::ifstream flist(fname);
   if (!flist) {
@@ -250,16 +253,15 @@ bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
     return false;
   }
 
-  TTree* treeL1Unpack = (TTree*)rf->Get(unpackTreepath.c_str());
+  TTree* treeL1 = (TTree*)rf->Get(l1Treepath.c_str());
   TTree* treeReco = (TTree*)rf->Get(recoTreepath.c_str());
-  TTree* treeGen = (TTree*)rf->Get(genTreepath.c_str());
 
-  if (!treeL1Unpack) {
-    std::cout << "L1Upgrade trees not found.. " << std::endl;
+  if (!treeL1) {
+    std::cout << "L1Upgrade tree not found.. " << std::endl;
     return false;
   }
-  if (!treeReco && !treeGen) {
-    std::cout << "No truth tree found.. " << std::endl;
+  if (!treeReco) {
+    std::cout << "No reco tree found.. " << std::endl;
     return false;
   }
 
