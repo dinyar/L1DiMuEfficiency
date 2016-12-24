@@ -11,6 +11,8 @@
 #include "TStyle.h"
 #include "TTree.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -19,16 +21,31 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
-// TODO: Allow to create same plots for different datasets (compare baseline, conservative, and aggressive tunings in one plot)
-// TODO: Allow to not draw unpack.
+bool readFList(std::string fname, std::vector<std::string>& listNtuples);
+int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
+                TChain* truthChain);
+void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
+                  TChain* recoChain, const int pT1cut, const int pT2cut,
+                  TH1D& doubleMuGhostRateHist,
+                  TH1D& doubleMuGhostRateTrailingHist,
+                  TH1D& doubleMuGhostRateOpenHist,
+                  TH1D& doubleMuGhostRateOpenTrailingHist,
+                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+                  TH1D& doubleMuRateOpenHist,
+                  TH1D& doubleMuRateOpenTrailingHist);
+drawHistograms(TH1D& baselineHist, TH1D& conservativeHist, TH1D& aggressiveHist,
+               TString filename, TString xAxisLabel, TString descString,
+               TString plotFolder, TString run);
 
-void diMuRates(const char* file_list_baseline = "file_list_275125", 
-               const char* file_list_conservative = "file_list_275125",
-               const char* file_list_aggressive = "file_list_275125",
-               TString folder = "tmp", TString run = "XXX", 
-               int mu1cut = 11, int mu2cut = 4,
-               bool drawReEmu = true, bool drawUnpack = false) {
+void diMuRates(const char* file_list_baseline,
+               const char* file_list_conservative,
+               const char* file_list_aggressive, TString folder = "tmp",
+               TString run = "XXX", int mu1cut = 11, int mu2cut = 4,
+               int nCollBunches = 2028) {
   TString plotFolder = "plots/" + run + "/" + folder + "/";
+  mkdir("plots/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir("plots/run/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir(plotFolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   gStyle->SetOptStat(0);
 
@@ -36,12 +53,181 @@ void diMuRates(const char* file_list_baseline = "file_list_275125",
   std::vector<std::string> listNtuplesConservative;
   std::vector<std::string> listNtuplesAggressive;
 
-  // OpenNtupleList
-  std::ifstream flist(file_list_baseline);
-  if (!flist) {
-    std::cout << "File " << file_list_baseline << " is not found!" << std::endl;
+  bool success = readFList(file_list_baseline, listNtuplesBaseline);
+  success &= readFList(file_list_conservative, listNtuplesConservative);
+  success &= readFList(file_list_aggressive, listNtuplesAggressive);
+
+  if (!success) {
+    std::cout << "Couldn't read NTuple file list. Exiting.. " << std::endl;
     return;
   }
+
+  std::string reEmuTreepath("l1UpgradeEmuTree/L1UpgradeTree");
+  std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
+
+  TChain* chainL1Baseline = new TChain(reEmuTreepath.c_str());
+  TChain* chainRecoBaseline = new TChain(recoTreepath.c_str());
+  TChain* chainL1Conservative = new TChain(reEmuTreepath.c_str());
+  TChain* chainRecoConservative = new TChain(recoTreepath.c_str());
+  TChain* chainL1Aggressive = new TChain(reEmuTreepath.c_str());
+  TChain* chainRecoAggressive = new TChain(recoTreepath.c_str());
+
+  int baselineEntries{0};
+  int conservativeEntries{0};
+  int aggressiveEntries{0};
+
+  baselineEntries =
+      setupTChain(file_list_baseline, chainL1Baseline, chainRecoBaseline);
+  conservativeEntries = setupTChain(file_list_conservative, chainL1Conservative,
+                                    chainRecoConservative);
+  aggressiveEntries =
+      setupTChain(file_list_aggressive, chainL1Aggressive, chainRecoAggressive);
+
+  // mu bins
+  int nMuBins = 25;
+  float muLo = -2.5;
+  float muHi = 2.5;
+  float muBinWidth = (muHi - muLo) / nMuBins;
+  int nTFbin = 110;
+  int tflow = 0;
+  int tfhigh = 109;
+  int tfBinWidth = 1;
+
+  // make histos
+  TH1D* doubleMuGhostRatesBaseline = new TH1D("doubleMuGhostRatesBaseline", "",
+                                              nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuGhostRatesTrailingBaseline =
+      new TH1D("doubleMuGhostRatesTrailingBaseline", "", nMuBins, muLo - 0.1,
+               muHi + 0.1);
+  TH1D* muGhostRatesOpenBaseline = new TH1D(
+      "doubleMuGhostRatesOpenBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuGhostRatesOpenTrailingBaseline =
+      new TH1D("doubleMuGhostRatesOpenTrailingBaseline", "", nMuBins,
+               muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesBaseline =
+      new TH1D("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesTrailingBaseline = new TH1D(
+      "doubleMuRatesTrailingBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenBaseline = new TH1D("doubleMuRatesOpenBaseline", "",
+                                             nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenTrailingBaseline = new TH1D(
+      "doubleMuRatesOpenTrailingBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+
+  TH1D* doubleMuGhostRatesConservative = new TH1D(
+      "doubleMuGhostRatesConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuGhostRatesTrailingConservative =
+      new TH1D("doubleMuGhostRatesTrailingConservative", "", nMuBins,
+               muLo - 0.1, muHi + 0.1);
+  TH1D* muGhostRatesOpenConservative =
+      new TH1D("doubleMuGhostRatesOpenConservative", "", nMuBins, muLo - 0.1,
+               muHi + 0.1);
+  TH1D* doubleMuGhostRatesOpenTrailingConservative =
+      new TH1D("doubleMuGhostRatesOpenTrailingConservative", "", nMuBins,
+               muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesConservative = new TH1D("doubleMuRatesConservative", "",
+                                             nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesTrailingConservative = new TH1D(
+      "doubleMuRatesTrailingConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenConservative = new TH1D(
+      "doubleMuRatesOpenConservative", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenTrailingConservative =
+      new TH1D("doubleMuRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
+               muHi + 0.1);
+
+  TH1D* doubleMuGhostRatesAggressive = new TH1D(
+      "doubleMuGhostRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuGhostRatesTrailingAggressive =
+      new TH1D("doubleMuGhostRatesTrailingAggressive", "", nMuBins, muLo - 0.1,
+               muHi + 0.1);
+  TH1D* muGhostRatesOpenAggressive = new TH1D(
+      "doubleMuGhostRatesOpenAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuGhostRatesOpenTrailingAggressive =
+      new TH1D("doubleMuGhostRatesOpenTrailingAggressive", "", nMuBins,
+               muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesAggressive =
+      new TH1D("doubleMuRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesTrailingAggressive = new TH1D(
+      "doubleMuRatesTrailingAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenAggressive = new TH1D(
+      "doubleMuRatesOpenAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D* doubleMuRatesOpenTrailingAggressive =
+      new TH1D("doubleMuRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
+               muHi + 0.1);
+
+  // TODO: Modify from here!
+  // TODO: Pass histograms into plotting function along with chains etc.
+  getMuonRates(
+      nCollBunches, baselineEntries, chainL1Baseline, chainRecoBaseline, mu1cut,
+      mu2cut, doubleMuGhostRatesBaseline, doubleMuGhostRatesTrailingBaseline,
+      doubleMuGhostRatesOpenBaseline, doubleMuGhostRatesOpenTrailingBaseline,
+      doubleMuRatesBaseline, doubleMuRatesTrailingBaseline,
+      doubleMuRatesOpenBaseline, doubleMuRatesOpenTrailingBaseline);
+
+  getMuonRates(
+      nCollBunches, conservativeEntries, chainL1Conservative,
+      chainRecoConservative, mu1cut, mu2cut, doubleMuGhostRatesConservative,
+      doubleMuGhostRatesTrailingConservative,
+      doubleMuGhostRatesOpenConservative,
+      doubleMuGhostRatesOpenTrailingConservative, doubleMuRatesConservative,
+      doubleMuRatesTrailingConservative, doubleMuRatesOpenConservative,
+      doubleMuRatesOpenTrailingConservative);
+
+  getMuonRates(
+      nCollBunches, aggressiveEntries, chainL1Aggressive, chainRecoAggressive,
+      mu1cut, mu2cut, doubleMuGhostRatesAggressive,
+      doubleMuGhostRatesTrailingAggressive, doubleMuGhostRatesOpenAggressive,
+      doubleMuGhostRatesOpenTrailingAggressive, doubleMuRatesAggressive,
+      doubleMuRatesTrailingAggressive, doubleMuRatesOpenAggressive,
+      doubleMuRatesOpenTrailingAggressive);
+
+  std::ostringstream oss;
+  oss << "ZeroBias, L1_DoubleMu_" << mu1cut << "_" << mu2cut << ", q>4";
+  drawHistograms(doubleMuRatesBaseline, doubleMuRatesConservative,
+                 doubleMuRatesAggressive, "doubleMuRatesDoubleMuonLeading",
+                 "#eta (leading #mu)", oss.str().c_str(), plotFolder, run);
+  drawHistograms(
+      doubleMuRatesTrailingBaseline, doubleMuRatesTrailingConservative,
+      doubleMuRatesTrailingAggressive, "doubleMuRatesDoubleMuonTrailing",
+      "#eta (trailing #mu)", oss.str().c_str(), plotFolder, run);
+  drawHistograms(doubleMuRatesOpenBaseline, doubleMuRatesOpenConservative,
+                 doubleMuRatesOpenAggressive,
+                 "doubleMuOpenRatesDoubleMuonLeading", "#eta (leading #mu)",
+                 "Zero Bias, L1_SingleMuOpen, q>4", plotFolder, run);
+  drawHistograms(doubleMuRatesOpenTrailingBaseline,
+                 doubleMuRatesOpenTrailingConservative,
+                 doubleMuRatesOpenTrailingAggressive,
+                 "doubleMuOpenRatesDoubleMuonTrailing", "#eta (trailing #mu)",
+                 "Zero Bias, L1_SingleMuOpen, q>4", plotFolder, run);
+
+  oss << ", ghost rate";
+  drawHistograms(doubleMuGhostRatesBaseline, doubleMuGhostRatesConservative,
+                 doubleMuGhostRatesAggressive, "ghostRatesDoubleMuonLeading",
+                 "#eta (leading #mu)", oss.str().c_str(), plotFolder, run);
+  drawHistograms(doubleMuGhostRatesTrailingBaseline,
+                 doubleMuGhostRatesTrailingConservative,
+                 doubleMuGhostRatesTrailingAggressive,
+                 "ghostRatesDiMuonTrailing", "#eta (trailing #mu)",
+                 oss.str().c_str(), plotFolder, run);
+  drawHistograms(doubleMuGhostRatesOpenBaseline,
+                 doubleMuGhostRatesOpenConservative,
+                 doubleMuGhostRatesOpenAggressive,
+                 "ghostRatesDoubleMuonOpenLeading", "#eta (leading #mu)",
+                 "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run);
+  drawHistograms(doubleMuGhostRatesOpenTrailingBaseline,
+                 doubleMuGhostRatesOpenTrailingConservative,
+                 doubleMuGhostRatesOpenTrailingAggressive,
+                 "ghostRatesDoubleMuonOpenTrailing", "#eta (trailing #mu)",
+                 "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run);
+}
+
+bool readFList(std::string fname, std::vector<std::string>& listNtuples) {
+  // OpenNtupleList
+  std::ifstream flist(fname);
+  if (!flist) {
+    std::cout << "File " << fname << " is not found!" << std::endl;
+    return false;
+  }
+
   while (!flist.eof()) {
     std::string str;
     getline(flist, str);
@@ -51,142 +237,106 @@ void diMuRates(const char* file_list_baseline = "file_list_275125",
   }
 
   // CheckFirstFile
-  if (listNtuples.size() == 0) return;
+  if (listNtuples.size() == 0) {
+    return false;
+  }
 
-  TFile* rf = TFile::Open(listNtuples[0].c_str());
+  TFile* rf = TFile::Open(listNtuples.at(0).c_str());
 
-  if (rf == 0) return;
-  if (rf->IsOpen() == 0) return;
+  if (rf == 0) {
+    return false;
+  }
+  if (rf->IsOpen() == 0) {
+    return false;
+  }
 
-  std::string reEmuTreepath("l1UpgradeEmuTree/L1UpgradeTree");
-  std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
-  TTree* treeL1reEmu = (TTree*)rf->Get(reEmuTreepath.c_str());
+  TTree* treeL1Unpack = (TTree*)rf->Get(unpackTreepath.c_str());
   TTree* treeReco = (TTree*)rf->Get(recoTreepath.c_str());
+  TTree* treeGen = (TTree*)rf->Get(genTreepath.c_str());
 
-  if (!treeL1reEmu) {
+  if (!treeL1Unpack) {
     std::cout << "L1Upgrade trees not found.. " << std::endl;
-    return;
+    return false;
   }
-  if (!treeReco) {
-    std::cout << "Reco tree not found.. " << std::endl;
-    return;
+  if (!treeReco && !treeGen) {
+    std::cout << "No truth tree found.. " << std::endl;
+    return false;
   }
 
-  // OpenWithoutInit
-  TChain* l1reEmuChain = new TChain(reEmuTreepath.c_str());
-  TChain* chainReco = new TChain(recoTreepath.c_str());
+  return true;
+}
+
+int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
+                TChain* truthChain) {
   for (unsigned int i = 0; i < listNtuples.size(); i++) {
     std::cout << " -- Adding " << listNtuples[i] << std::endl;
-    l1reEmuChain->Add(listNtuples[i].c_str());
-    chainReco->Add(listNtuples[i].c_str());
+    l1Chain->Add(listNtuples[i].c_str());
+    truthChain->Add(listNtuples[i].c_str());
   }
 
   // Init
-  std::cout << "Estimate the number of entries ..." << std::endl;
-  int nentries = l1reEmuChain->GetEntries();
+  std::cout << "Estimate the number of entries... ";
+  int nentries = l1Chain->GetEntries();
   std::cout << nentries << std::endl;
-  int nevents = nentries;
 
+  return nentries;
+}
+
+void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
+                  TChain* recoChain, const int pT1cut, const int pT2cut,
+                  TH1D& doubleMuGhostRateHist,
+                  TH1D& doubleMuGhostRateTrailingHist,
+                  TH1D& doubleMuGhostRateOpenHist,
+                  TH1D& doubleMuGhostRateOpenTrailingHist,
+                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+                  TH1D& doubleMuRateOpenHist,
+                  TH1D& doubleMuRateOpenTrailingHist) {
   // set branch addresses
-  L1Analysis::L1AnalysisL1UpgradeDataFormat* reEmu_ =
+  L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_ =
       new L1Analysis::L1AnalysisRecoMuon2DataFormat();
-  l1reEmuChain->SetBranchAddress("L1Upgrade", &reEmu_);
-  chainReco->SetBranchAddress("Muon", &reco_);
+  l1Chain->SetBranchAddress("L1Upgrade", &l1_);
+  recoChain->SetBranchAddress("Muon", &reco_);
 
-  // mu bins
-  int nMuBins = 25;
-  float muLo = -2.5;
-  float muHi = 2.5;
-  float muBinWidth = (muHi - muLo) / nMuBins;
-  int nTFbin = 12;
-  int tflow = 0;
-  int tfhigh = 12;
-  int tfBinWidth = 1;
-
-  // make histos
-  TH1D* singleMuRatesOpenUnpack =
-      new TH1D("singleMuRatesOpenUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* singleMuRatesOpenReEmu =
-      new TH1D("singleMuRatesOpenReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesUnpack =
-      new TH1D("muGhostRatesUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesReEmu =
-      new TH1D("muGhostRatesReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesOpenUnpack =
-      new TH1D("muGhostRatesOpenUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesOpenReEmu =
-      new TH1D("muGhostRatesOpenReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesOpenTrailingUnpack = new TH1D(
-      "muGhostRatesOpenTrailingUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muGhostRatesOpenTrailingReEmu = new TH1D(
-      "muGhostRatesOpenTrailingReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesUnpack =
-      new TH1D("muRatesUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesReEmu =
-      new TH1D("muRatesReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesOpenUnpack =
-      new TH1D("muRatesOpenUnpack", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesOpenReEmu =
-      new TH1D("muRatesOpenReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesOpenTrailingUnpack = new TH1D("muRatesOpenTrailingUnpack", "",
-                                             nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D* muRatesOpenTrailingReEmu =
-      new TH1D("muRatesOpenTrailingReEmu", "", nMuBins, muLo - 0.1, muHi + 0.1);
-
-  // TODO: eta vs. pt and eta vs tfMuIdx plots?
-  TH1D* tfMuIdxUnpack = new TH1D("tfMuIdxUnpack", "", 110, 0, 109);
-  TH1D* tfMuIdxReEmu = new TH1D("tfMuIdxReEmu", "", 110, 0, 109);
-  TH1D* tfMuIdxAllUnpack = new TH1D("tfMuIdxAllUnpack", "", 110, 0, 109);
-  TH1D* tfMuIdxAllReEmu = new TH1D("tfMuIdxAllReEmu", "", 110, 0, 109);
-
-  int reEmuCounts(0);
-
-  for (Long64_t jentry = 0; jentry < nevents; jentry++) {
+  for (Long64_t jentry = 0; jentry < nevents; ++jentry) {
     if ((jentry % 1000) == 0)
       std::cout << "Done " << jentry << " events..." << std::endl;
 
-    l1reEmuChain->GetEntry(jentry);
-    chainReco->GetEntry(jentry);
+    l1Chain->GetEntry(jentry);
+    recoChain->GetEntry(jentry);
 
     // get Mu rates
-    int mu1ReEmu(-1);
-    int mu2ReEmu(-1);
-    double mu1PtReEmu(0);
-    double mu2PtReEmu(0);
-    for (uint it = 0; it < reEmu_->nMuons; ++it) {
-      if (reEmu_->muonBx[it] != 0) {
+    int mu1(-1);
+    int mu2(-1);
+    double mu1Pt(0);
+    double mu2Pt(0);
+    for (uint it = 0; it < l1_->nMuons; ++it) {
+      if (l1_->muonBx[it] != 0) {
         continue;
       }
-      tfMuIdxAllReEmu->Fill(reEmu_->muonTfMuonIdx[it]);
-      if (reEmu_->muonQual[it] <= 4) {
+      if (l1_->muonQual[it] < 8) {
         continue;
       }
-      if (reEmu_->muonEt[it] > mu1PtReEmu) {
-        mu2ReEmu = mu1ReEmu;
-        mu2PtReEmu = mu1PtReEmu;
-        mu1ReEmu = it;
-        mu1PtReEmu = reEmu_->muonEt[it];
-      } else if (reEmu_->muonEt[it] > mu2PtReEmu) {
-        mu2ReEmu = it;
-        mu2PtReEmu = reEmu_->muonEt[it];
+      if (l1_->muonEt[it] > mu1Pt) {
+        mu2 = mu1;
+        mu2Pt = mu1Pt;
+        mu1 = it;
+        mu1Pt = l1_->muonEt[it];
+      } else if (l1_->muonEt[it] > mu2Pt) {
+        mu2 = it;
+        mu2Pt = l1_->muonEt[it];
       }
-    }
-    // Computing single muon rates
-    if (mu1ReEmu != -1) {
-      singleMuRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
     }
 
-    // Computing di muon rates
-    if (mu1ReEmu != -1 && mu2ReEmu != -1) {
-      if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
-        muRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
+    // Filling di muon rates
+    if (mu1 != -1 && mu2 != -1) {
+      if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
+        doubleMuRateHist->Fill(l1_->muonEta[mu1]);
+        doubleMuRateTrailingHist->Fill(l1_->muonEta[mu2]);
       }
-      muRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-      muRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
-      tfMuIdxReEmu->Fill(reEmu_->muonTfMuonIdx[mu1ReEmu]);
-      ++reEmuCounts;
+      doubleMuRateOpenHist->Fill(l1_->muonEta[mu1]);
+      doubleMuRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
     }
 
     // Computing ghost rates
@@ -197,432 +347,110 @@ void diMuRates(const char* file_list_baseline = "file_list_275125",
       }
     }
 
-    if (mu1ReEmu != -1 && mu2ReEmu != -1 && nRecoMus == 1) {
-      if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
-        muGhostRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
+    if (mu1 != -1 && mu2 != -1 && nRecoMus == 1) {
+      if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
+        doubleMuGhostRateHist->Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateTrailingHist->Fill(l1_->muonEta[mu2]);
       }
-      muGhostRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-      muGhostRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
-      ++reEmuCounts;
+      doubleMuGhostRateOpenHist->Fill(l1_->muonEta[mu1]);
+      doubleMuGhostRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
     }
   }
 
   // normalisation factor
-  double norm = (11. * 2028.) / nevents;  // zb rate = n_colliding * 11 kHz
+  double norm =
+      (11. * nCollBunches.) / nevents;  // zb rate = n_colliding * 11 kHz
   std::cout << "norm = " << norm << std::endl;
 
   std::cout << "###########################################" << std::endl;
   std::cout << "** Computed rates: **" << std::endl;
-  std::cout << "ReEmulated rate: " << muRatesReEmu->GetEntries() * norm
-            << std::endl;
-  std::cout << "ReEmulated open rate: " << muRatesOpenReEmu->GetEntries() * norm
-            << std::endl;
-  std::cout << "ReEmulated SingleMuOpen rate: "
-            << singleMuRatesOpenReEmu->GetEntries() * norm << std::endl;
+  std::cout << "Rate with given pT cuts: "
+            << doubleMuRateHist->GetEntries() * norm << std::endl;
+  std::cout << "DoubleMuOpen rate: "
+            << doubleMuRateOpenHist->GetEntries() * norm << std::endl;
+  std::cout << "Ghost rate with given pT cuts: "
+            << doubleMuGhostRateHist->GetEntries() * norm << std::endl;
+  std::cout << "DoubleMuOpen ghost rate: "
+            << doubleMuGhostRateOpenHist->GetEntries() * norm << std::endl;
   std::cout << "###########################################" << std::endl;
 
-  muRatesUnpack->Sumw2();
-  muRatesReEmu->Sumw2();
-  muRatesOpenUnpack->Sumw2();
-  muRatesOpenReEmu->Sumw2();
-  muRatesOpenTrailingUnpack->Sumw2();
-  muRatesOpenTrailingReEmu->Sumw2();
-  singleMuRatesOpenUnpack->Sumw2();
-  singleMuRatesOpenReEmu->Sumw2();
-  muGhostRatesUnpack->Sumw2();
-  muGhostRatesReEmu->Sumw2();
-  muGhostRatesOpenUnpack->Sumw2();
-  muGhostRatesOpenReEmu->Sumw2();
-  muGhostRatesOpenTrailingUnpack->Sumw2();
-  muGhostRatesOpenTrailingReEmu->Sumw2();
+  doubleMuRateHist->Sumw2();
+  doubleMuRateTrailingHist->Sumw2();
+  doubleMuRateOpenHist->Sumw2();
+  doubleMuRateOpenTrailingHist->Sumw2();
+  doubleMuGhostRateHist->Sumw2();
+  doubleMuGhostRateTrailingHist->Sumw2();
+  doubleMuGhostRateOpenHist->Sumw2();
+  doubleMuGhostRateOpenTrailingHist->Sumw2();
   TF1* constant = new TF1("constant", "1", -5, 5);
-  muRatesUnpack->Multiply(constant, norm);
-  muRatesReEmu->Multiply(constant, norm);
-  muRatesOpenUnpack->Multiply(constant, norm);
-  muRatesOpenReEmu->Multiply(constant, norm);
-  muRatesOpenTrailingUnpack->Multiply(constant, norm);
-  muRatesOpenTrailingReEmu->Multiply(constant, norm);
-  singleMuRatesOpenUnpack->Multiply(constant, norm);
-  singleMuRatesOpenReEmu->Multiply(constant, norm);
-  muGhostRatesUnpack->Multiply(constant, norm);
-  muGhostRatesReEmu->Multiply(constant, norm);
-  muGhostRatesOpenUnpack->Multiply(constant, norm);
-  muGhostRatesOpenReEmu->Multiply(constant, norm);
-  muGhostRatesOpenTrailingUnpack->Multiply(constant, norm);
-  muGhostRatesOpenTrailingReEmu->Multiply(constant, norm);
+  doubleMuRateHist->Multiply(constant, norm);
+  doubleMuRateTrailingHist->Multiply(constant, norm);
+  doubleMuRateOpenHist->Multiply(constant, norm);
+  doubleMuRateOpenTrailingHist->Multiply(constant, norm);
+  doubleMuGhostRateHist->Multiply(constant, norm);
+  doubleMuGhostRateTrailingHist->Multiply(constant, norm);
+  doubleMuGhostRateOpenHist->Multiply(constant, norm);
+  doubleMuGhostRateOpenTrailingHist->Multiply(constant, norm);
+}
 
-  TLatex n3;
-  n3.SetNDC();
-  n3.SetTextFont(52);
-  n3.SetTextSize(0.04);
+void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
+                    TH1D& aggressiveHist, TString filename, TString xAxisLabel,
+                    TString descString, TString plotFolder, TString run) {
+  TLatex n1;
+  n1.SetNDC();
+  n1.SetTextFont(52);
+  n1.SetTextSize(0.04);
 
-  TLatex n4;
-  n4.SetNDC();
-  n4.SetTextFont(52);
-  n4.SetTextSize(0.04);
+  TLatex n2;
+  n2.SetNDC();
+  n2.SetTextFont(52);
+  n2.SetTextSize(0.04);
 
   TCanvas* c1 = new TCanvas;
 
   //  muRatesOpenUnpack->SetLineWidth(2);
-  muRatesOpenUnpack->SetLineColor(kOrange);
-  muRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muRatesOpenUnpack->GetYaxis()->SetTitle("Rate");
-  muRatesOpenUnpack->SetMarkerStyle(23);
-  muRatesOpenUnpack->SetMarkerColor(kOrange);
-  muRatesOpenUnpack->Draw("E1HIST");
-  muRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muRatesOpenUnpack->GetYaxis()->SetTitle("Rate [kHz]");
 
-  if (drawReEmu) {
-    muRatesOpenReEmu->SetTitle("");
-    //  muRatesOpenReEmu->SetLineWidth(2);
-    muRatesOpenReEmu->SetLineColor(kBlue);
-    muRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muRatesOpenReEmu->GetYaxis()->SetTitle("Rate");
-    muRatesOpenReEmu->SetMarkerStyle(20);
-    muRatesOpenReEmu->SetMarkerColor(kBlue);
-    muRatesOpenReEmu->Draw("same,E1HIST");
-    muRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muRatesOpenReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
+  baselineHist->SetLineColor(kOrange);
+  baselineHist->GetXaxis()->SetTitle(xAxisLabel);
+  baselineHist->GetYaxis()->SetTitle("Rate");
+  baselineHist->SetMarkerStyle(23);
+  baselineHist->SetMarkerColor(kOrange);
+  baselineHist->Draw("E1HIST");
+  baselineHist->GetXaxis()->SetTitle(xAxisLabel);
+  baselineHist->GetYaxis()->SetTitle("Rate [kHz]");
 
-  TLegend* leg1 = new TLegend(0.4, 0.73, 0.6, 0.88);
+  conservativeHist->SetLineColor(kBlue + 2);
+  conservativeHist->GetXaxis()->SetTitle(xAxisLabel);
+  conservativeHist->GetYaxis()->SetTitle("Rate");
+  conservativeHist->SetMarkerStyle(20);
+  conservativeHist->SetMarkerColor(kBlue + 2);
+  conservativeHist->Draw("same,E1HIST");
+  conservativeHist->GetXaxis()->SetTitle(xAxisLabel);
+  conservativeHist->GetYaxis()->SetTitle("Rate [kHz]");
+
+  aggressiveHist->SetLineColor(kGreen + 2);
+  aggressiveHist->GetXaxis()->SetTitle(xAxisLabel);
+  aggressiveHist->GetYaxis()->SetTitle("Rate");
+  aggressiveHist->SetMarkerStyle(21);
+  aggressiveHist->SetMarkerColor(kGreen + 2);
+  aggressiveHist->Draw("same,E1HIST");
+  aggressiveHist->GetXaxis()->SetTitle(xAxisLabel);
+  aggressiveHist->GetYaxis()->SetTitle("Rate [kHz]");
+
+  gPad->Modified();
+
+  TLegend* leg1 = new TLegend(0.3, 0.7, 0.7, 0.88);
   leg1->SetFillColor(0);
-  leg1->AddEntry(muRatesOpenUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg1->AddEntry(muRatesOpenReEmu, "ReEmu", "lp");
-  }
+  leg1->AddEntry(baselineHist, "Baseline tuning", "lp");
+  leg1->AddEntry(conservativeHist, "Conservative tuning", "lp");
+  leg1->AddEntry(aggressiveHist, "Aggressive tuning", "lp");
   leg1->SetBorderSize(0);
   leg1->SetFillStyle(0);
   leg1->Draw();
   leg1->Draw();
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.4, 0.55, "Zero Bias, L1_DoubleMu0");
+  n1.DrawLatex(0.4, 0.65, "Run " + run + " #sqrt{s} = 13 TeV");
+  n2.DrawLatex(0.4, 0.6, descString);
 
-  c1->SaveAs(plotFolder + "ratesDiMuonOpenLeading.pdf");
-  c1->SaveAs(plotFolder + "ratesDiMuonOpenLeading.png");
-
-  TCanvas* c2 = new TCanvas;
-  // c2->SetLogy();
-
-  //  muRatesUnpack->SetLineWidth(2);
-  muRatesUnpack->SetLineColor(kOrange);
-  muRatesUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muRatesUnpack->GetYaxis()->SetTitle("Rate");
-  muRatesUnpack->SetMarkerStyle(23);
-  muRatesUnpack->SetMarkerColor(kOrange);
-  // muRatesUnpack->GetYaxis()->SetRangeUser(0, 1000);
-  muRatesUnpack->Draw("E1HIST");
-  muRatesUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muRatesUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    muRatesReEmu->SetTitle("");
-    //  muRatesReEmu->SetLineWidth(2);
-    muRatesReEmu->SetLineColor(kBlue);
-    muRatesReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muRatesReEmu->GetYaxis()->SetTitle("Rate");
-    muRatesReEmu->SetMarkerStyle(20);
-    muRatesReEmu->SetMarkerColor(kBlue);
-    // muRatesReEmu->GetYaxis()->SetRangeUser(0, 1000);
-    muRatesReEmu->Draw("same,E1HIST");
-    muRatesReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muRatesReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-
-  TLegend* leg2 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg2->SetFillColor(0);
-  leg2->AddEntry(muRatesUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg2->AddEntry(muRatesReEmu, "ReEmu", "lp");
-  }
-  leg2->SetBorderSize(0);
-  leg2->SetFillStyle(0);
-  leg2->Draw();
-  leg2->Draw();
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  std::ostringstream oss;
-  oss << "ZeroBias, L1_DoubleMu_" << mu1cut << "_" << mu2cut;
-  n4.DrawLatex(0.4, 0.55, oss.str().c_str());
-
-  c2->SaveAs(plotFolder + "ratesDiMuonLeading.pdf");
-  c2->SaveAs(plotFolder + "ratesDiMuonLeading.pdf");
-
-  TCanvas* c3 = new TCanvas;
-
-  //  singleMuRatesOpenUnpack->SetLineWidth(2);
-  singleMuRatesOpenUnpack->SetLineColor(kOrange);
-  singleMuRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  singleMuRatesOpenUnpack->GetYaxis()->SetTitle("Rate");
-  singleMuRatesOpenUnpack->SetMarkerStyle(23);
-  singleMuRatesOpenUnpack->SetMarkerColor(kOrange);
-  singleMuRatesOpenUnpack->Draw("E1HIST");
-  singleMuRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  singleMuRatesOpenUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    singleMuRatesOpenReEmu->SetTitle("");
-    //  singleMuRatesOpenReEmu->SetLineWidth(2);
-    singleMuRatesOpenReEmu->SetLineColor(kBlue);
-    singleMuRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    singleMuRatesOpenReEmu->GetYaxis()->SetTitle("Rate");
-    singleMuRatesOpenReEmu->SetMarkerStyle(20);
-    singleMuRatesOpenReEmu->SetMarkerColor(kBlue);
-    singleMuRatesOpenReEmu->Draw("same,E1HIST");
-    singleMuRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    singleMuRatesOpenReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-
-  TLegend* leg3 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg3->SetFillColor(0);
-  leg3->AddEntry(singleMuRatesOpenUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg3->AddEntry(singleMuRatesOpenReEmu, "ReEmu", "lp");
-  }
-  leg3->SetBorderSize(0);
-  leg3->SetFillStyle(0);
-  leg3->Draw();
-  leg3->Draw();
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.4, 0.55, "Zero Bias, L1_SingleMuOpen, q>4");
-
-  c3->SaveAs(plotFolder + "ratesSingleMuonOpen.pdf");
-  c3->SaveAs(plotFolder + "ratesSingleMuonOpen.png");
-
-  TCanvas* c4 = new TCanvas;
-
-  //  muRatesOpenTrailingUnpack->SetLineWidth(2);
-  muRatesOpenTrailingUnpack->SetLineColor(kOrange);
-  muRatesOpenTrailingUnpack->GetXaxis()->SetTitle("#eta (trailing #mu)");
-  muRatesOpenTrailingUnpack->GetYaxis()->SetTitle("Rate");
-  muRatesOpenTrailingUnpack->SetMarkerStyle(23);
-  muRatesOpenTrailingUnpack->SetMarkerColor(kOrange);
-  muRatesOpenTrailingUnpack->Draw("E1HIST");
-  muRatesOpenTrailingUnpack->GetXaxis()->SetTitle("#eta (trailing #mu)");
-  muRatesOpenTrailingUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    muRatesOpenTrailingReEmu->SetTitle("");
-    //  muRatesOpenTrailingReEmu->SetLineWidth(2);
-    muRatesOpenTrailingReEmu->SetLineColor(kBlue);
-    muRatesOpenTrailingReEmu->GetXaxis()->SetTitle("#eta (trailing #mu)");
-    muRatesOpenTrailingReEmu->GetYaxis()->SetTitle("Rate");
-    muRatesOpenTrailingReEmu->SetMarkerStyle(20);
-    muRatesOpenTrailingReEmu->SetMarkerColor(kBlue);
-    muRatesOpenTrailingReEmu->Draw("same,E1HIST");
-    muRatesOpenTrailingReEmu->GetXaxis()->SetTitle("#eta (trailing #mu)");
-    muRatesOpenTrailingReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-
-  TLegend* leg4 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg4->SetFillColor(0);
-  leg4->AddEntry(muRatesOpenTrailingUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg4->AddEntry(muRatesOpenTrailingReEmu, "ReEmu", "lp");
-  }
-  leg4->SetBorderSize(0);
-  leg4->SetFillStyle(0);
-  leg4->Draw();
-  leg4->Draw();
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.4, 0.55, "Zero Bias, L1_DoubleMu0");
-
-  c4->SaveAs(plotFolder + "ratesDiMuonOpenTrailing.pdf");
-  c4->SaveAs(plotFolder + "ratesDiMuonOpenTrailing.png");
-
-  TCanvas* c5 = new TCanvas;
-
-  muGhostRatesOpenUnpack->SetLineColor(kOrange);
-  muGhostRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muGhostRatesOpenUnpack->GetYaxis()->SetTitle("Rate");
-  muGhostRatesOpenUnpack->SetMarkerStyle(23);
-  muGhostRatesOpenUnpack->SetMarkerColor(kOrange);
-  muGhostRatesOpenUnpack->Draw("E1HIST");
-  muGhostRatesOpenUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muGhostRatesOpenUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    muGhostRatesOpenReEmu->SetTitle("");
-    muGhostRatesOpenReEmu->SetLineColor(kBlue);
-    muGhostRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muGhostRatesOpenReEmu->GetYaxis()->SetTitle("Rate");
-    muGhostRatesOpenReEmu->SetMarkerStyle(20);
-    muGhostRatesOpenReEmu->SetMarkerColor(kBlue);
-    muGhostRatesOpenReEmu->Draw("same,E1HIST");
-    muGhostRatesOpenReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muGhostRatesOpenReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-
-  TLegend* leg5 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg5->SetFillColor(0);
-  leg5->AddEntry(muGhostRatesOpenUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg5->AddEntry(muGhostRatesOpenReEmu, "ReEmu", "lp");
-  }
-  leg5->SetBorderSize(0);
-  leg5->SetFillStyle(0);
-  leg5->Draw();
-  leg5->Draw();
-  n3.DrawLatex(0.3, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.3, 0.55, "Zero Bias, L1_DoubleMu0, ghost rate");
-
-  c5->SaveAs(plotFolder + "ghostRatesDiMuonOpenLeading.pdf");
-  c5->SaveAs(plotFolder + "ghostRatesDiMuonOpenLeading.png");
-
-  TCanvas* c6 = new TCanvas;
-
-  muGhostRatesUnpack->SetLineColor(kOrange);
-  muGhostRatesUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muGhostRatesUnpack->GetYaxis()->SetTitle("Rate");
-  muGhostRatesUnpack->SetMarkerStyle(23);
-  muGhostRatesUnpack->SetMarkerColor(kOrange);
-  muGhostRatesUnpack->Draw("E1HIST");
-  muGhostRatesUnpack->GetXaxis()->SetTitle("#eta (leading #mu)");
-  muGhostRatesUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    muGhostRatesReEmu->SetTitle("");
-    muGhostRatesReEmu->SetLineColor(kBlue);
-    muGhostRatesReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muGhostRatesReEmu->GetYaxis()->SetTitle("Rate");
-    muGhostRatesReEmu->SetMarkerStyle(20);
-    muGhostRatesReEmu->SetMarkerColor(kBlue);
-    muGhostRatesReEmu->Draw("same,E1HIST");
-    muGhostRatesReEmu->GetXaxis()->SetTitle("#eta (leading #mu)");
-    muGhostRatesReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-
-  TLegend* leg6 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg6->SetFillColor(0);
-  leg6->AddEntry(muGhostRatesUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg6->AddEntry(muGhostRatesReEmu, "ReEmu", "lp");
-  }
-  leg6->SetBorderSize(0);
-  leg6->SetFillStyle(0);
-  leg6->Draw();
-  leg6->Draw();
-  n3.DrawLatex(0.4, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  oss << ", ghost rate";
-  n4.DrawLatex(0.4, 0.55, oss.str().c_str());
-
-  c6->SaveAs(plotFolder + "ghostRatesDiMuonLeading.pdf");
-  c6->SaveAs(plotFolder + "ghostRatesDiMuonLeading.pdf");
-
-  TCanvas* c7 = new TCanvas;
-
-  muGhostRatesOpenTrailingUnpack->SetLineColor(kOrange);
-  muGhostRatesOpenTrailingUnpack->GetXaxis()->SetTitle("#eta (trailing #mu)");
-  muGhostRatesOpenTrailingUnpack->GetYaxis()->SetTitle("Rate");
-  muGhostRatesOpenTrailingUnpack->SetMarkerStyle(23);
-  muGhostRatesOpenTrailingUnpack->SetMarkerColor(kOrange);
-  muGhostRatesOpenTrailingUnpack->Draw("E1HIST");
-  muGhostRatesOpenTrailingUnpack->GetXaxis()->SetTitle("#eta (trailing #mu)");
-  muGhostRatesOpenTrailingUnpack->GetYaxis()->SetTitle("Rate [kHz]");
-
-  if (drawReEmu) {
-    muGhostRatesOpenTrailingReEmu->SetTitle("");
-    muGhostRatesOpenTrailingReEmu->SetLineColor(kBlue);
-    muGhostRatesOpenTrailingReEmu->GetXaxis()->SetTitle("#eta (trailing #mu)");
-    muGhostRatesOpenTrailingReEmu->GetYaxis()->SetTitle("Rate");
-    muGhostRatesOpenTrailingReEmu->SetMarkerStyle(20);
-    muGhostRatesOpenTrailingReEmu->SetMarkerColor(kBlue);
-    muGhostRatesOpenTrailingReEmu->Draw("same,E1HIST");
-    muGhostRatesOpenTrailingReEmu->GetXaxis()->SetTitle("#eta (trailing #mu)");
-    muGhostRatesOpenTrailingReEmu->GetYaxis()->SetTitle("Rate [kHz]");
-    gPad->Modified();
-  }
-  TLegend* leg7 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg7->SetFillColor(0);
-  leg7->AddEntry(muGhostRatesOpenTrailingUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg7->AddEntry(muGhostRatesOpenTrailingReEmu, "ReEmu", "lp");
-  }
-
-  leg7->SetBorderSize(0);
-  leg7->SetFillStyle(0);
-  leg7->Draw();
-  leg7->Draw();
-  n3.DrawLatex(0.3, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.3, 0.55, "Zero Bias, L1_DoubleMu0, ghost rate");
-
-  c7->SaveAs(plotFolder + "ghostRatesDiMuonOpenTrailing.pdf");
-  c7->SaveAs(plotFolder + "ghostRatesDiMuonOpenTrailing.png");
-
-  TCanvas* c8 = new TCanvas;
-
-  tfMuIdxUnpack->SetLineColor(kOrange);
-  tfMuIdxUnpack->SetMarkerStyle(23);
-  tfMuIdxUnpack->SetMarkerColor(kOrange);
-  tfMuIdxUnpack->Draw("E1HIST");
-  tfMuIdxUnpack->GetXaxis()->SetTitle("TF idx (leading #mu)");
-  tfMuIdxUnpack->GetYaxis()->SetTitle("Counts");
-
-  if (drawReEmu) {
-    tfMuIdxReEmu->SetTitle("");
-    tfMuIdxReEmu->SetLineColor(kBlue);
-    tfMuIdxReEmu->SetMarkerStyle(20);
-    tfMuIdxReEmu->SetMarkerColor(kBlue);
-    tfMuIdxReEmu->Draw("same,E1HIST");
-    tfMuIdxReEmu->GetXaxis()->SetTitle("TF idx (leading #mu)");
-    tfMuIdxReEmu->GetYaxis()->SetTitle("Counts");
-    gPad->Modified();
-  }
-
-  TLegend* leg8 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg8->SetFillColor(0);
-  leg8->AddEntry(tfMuIdxUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg8->AddEntry(tfMuIdxReEmu, "ReEmu", "lp");
-  }
-  leg8->SetBorderSize(0);
-  leg8->SetFillStyle(0);
-  leg8->Draw();
-  leg8->Draw();
-  n3.DrawLatex(0.3, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.3, 0.55, "Zero Bias, L1_DoubleMu0");
-
-  c8->SaveAs(plotFolder + "tfMuIdxLeading.pdf");
-  c8->SaveAs(plotFolder + "tfMuIdxLeading.png");
-
-  TCanvas* c9 = new TCanvas;
-
-  tfMuIdxAllUnpack->SetLineColor(kOrange);
-  tfMuIdxAllUnpack->SetMarkerStyle(23);
-  tfMuIdxAllUnpack->SetMarkerColor(kOrange);
-  tfMuIdxAllUnpack->Draw("E1HIST");
-  tfMuIdxAllUnpack->GetXaxis()->SetTitle("TF idx (leading #mu)");
-  tfMuIdxAllUnpack->GetYaxis()->SetTitle("Counts");
-
-  if (drawReEmu) {
-    tfMuIdxAllReEmu->SetTitle("");
-    tfMuIdxAllReEmu->SetLineColor(kBlue);
-    tfMuIdxAllReEmu->SetMarkerStyle(20);
-    tfMuIdxAllReEmu->SetMarkerColor(kBlue);
-    tfMuIdxAllReEmu->Draw("same,E1HIST");
-    tfMuIdxAllReEmu->GetXaxis()->SetTitle("TF idx (leading #mu)");
-    tfMuIdxAllReEmu->GetYaxis()->SetTitle("Counts");
-    gPad->Modified();
-  }
-  TLegend* leg9 = new TLegend(0.4, 0.73, 0.6, 0.88);
-  leg9->SetFillColor(0);
-  leg9->AddEntry(tfMuIdxAllUnpack, "Unpack", "lp");
-  if (drawReEmu) {
-    leg9->AddEntry(tfMuIdxAllReEmu, "ReEmu", "lp");
-  }
-  leg9->SetBorderSize(0);
-  leg9->SetFillStyle(0);
-  leg9->Draw();
-  leg9->Draw();
-  n3.DrawLatex(0.3, 0.6, "Run " + run + " #sqrt{s} = 13 TeV");
-  n4.DrawLatex(0.3, 0.55, "Zero Bias");
-
-  c9->SaveAs(plotFolder + "tfMuIdxAllLeading.pdf");
-  c9->SaveAs(plotFolder + "tfMuIdxAllLeading.png");
+  c1->SaveAs(plotFolder + filename + ".pdf");
+  c1->SaveAs(plotFolder + filename + ".png");
 }
