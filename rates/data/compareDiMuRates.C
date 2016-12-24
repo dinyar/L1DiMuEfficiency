@@ -41,11 +41,11 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
                     TH1D& aggressiveHist, TString filename, TString xAxisLabel,
                     TString descString, TString plotFolder, TString run);
 
-void diMuRates(const char* file_list_baseline,
-               const char* file_list_conservative,
-               const char* file_list_aggressive, TString folder = "tmp",
-               TString run = "XXX", int mu1cut = 11, int mu2cut = 4,
-               int nCollBunches = 2028) {
+void compareDiMuRates(const char* file_list_baseline,
+                      const char* file_list_conservative,
+                      const char* file_list_aggressive, TString folder = "tmp",
+                      TString run = "XXX", int mu1cut = 11, int mu2cut = 4,
+                      int nCollBunches = 2028) {
   TString plotFolder = "plots/" + run + "/" + folder + "/";
   mkdir("plots/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir("plots/run/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
