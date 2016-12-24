@@ -411,12 +411,12 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
   TLatex n1;
   n1.SetNDC();
   n1.SetTextFont(52);
-  n1.SetTextSize(0.04);
+  n1.SetTextSize(0.035);
 
   TLatex n2;
   n2.SetNDC();
   n2.SetTextFont(52);
-  n2.SetTextSize(0.04);
+  n2.SetTextSize(0.035);
 
   TCanvas c1;
 
@@ -451,7 +451,7 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
 
   gPad->Modified();
 
-  TLegend leg1(0.3, 0.74, 0.7, 0.92);
+  TLegend leg1(0.3, 0.72, 0.7, 0.92);
   leg1.SetFillColor(0);
   leg1.AddEntry(&baselineHist, "Baseline tuning", "lp");
   leg1.AddEntry(&conservativeHist, "Conservative tuning", "lp");
@@ -459,8 +459,8 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
   leg1.SetBorderSize(0);
   leg1.SetFillStyle(0);
   leg1.Draw();
-  n1.DrawLatex(0.3, 0.65, "Run " + run + " #sqrt{s} = 13 TeV");
-  n2.DrawLatex(0.3, 0.6, descString);
+  n1.DrawLatex(0.3, 0.68, "Run " + run + " #sqrt{s} = 13 TeV");
+  n2.DrawLatex(0.3, 0.63, descString);
 
   c1.SaveAs(plotFolder + filename + ".pdf");
   c1.SaveAs(plotFolder + filename + ".png");
