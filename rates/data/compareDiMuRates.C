@@ -34,9 +34,9 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
                   TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
                   TH1D& doubleMuRateOpenHist,
                   TH1D& doubleMuRateOpenTrailingHist);
-drawHistograms(TH1D& baselineHist, TH1D& conservativeHist, TH1D& aggressiveHist,
-               TString filename, TString xAxisLabel, TString descString,
-               TString plotFolder, TString run);
+void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
+                    TH1D& aggressiveHist, TString filename, TString xAxisLabel,
+                    TString descString, TString plotFolder, TString run);
 
 void diMuRates(const char* file_list_baseline,
                const char* file_list_conservative,
@@ -100,16 +100,15 @@ void diMuRates(const char* file_list_baseline,
   // make histos
   TH1D doubleMuGhostRatesBaseline("doubleMuGhostRatesBaseline", "", nMuBins,
                                   muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuGhostRatesTrailingBaseline =
-      ("doubleMuGhostRatesTrailingBaseline", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingBaseline("doubleMuGhostRatesTrailingBaseline",
+                                          "", nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesOpenBaseline("doubleMuGhostRatesOpenBaseline", "",
                                       nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuGhostRatesOpenTrailingBaseline =
-      ("doubleMuGhostRatesOpenTrailingBaseline", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
-  TH1D doubleMuRatesBaseline =
-      ("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingBaseline(
+      "doubleMuGhostRatesOpenTrailingBaseline", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
+  TH1D doubleMuRatesBaseline("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1,
+                             muHi + 0.1);
   TH1D doubleMuRatesTrailingBaseline("doubleMuRatesTrailingBaseline", "",
                                      nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesOpenBaseline("doubleMuRatesOpenBaseline", "", nMuBins,
@@ -119,15 +118,14 @@ void diMuRates(const char* file_list_baseline,
 
   TH1D doubleMuGhostRatesConservative("doubleMuGhostRatesConservative", "",
                                       nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuGhostRatesTrailingConservative =
-      ("doubleMuGhostRatesTrailingConservative", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
-  TH1D doubleMuGhostRatesOpenConservative =
-      ("doubleMuGhostRatesOpenConservative", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
-  TH1D doubleMuGhostRatesOpenTrailingConservative =
-      ("doubleMuGhostRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingConservative(
+      "doubleMuGhostRatesTrailingConservative", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenConservative("doubleMuGhostRatesOpenConservative",
+                                          "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingConservative(
+      "doubleMuGhostRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
   TH1D doubleMuRatesConservative("doubleMuRatesConservative", "", nMuBins,
                                  muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesTrailingConservative("doubleMuRatesTrailingConservative",
@@ -140,23 +138,23 @@ void diMuRates(const char* file_list_baseline,
 
   TH1D doubleMuGhostRatesAggressive("doubleMuGhostRatesAggressive", "", nMuBins,
                                     muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuGhostRatesTrailingAggressive =
-      ("doubleMuGhostRatesTrailingAggressive", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
+  TH1D doubleMuGhostRatesTrailingAggressive(
+      "doubleMuGhostRatesTrailingAggressive", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
   TH1D doubleMuGhostRatesOpenAggressive("doubleMuGhostRatesOpenAggressive", "",
                                         nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuGhostRatesOpenTrailingAggressive =
-      ("doubleMuGhostRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
-  TH1D doubleMuRatesAggressive =
-      ("doubleMuRatesAggressive", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TH1D doubleMuGhostRatesOpenTrailingAggressive(
+      "doubleMuGhostRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
+  TH1D doubleMuRatesAggressive("doubleMuRatesAggressive", "", nMuBins,
+                               muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesTrailingAggressive("doubleMuRatesTrailingAggressive", "",
                                        nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesOpenAggressive("doubleMuRatesOpenAggressive", "", nMuBins,
                                    muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuRatesOpenTrailingAggressive =
-      ("doubleMuRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
+  TH1D doubleMuRatesOpenTrailingAggressive(
+      "doubleMuRatesOpenTrailingAggressive", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
 
   getMuonRates(
       nCollBunches, baselineEntries, chainL1Baseline, chainRecoBaseline, mu1cut,
@@ -285,7 +283,7 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
 }
 
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
-                  TChain* recoChain, const int pT1cut, const int pT2cut,
+                  TChain* recoChain, const int mu1cut, const int mu2cut,
                   TH1D& doubleMuGhostRateHist,
                   TH1D& doubleMuGhostRateTrailingHist,
                   TH1D& doubleMuGhostRateOpenHist,
@@ -334,11 +332,11 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
     // Filling di muon rates
     if (mu1 != -1 && mu2 != -1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuRateHist->Fill(l1_->muonEta[mu1]);
-        doubleMuRateTrailingHist->Fill(l1_->muonEta[mu2]);
+        doubleMuRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuRateTrailingHist.Fill(l1_->muonEta[mu2]);
       }
-      doubleMuRateOpenHist->Fill(l1_->muonEta[mu1]);
-      doubleMuRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
+      doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
+      doubleMuRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
     }
 
     // Computing ghost rates
@@ -351,11 +349,11 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
 
     if (mu1 != -1 && mu2 != -1 && nRecoMus == 1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuGhostRateHist->Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateTrailingHist->Fill(l1_->muonEta[mu2]);
+        doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateTrailingHist.Fill(l1_->muonEta[mu2]);
       }
-      doubleMuGhostRateOpenHist->Fill(l1_->muonEta[mu1]);
-      doubleMuGhostRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
+      doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
+      doubleMuGhostRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
     }
   }
 
