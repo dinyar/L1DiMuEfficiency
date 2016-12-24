@@ -49,6 +49,14 @@ void diMuRates(const char* file_list_baseline,
   mkdir(plotFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
   gStyle->SetOptStat(0);
+  setTDRStyle();
+  writeExtraText = true;  // Add "Preliminary"
+  // lumi_13TeV  = "4.9 fb^{-1}";
+  lumi_sqrtS = "13 TeV";  // used with iPeriod = 0, e.g. for simulation-only
+                          // plots (default is an empty string)
+
+  int iPeriod = 0;  // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses
+                    // lumi_sqrtS)
 
   std::vector<std::string> listNtuplesBaseline;
   std::vector<std::string> listNtuplesConservative;
@@ -365,13 +373,13 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
   std::cout << "###########################################" << std::endl;
   std::cout << "** Computed rates: **" << std::endl;
   std::cout << "Rate with given pT cuts: "
-            << doubleMuRateHist->GetEntries() * norm << std::endl;
-  std::cout << "DoubleMuOpen rate: "
-            << doubleMuRateOpenHist->GetEntries() * norm << std::endl;
+            << doubleMuRateHist.GetEntries() * norm << std::endl;
+  std::cout << "DoubleMuOpen rate: " << doubleMuRateOpenHist.GetEntries() * norm
+            << std::endl;
   std::cout << "Ghost rate with given pT cuts: "
-            << doubleMuGhostRateHist->GetEntries() * norm << std::endl;
+            << doubleMuGhostRateHist.GetEntries() * norm << std::endl;
   std::cout << "DoubleMuOpen ghost rate: "
-            << doubleMuGhostRateOpenHist->GetEntries() * norm << std::endl;
+            << doubleMuGhostRateOpenHist.GetEntries() * norm << std::endl;
   std::cout << "###########################################" << std::endl;
 
   doubleMuRateHist.Sumw2();
@@ -406,51 +414,50 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
   n2.SetTextFont(52);
   n2.SetTextSize(0.04);
 
-  TCanvas* c1 = new TCanvas;
+  TCanvas c1();
 
   //  muRatesOpenUnpack->SetLineWidth(2);
 
-  baselineHist->SetLineColor(kOrange);
-  baselineHist->GetXaxis()->SetTitle(xAxisLabel);
-  baselineHist->GetYaxis()->SetTitle("Rate");
-  baselineHist->SetMarkerStyle(23);
-  baselineHist->SetMarkerColor(kOrange);
-  baselineHist->Draw("E1HIST");
-  baselineHist->GetXaxis()->SetTitle(xAxisLabel);
-  baselineHist->GetYaxis()->SetTitle("Rate [kHz]");
+  baselineHist.SetLineColor(kOrange);
+  baselineHist.GetXaxis()->SetTitle(xAxisLabel);
+  baselineHist.GetYaxis()->SetTitle("Rate");
+  baselineHist.SetMarkerStyle(23);
+  baselineHist.SetMarkerColor(kOrange);
+  baselineHist.Draw("E1HIST");
+  baselineHist.GetXaxis()->SetTitle(xAxisLabel);
+  baselineHist.GetYaxis()->SetTitle("Rate [kHz]");
 
-  conservativeHist->SetLineColor(kBlue + 2);
-  conservativeHist->GetXaxis()->SetTitle(xAxisLabel);
-  conservativeHist->GetYaxis()->SetTitle("Rate");
-  conservativeHist->SetMarkerStyle(20);
-  conservativeHist->SetMarkerColor(kBlue + 2);
-  conservativeHist->Draw("same,E1HIST");
-  conservativeHist->GetXaxis()->SetTitle(xAxisLabel);
-  conservativeHist->GetYaxis()->SetTitle("Rate [kHz]");
+  conservativeHist.SetLineColor(kBlue + 2);
+  conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
+  conservativeHist.GetYaxis()->SetTitle("Rate");
+  conservativeHist.SetMarkerStyle(20);
+  conservativeHist.SetMarkerColor(kBlue + 2);
+  conservativeHist.Draw("same,E1HIST");
+  conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
+  conservativeHist.GetYaxis()->SetTitle("Rate [kHz]");
 
-  aggressiveHist->SetLineColor(kGreen + 2);
-  aggressiveHist->GetXaxis()->SetTitle(xAxisLabel);
-  aggressiveHist->GetYaxis()->SetTitle("Rate");
-  aggressiveHist->SetMarkerStyle(21);
-  aggressiveHist->SetMarkerColor(kGreen + 2);
-  aggressiveHist->Draw("same,E1HIST");
-  aggressiveHist->GetXaxis()->SetTitle(xAxisLabel);
-  aggressiveHist->GetYaxis()->SetTitle("Rate [kHz]");
+  aggressiveHist.SetLineColor(kGreen + 2);
+  aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
+  aggressiveHist.GetYaxis()->SetTitle("Rate");
+  aggressiveHist.SetMarkerStyle(21);
+  aggressiveHist.SetMarkerColor(kGreen + 2);
+  aggressiveHist.Draw("same,E1HIST");
+  aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
+  aggressiveHist.GetYaxis()->SetTitle("Rate [kHz]");
 
   gPad->Modified();
 
-  TLegend* leg1 = new TLegend(0.3, 0.7, 0.7, 0.88);
-  leg1->SetFillColor(0);
-  leg1->AddEntry(baselineHist, "Baseline tuning", "lp");
-  leg1->AddEntry(conservativeHist, "Conservative tuning", "lp");
-  leg1->AddEntry(aggressiveHist, "Aggressive tuning", "lp");
-  leg1->SetBorderSize(0);
-  leg1->SetFillStyle(0);
-  leg1->Draw();
-  leg1->Draw();
+  TLegend leg1(0.3, 0.7, 0.7, 0.88);
+  leg1.SetFillColor(0);
+  leg1.AddEntry(baselineHist, "Baseline tuning", "lp");
+  leg1.AddEntry(conservativeHist, "Conservative tuning", "lp");
+  leg1.AddEntry(aggressiveHist, "Aggressive tuning", "lp");
+  leg1.SetBorderSize(0);
+  leg1.SetFillStyle(0);
+  leg1.Draw();
   n1.DrawLatex(0.4, 0.65, "Run " + run + " #sqrt{s} = 13 TeV");
   n2.DrawLatex(0.4, 0.6, descString);
 
-  c1->SaveAs(plotFolder + filename + ".pdf");
-  c1->SaveAs(plotFolder + filename + ".png");
+  c1.SaveAs(plotFolder + filename + ".pdf");
+  c1.SaveAs(plotFolder + filename + ".png");
 }
