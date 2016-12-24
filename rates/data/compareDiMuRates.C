@@ -452,9 +452,9 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
 
   TLegend leg1(0.3, 0.7, 0.7, 0.88);
   leg1.SetFillColor(0);
-  leg1.AddEntry(&(*baselineHist), "Baseline tuning", "lp");
-  leg1.AddEntry(&(*conservativeHist), "Conservative tuning", "lp");
-  leg1.AddEntry(&(*aggressiveHist), "Aggressive tuning", "lp");
+  leg1.AddEntry(&baselineHist, "Baseline tuning", "lp");
+  leg1.AddEntry(&conservativeHist, "Conservative tuning", "lp");
+  leg1.AddEntry(&aggressiveHist, "Aggressive tuning", "lp");
   leg1.SetBorderSize(0);
   leg1.SetFillStyle(0);
   leg1.Draw();
