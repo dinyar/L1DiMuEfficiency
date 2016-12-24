@@ -11,6 +11,9 @@
 #include "TStyle.h"
 #include "TTree.h"
 
+#include "CMS_lumi.C"
+#include "tdrstyle.C"
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fstream>
@@ -414,7 +417,7 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
   n2.SetTextFont(52);
   n2.SetTextSize(0.04);
 
-  TCanvas c1();
+  TCanvas c1;
 
   //  muRatesOpenUnpack->SetLineWidth(2);
 
@@ -449,9 +452,9 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
 
   TLegend leg1(0.3, 0.7, 0.7, 0.88);
   leg1.SetFillColor(0);
-  leg1.AddEntry(baselineHist, "Baseline tuning", "lp");
-  leg1.AddEntry(conservativeHist, "Conservative tuning", "lp");
-  leg1.AddEntry(aggressiveHist, "Aggressive tuning", "lp");
+  leg1.AddEntry(&(*baselineHist), "Baseline tuning", "lp");
+  leg1.AddEntry(&(*conservativeHist), "Conservative tuning", "lp");
+  leg1.AddEntry(&(*aggressiveHist), "Aggressive tuning", "lp");
   leg1.SetBorderSize(0);
   leg1.SetFillStyle(0);
   leg1.Draw();
