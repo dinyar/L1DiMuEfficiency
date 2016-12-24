@@ -193,7 +193,7 @@ void compareDiMuRates(const char* file_list_baseline,
       doubleMuRatesOpenTrailingAggressive);
 
   std::ostringstream oss;
-  oss << "ZeroBias, L1_DoubleMu_" << mu1cut << "_" << mu2cut << ", q>4";
+  oss << "ZeroBias, L1_DoubleMu_" << mu1cut << "_" << mu2cut;
   drawHistograms(doubleMuRatesBaseline, doubleMuRatesConservative,
                  doubleMuRatesAggressive, "doubleMuRatesDoubleMuonLeading",
                  "#eta (leading #mu)", oss.str().c_str(), plotFolder, run);
@@ -204,12 +204,12 @@ void compareDiMuRates(const char* file_list_baseline,
   drawHistograms(doubleMuRatesOpenBaseline, doubleMuRatesOpenConservative,
                  doubleMuRatesOpenAggressive,
                  "doubleMuOpenRatesDoubleMuonLeading", "#eta (leading #mu)",
-                 "Zero Bias, L1_SingleMuOpen, q>4", plotFolder, run);
+                 "Zero Bias, L1_SingleMuOpen", plotFolder, run);
   drawHistograms(doubleMuRatesOpenTrailingBaseline,
                  doubleMuRatesOpenTrailingConservative,
                  doubleMuRatesOpenTrailingAggressive,
                  "doubleMuOpenRatesDoubleMuonTrailing", "#eta (trailing #mu)",
-                 "Zero Bias, L1_SingleMuOpen, q>4", plotFolder, run);
+                 "Zero Bias, L1_SingleMuOpen", plotFolder, run);
 
   oss << ", ghost rate";
   drawHistograms(doubleMuGhostRatesBaseline, doubleMuGhostRatesConservative,
