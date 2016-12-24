@@ -132,9 +132,9 @@ void diMuRates(const char* file_list_baseline,
                                          "", nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesOpenConservative("doubleMuRatesOpenConservative", "",
                                      nMuBins, muLo - 0.1, muHi + 0.1);
-  TH1D doubleMuRatesOpenTrailingConservative =
-      ("doubleMuRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
-       muHi + 0.1);
+  TH1D doubleMuRatesOpenTrailingConservative(
+      "doubleMuRatesOpenTrailingConservative", "", nMuBins, muLo - 0.1,
+      muHi + 0.1);
 
   TH1D doubleMuGhostRatesAggressive("doubleMuGhostRatesAggressive", "", nMuBins,
                                     muLo - 0.1, muHi + 0.1);
@@ -359,7 +359,7 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
 
   // normalisation factor
   double norm =
-      (11. * nCollBunches.) / nevents;  // zb rate = n_colliding * 11 kHz
+      (11. * nCollBunches) / nevents;  // zb rate = n_colliding * 11 kHz
   std::cout << "norm = " << norm << std::endl;
 
   std::cout << "###########################################" << std::endl;
@@ -374,23 +374,23 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
             << doubleMuGhostRateOpenHist->GetEntries() * norm << std::endl;
   std::cout << "###########################################" << std::endl;
 
-  doubleMuRateHist->Sumw2();
-  doubleMuRateTrailingHist->Sumw2();
-  doubleMuRateOpenHist->Sumw2();
-  doubleMuRateOpenTrailingHist->Sumw2();
-  doubleMuGhostRateHist->Sumw2();
-  doubleMuGhostRateTrailingHist->Sumw2();
-  doubleMuGhostRateOpenHist->Sumw2();
-  doubleMuGhostRateOpenTrailingHist->Sumw2();
+  doubleMuRateHist.Sumw2();
+  doubleMuRateTrailingHist.Sumw2();
+  doubleMuRateOpenHist.Sumw2();
+  doubleMuRateOpenTrailingHist.Sumw2();
+  doubleMuGhostRateHist.Sumw2();
+  doubleMuGhostRateTrailingHist.Sumw2();
+  doubleMuGhostRateOpenHist.Sumw2();
+  doubleMuGhostRateOpenTrailingHist.Sumw2();
   TF1* constant = new TF1("constant", "1", -5, 5);
-  doubleMuRateHist->Multiply(constant, norm);
-  doubleMuRateTrailingHist->Multiply(constant, norm);
-  doubleMuRateOpenHist->Multiply(constant, norm);
-  doubleMuRateOpenTrailingHist->Multiply(constant, norm);
-  doubleMuGhostRateHist->Multiply(constant, norm);
-  doubleMuGhostRateTrailingHist->Multiply(constant, norm);
-  doubleMuGhostRateOpenHist->Multiply(constant, norm);
-  doubleMuGhostRateOpenTrailingHist->Multiply(constant, norm);
+  doubleMuRateHist.Multiply(constant, norm);
+  doubleMuRateTrailingHist.Multiply(constant, norm);
+  doubleMuRateOpenHist.Multiply(constant, norm);
+  doubleMuRateOpenTrailingHist.Multiply(constant, norm);
+  doubleMuGhostRateHist.Multiply(constant, norm);
+  doubleMuGhostRateTrailingHist.Multiply(constant, norm);
+  doubleMuGhostRateOpenHist.Multiply(constant, norm);
+  doubleMuGhostRateOpenTrailingHist.Multiply(constant, norm);
 }
 
 void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
