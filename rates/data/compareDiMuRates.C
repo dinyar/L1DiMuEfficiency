@@ -30,13 +30,22 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
                 TChain* truthChain);
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
                   TChain* recoChain, const int pT1cut, const int pT2cut,
-                  TH1D& doubleMuGhostRateHist,
-                  TH1D& doubleMuGhostRateTrailingHist,
-                  TH1D& doubleMuGhostRateOpenHist,
-                  TH1D& doubleMuGhostRateOpenTrailingHist,
-                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
-                  TH1D& doubleMuRateOpenHist,
-                  TH1D& doubleMuRateOpenTrailingHist);
+                  TH1D* doubleMuGhostRateHist,
+                  TH1D* doubleMuGhostRateTrailingHist,
+                  TH1D* doubleMuGhostRateOpenHist,
+                  TH1D* doubleMuGhostRateOpenTrailingHist,
+                  TH1D* doubleMuRateHist, TH1D* doubleMuRateTrailingHist,
+                  TH1D* doubleMuRateOpenHist,
+                  TH1D* doubleMuRateOpenTrailingHist,
+                  bool retrieve_hists, TString folder, TString identifier);
+void calcRates(int nCollBunches, int nevents,
+               TH1D& doubleMuGhostRateHist,
+               TH1D& doubleMuGhostRateTrailingHist,
+               TH1D& doubleMuGhostRateOpenHist,
+               TH1D& doubleMuGhostRateOpenTrailingHist,
+               TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+               TH1D& doubleMuRateOpenHist,
+               TH1D& doubleMuRateOpenTrailingHist);
 void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
                     TH1D& aggressiveHist, TString filename, TString xAxisLabel,
                     TString descString, TString plotFolder, TString run);
@@ -45,11 +54,19 @@ void compareDiMuRates(const char* file_list_baseline,
                       const char* file_list_conservative,
                       const char* file_list_aggressive, TString folder = "tmp",
                       TString run = "XXX", int mu1cut = 11, int mu2cut = 4,
-                      int nCollBunches = 2028) {
+                      int nCollBunches = 2028, bool retrieve_hists = false,
+                      int baselineEntries = 0, int conservativeEntries = 0,
+                      int aggressiveEntries = 0) {
   TString plotFolder = "plots/" + run + "/" + folder + "/";
   mkdir("plots/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  mkdir("plots/run/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir("plots/" + run, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   mkdir(plotFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  TString histFolder = "hists/" + run + "/" + folder + "/";
+  mkdir("hists/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir("hists/" + run, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  mkdir(histFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  TH1::AddDirectory(kFALSE);
 
   gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
@@ -62,24 +79,8 @@ void compareDiMuRates(const char* file_list_baseline,
   int iPeriod = 0;  // 1=7TeV, 2=8TeV, 3=7+8TeV, 7=7+8+13TeV, 0=free form (uses
                     // lumi_sqrtS)
 
-  std::vector<std::string> listNtuplesBaseline;
-  std::vector<std::string> listNtuplesConservative;
-  std::vector<std::string> listNtuplesAggressive;
-
   std::string l1Treepath("l1UpgradeEmuTree/L1UpgradeTree");
   std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
-
-  bool success = readFList(file_list_baseline, listNtuplesBaseline, l1Treepath,
-                           recoTreepath);
-  success &= readFList(file_list_conservative, listNtuplesConservative,
-                       l1Treepath, recoTreepath);
-  success &= readFList(file_list_aggressive, listNtuplesAggressive, l1Treepath,
-                       recoTreepath);
-
-  if (!success) {
-    std::cout << "Couldn't read NTuple file list. Exiting.. " << std::endl;
-    return;
-  }
 
   TChain* chainL1Baseline = new TChain(l1Treepath.c_str());
   TChain* chainRecoBaseline = new TChain(recoTreepath.c_str());
@@ -88,16 +89,32 @@ void compareDiMuRates(const char* file_list_baseline,
   TChain* chainL1Aggressive = new TChain(l1Treepath.c_str());
   TChain* chainRecoAggressive = new TChain(recoTreepath.c_str());
 
-  int baselineEntries{0};
-  int conservativeEntries{0};
-  int aggressiveEntries{0};
+  if(!retrieve_hists) {
+    std::vector<std::string> listNtuplesBaseline;
+    std::vector<std::string> listNtuplesConservative;
+    std::vector<std::string> listNtuplesAggressive;
 
-  baselineEntries =
-      setupTChain(listNtuplesBaseline, chainL1Baseline, chainRecoBaseline);
-  conservativeEntries = setupTChain(listNtuplesConservative,
-                                    chainL1Conservative, chainRecoConservative);
-  aggressiveEntries = setupTChain(listNtuplesAggressive, chainL1Aggressive,
-                                  chainRecoAggressive);
+    bool success = readFList(file_list_baseline, listNtuplesBaseline, l1Treepath,
+                             recoTreepath);
+    success &= readFList(file_list_conservative, listNtuplesConservative,
+                         l1Treepath, recoTreepath);
+    success &= readFList(file_list_aggressive, listNtuplesAggressive, l1Treepath,
+                         recoTreepath);
+
+    if (!success) {
+      std::cout << "Couldn't read NTuple file list. Exiting.. " << std::endl;
+      return;
+    }
+
+
+    baselineEntries =
+        setupTChain(listNtuplesBaseline, chainL1Baseline, chainRecoBaseline);
+    conservativeEntries = setupTChain(listNtuplesConservative,
+                                      chainL1Conservative, chainRecoConservative);
+    aggressiveEntries = setupTChain(listNtuplesAggressive, chainL1Aggressive,
+                                    chainRecoAggressive);
+  }
+
 
   // mu bins
   int nMuBins = 25;
@@ -170,23 +187,50 @@ void compareDiMuRates(const char* file_list_baseline,
 
   getMuonRates(
       nCollBunches, baselineEntries, chainL1Baseline, chainRecoBaseline, mu1cut,
-      mu2cut, doubleMuGhostRatesBaseline, doubleMuGhostRatesTrailingBaseline,
+      mu2cut, &doubleMuGhostRatesBaseline, &doubleMuGhostRatesTrailingBaseline,
+      &doubleMuGhostRatesOpenBaseline, &doubleMuGhostRatesOpenTrailingBaseline,
+      &doubleMuRatesBaseline, &doubleMuRatesTrailingBaseline,
+      &doubleMuRatesOpenBaseline, &doubleMuRatesOpenTrailingBaseline, 
+      retrieve_hists, histFolder, "Baseline");
+
+  getMuonRates(
+      nCollBunches, conservativeEntries, chainL1Conservative, chainRecoConservative,
+      mu1cut, mu2cut, &doubleMuGhostRatesConservative,
+      &doubleMuGhostRatesTrailingConservative,
+      &doubleMuGhostRatesOpenConservative,
+      &doubleMuGhostRatesOpenTrailingConservative, &doubleMuRatesConservative,
+      &doubleMuRatesTrailingConservative, &doubleMuRatesOpenConservative,
+      &doubleMuRatesOpenTrailingConservative, 
+      retrieve_hists, histFolder, "Conservative");
+
+  getMuonRates(
+      nCollBunches, aggressiveEntries, chainL1Aggressive, chainRecoAggressive,
+      mu1cut, mu2cut, &doubleMuGhostRatesAggressive,
+      &doubleMuGhostRatesTrailingAggressive, &doubleMuGhostRatesOpenAggressive,
+      &doubleMuGhostRatesOpenTrailingAggressive, &doubleMuRatesAggressive,
+      &doubleMuRatesTrailingAggressive, &doubleMuRatesOpenAggressive,
+      &doubleMuRatesOpenTrailingAggressive, 
+      retrieve_hists, histFolder, "Aggressive");
+
+  calcRates(
+      nCollBunches, baselineEntries,
+      doubleMuGhostRatesBaseline, doubleMuGhostRatesTrailingBaseline,
       doubleMuGhostRatesOpenBaseline, doubleMuGhostRatesOpenTrailingBaseline,
       doubleMuRatesBaseline, doubleMuRatesTrailingBaseline,
       doubleMuRatesOpenBaseline, doubleMuRatesOpenTrailingBaseline);
 
-  getMuonRates(
-      nCollBunches, conservativeEntries, chainL1Conservative,
-      chainRecoConservative, mu1cut, mu2cut, doubleMuGhostRatesConservative,
+  calcRates(
+      nCollBunches, conservativeEntries,
+      doubleMuGhostRatesConservative,
       doubleMuGhostRatesTrailingConservative,
       doubleMuGhostRatesOpenConservative,
       doubleMuGhostRatesOpenTrailingConservative, doubleMuRatesConservative,
       doubleMuRatesTrailingConservative, doubleMuRatesOpenConservative,
       doubleMuRatesOpenTrailingConservative);
 
-  getMuonRates(
-      nCollBunches, aggressiveEntries, chainL1Aggressive, chainRecoAggressive,
-      mu1cut, mu2cut, doubleMuGhostRatesAggressive,
+  calcRates(
+      nCollBunches, aggressiveEntries,
+      doubleMuGhostRatesAggressive,
       doubleMuGhostRatesTrailingAggressive, doubleMuGhostRatesOpenAggressive,
       doubleMuGhostRatesOpenTrailingAggressive, doubleMuRatesAggressive,
       doubleMuRatesTrailingAggressive, doubleMuRatesOpenAggressive,
@@ -296,13 +340,39 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
 
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
                   TChain* recoChain, const int mu1cut, const int mu2cut,
-                  TH1D& doubleMuGhostRateHist,
-                  TH1D& doubleMuGhostRateTrailingHist,
-                  TH1D& doubleMuGhostRateOpenHist,
-                  TH1D& doubleMuGhostRateOpenTrailingHist,
-                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
-                  TH1D& doubleMuRateOpenHist,
-                  TH1D& doubleMuRateOpenTrailingHist) {
+                  TH1D* doubleMuGhostRateHist,
+                  TH1D* doubleMuGhostRateTrailingHist,
+                  TH1D* doubleMuGhostRateOpenHist,
+                  TH1D* doubleMuGhostRateOpenTrailingHist,
+                  TH1D* doubleMuRateHist, TH1D* doubleMuRateTrailingHist,
+                  TH1D* doubleMuRateOpenHist,
+                  TH1D* doubleMuRateOpenTrailingHist, 
+                  bool retrieve_hists, TString folder, TString identifier) {
+
+  TFile f;
+  if (retrieve_hists) {
+    std::cout << "Retrieving histograms.. " << std::endl;
+    f.Open(folder + identifier + "Hists.root", "read");
+    doubleMuGhostRateHist = static_cast<TH1D*>(f.Get("doubleMuGhostRates" + identifier));
+    // doubleMuGhostRateHist->SetDirectory(0);
+    doubleMuGhostRateTrailingHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesTrailing" + identifier));
+    //doubleMuGhostRateTrailingHist->SetDirectory(0);
+    doubleMuGhostRateOpenHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesOpen" + identifier));
+    //->SetDirectory(0);
+    doubleMuGhostRateOpenTrailingHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesOpenTrailing" + identifier));
+    //->SetDirectory(0);
+    doubleMuRateHist = static_cast<TH1D*>(f.Get("doubleMuRates" + identifier));
+    //->SetDirectory(0);
+    doubleMuRateTrailingHist = static_cast<TH1D*>(f.Get("doubleMuRatesTrailing" + identifier));
+    //->SetDirectory(0);
+    doubleMuRateOpenHist = static_cast<TH1D*>(f.Get("doubleMuRatesOpen" + identifier));
+    //->SetDirectory(0);
+    doubleMuRateOpenTrailingHist = static_cast<TH1D*>(f.Get("doubleMuRatesOpenTrailing" + identifier));
+    //->SetDirectory(0);
+    f.Close();
+    return;
+  }
+
   // set branch addresses
   L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
@@ -344,11 +414,11 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
     // Filling di muon rates
     if (mu1 != -1 && mu2 != -1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuRateHist.Fill(l1_->muonEta[mu1]);
-        doubleMuRateTrailingHist.Fill(l1_->muonEta[mu2]);
+        doubleMuRateHist->Fill(l1_->muonEta[mu1]);
+        doubleMuRateTrailingHist->Fill(l1_->muonEta[mu2]);
       }
-      doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
-      doubleMuRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
+      doubleMuRateOpenHist->Fill(l1_->muonEta[mu1]);
+      doubleMuRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
     }
 
     // Computing ghost rates
@@ -361,14 +431,34 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
 
     if (mu1 != -1 && mu2 != -1 && nRecoMus == 1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateTrailingHist.Fill(l1_->muonEta[mu2]);
+        doubleMuGhostRateHist->Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateTrailingHist->Fill(l1_->muonEta[mu2]);
       }
-      doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
-      doubleMuGhostRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
+      doubleMuGhostRateOpenHist->Fill(l1_->muonEta[mu1]);
+      doubleMuGhostRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
     }
   }
 
+  f.Open(folder + identifier + "Hists.root", "new");
+  doubleMuGhostRateHist->Write();
+  doubleMuGhostRateTrailingHist->Write();
+  doubleMuGhostRateOpenHist->Write();
+  doubleMuGhostRateOpenTrailingHist->Write();
+  doubleMuRateHist->Write();
+  doubleMuRateTrailingHist->Write();
+  doubleMuRateOpenHist->Write();
+  doubleMuRateOpenTrailingHist->Write();
+  f.Close();
+}
+
+void calcRates(int nCollBunches, int nevents,
+               TH1D& doubleMuGhostRateHist,
+               TH1D& doubleMuGhostRateTrailingHist,
+               TH1D& doubleMuGhostRateOpenHist,
+               TH1D& doubleMuGhostRateOpenTrailingHist,
+               TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+               TH1D& doubleMuRateOpenHist,
+               TH1D& doubleMuRateOpenTrailingHist) {
   // normalisation factor
   double norm =
       (11. * nCollBunches) / nevents;  // zb rate = n_colliding * 11 kHz
@@ -422,32 +512,26 @@ void drawHistograms(TH1D& baselineHist, TH1D& conservativeHist,
 
   //  muRatesOpenUnpack->SetLineWidth(2);
 
+  aggressiveHist.SetLineColor(kGreen + 2);
+  aggressiveHist.SetMarkerStyle(21);
+  aggressiveHist.SetMarkerColor(kGreen + 2);
+  aggressiveHist.Draw("E1HIST");
+  aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
+  aggressiveHist.GetYaxis()->SetTitle("Rate [kHz]");
+
   baselineHist.SetLineColor(kOrange);
-  baselineHist.GetXaxis()->SetTitle(xAxisLabel);
-  baselineHist.GetYaxis()->SetTitle("Rate");
   baselineHist.SetMarkerStyle(23);
   baselineHist.SetMarkerColor(kOrange);
-  baselineHist.Draw("E1HIST");
+  baselineHist.Draw("same,E1HIST");
   baselineHist.GetXaxis()->SetTitle(xAxisLabel);
   baselineHist.GetYaxis()->SetTitle("Rate [kHz]");
 
   conservativeHist.SetLineColor(kBlue + 2);
-  conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
-  conservativeHist.GetYaxis()->SetTitle("Rate");
   conservativeHist.SetMarkerStyle(20);
   conservativeHist.SetMarkerColor(kBlue + 2);
   conservativeHist.Draw("same,E1HIST");
   conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
   conservativeHist.GetYaxis()->SetTitle("Rate [kHz]");
-
-  aggressiveHist.SetLineColor(kGreen + 2);
-  aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
-  aggressiveHist.GetYaxis()->SetTitle("Rate");
-  aggressiveHist.SetMarkerStyle(21);
-  aggressiveHist.SetMarkerColor(kGreen + 2);
-  aggressiveHist.Draw("same,E1HIST");
-  aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
-  aggressiveHist.GetYaxis()->SetTitle("Rate [kHz]");
 
   gPad->Modified();
 
