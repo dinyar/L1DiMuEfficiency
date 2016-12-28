@@ -106,10 +106,11 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
 
 void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                     std::string diMuMcFile, std::string folder,
-                    bool retrieve_hists = false, int mu1cut = 2,
+                    bool retrieve_singleMuData_hists = false, bool retrieve_singleMuMC_hists = false, 
+                    bool retrieve_doubleMuMC_hists = false, int mu1cut = 2,
                     int mu2cut = 2) {
   setTDRStyle();
-  writeExtraText = true;  // Add "Preliminary"
+  writeExtraText = false; // Add "Preliminary"
   // lumi_13TeV  = "4.9 fb^{-1}";
   lumi_sqrtS = "13 TeV";  // used with iPeriod = 0, e.g. for simulation-only
                           // plots (default is an empty string)
@@ -147,14 +148,10 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
   int singleMcEntries(0);
   int doubleMcEntries(0);
 
-  if (!retrieve_hists) {
+  if (!retrieve_singleMuData_hists) {
     std::vector<std::string> listSingleDataNtuples;
-    std::vector<std::string> listSingleMcNtuples;
-    std::vector<std::string> listDoubleMcNtuples;
 
     bool success = readFList(singleMuDataFile, listSingleDataNtuples);
-    success &= readFList(singleMuMcFile, listSingleMcNtuples);
-    success &= readFList(diMuMcFile, listDoubleMcNtuples);
 
     if (!success) {
       std::cout << "Exiting.. " << std::endl;
@@ -163,8 +160,30 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
     singleDataEntries = setupTChain(listSingleDataNtuples, l1SingleDataChain,
                                     recoSingleDataChain);
+  }
+  if (!retrieve_singleMuMC_hists) {
+    std::vector<std::string> listSingleMcNtuples;
+
+    bool success = readFList(singleMuMcFile, listSingleMcNtuples);
+
+    if (!success) {
+      std::cout << "Exiting.. " << std::endl;
+      return;
+    }
+
     singleMcEntries =
         setupTChain(listSingleMcNtuples, l1SingleMcChain, genSingleMcChain);
+  }
+  if (!retrieve_doubleMuMC_hists) {
+    std::vector<std::string> listDoubleMcNtuples;
+
+    bool success = readFList(diMuMcFile, listDoubleMcNtuples);
+
+    if (!success) {
+      std::cout << "Exiting.. " << std::endl;
+      return;
+    }
+
     doubleMcEntries =
         setupTChain(listDoubleMcNtuples, l1DoubleMcChain, genDoubleMcChain);
   }
@@ -321,17 +340,17 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   getSingleMuDataEfficiency(singleDataEntries, l1SingleDataChain,
                             recoSingleDataChain, mu1cut, etaLows, etaHighs,
-                            singleMuDataEffs, singleMuDataErrs, retrieve_hists,
+                            singleMuDataEffs, singleMuDataErrs, retrieve_singleMuData_hists,
                             histFolder, singleMuDataEffNames);
 
   getSingleMuMcEfficiency(singleMcEntries, l1SingleMcChain, genSingleMcChain,
                           mu1cut, etaLows, etaHighs, singleMuMcEffs,
-                          singleMuMcErrs, retrieve_hists, histFolder,
+                          singleMuMcErrs, retrieve_singleMuMC_hists, histFolder,
                           singleMuMcEffNames);
 
   getDoubleMuMcEfficiency(doubleMcEntries, l1DoubleMcChain, genDoubleMcChain,
                           mu1cut, mu2cut, etaLows, etaHighs, doubleMuMcEffs,
-                          doubleMuMcErrs, retrieve_hists, histFolder,
+                          doubleMuMcErrs, retrieve_doubleMuMC_hists, histFolder,
                           doubleMuMcEffNames);
 
   std::vector<TH1D> naiveDoubleMuMcEffs;
@@ -452,6 +471,27 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
 
   // Draw individual plots for histograms by being lazy..
 
+  std::vector<TH1D> bmtfSingleMuMcEff;
+  bmtfSingleMuMcEff.push_back(singleMuMcEffs.at(0));
+
+  std::vector<TGraphAsymmErrors> bmtfSingleMuMcErr;
+  bmtfSingleMuMcErr.push_back(singleMuMcErrs.at(0));
+
+  std::vector<TGraphAsymmErrors> bmtfSingleMuDataErr;
+  bmtfSingleMuDataErr.push_back(singleMuDataErrs.at(0));
+
+  std::vector<TH1D> bmtfDoubleMuMcEff;
+  bmtfDoubleMuMcEff.push_back(doubleMuMcEffs.at(0));
+
+  std::vector<TGraphAsymmErrors> bmtfDoubleMuMcErr;
+  bmtfDoubleMuMcErr.push_back(doubleMuMcErrs.at(0));
+
+  std::vector<TH1D> bmtfRhoFactor;
+  bmtfRhoFactor.push_back(rhoFactors.at(0));
+
+  std::vector<TH1D> bmtfSingleMuDataEff;
+  bmtfSingleMuDataEff.push_back(singleMuDataEffs.at(0));
+
   std::vector<TH1D> bmtfDoubleMuDataEff;
   bmtfDoubleMuDataEff.push_back(doubleMuDataEffs.at(0));
   std::vector<TH1D> bomtfDoubleMuDataEff;
@@ -523,9 +563,21 @@ void diMuEfficiency(std::string singleMuDataFile, std::string singleMuMcFile,
                  "L1T Efficiency",
                  plotFolder + "totalDoubleMuonEfficiencies_Data");
 
+  DrawHistograms(bmtfSingleMuMcEff, bmtfColour, markers, bmtfName,
+                 "L1T Efficiency", bmtfSingleMuMcErr,
+                 plotFolder + "bmtfSingleMuonEfficiencies_MC");
+  DrawHistograms(bmtfSingleMuDataEff, bmtfColour, markers, bmtfName,
+                 "L1T Efficiency", bmtfSingleMuDataErr,
+                 plotFolder + "bmtfSingleMuonEfficiencies_Data");
+  DrawHistograms(bmtfDoubleMuMcEff, bmtfColour, markers, bmtfName,
+                 "L1T Efficiency", bmtfDoubleMuMcErr,
+                 plotFolder + "bmtfDoubleMuonEfficiencies_MC");
+  DrawHistograms(bmtfRhoFactor, bmtfColour, markers, bmtfName,
+                 "L1T Efficiency", plotFolder + "bmtfRhoFactor");
   DrawHistograms(bmtfDoubleMuDataEff, bmtfColour, markers, bmtfName,
                  "L1T Efficiency",
                  plotFolder + "bmtfDoubleMuonEfficiencies_Data");
+
   DrawHistograms(bomtfDoubleMuDataEff, bomtfColour, markers, bomtfName,
                  "L1T Efficiency",
                  plotFolder + "bomtfDoubleMuonEfficiencies_Data");
@@ -600,6 +652,44 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
   std::cout << nentries << std::endl;
 
   return nentries;
+}
+
+void calcEffAndErr(std::vector<TH1D>& effHists, std::vector<TGraphAsymmErrors>& effErrors, const std::vector<TH1D>& allEventsHists, const std::string identifier, const std::vector<std::string> histNames, const std::vector<std::string> allEventsHistNames, const std::string histFolder, const bool retrieve_hists) {
+  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
+    std::ostringstream oss;
+    oss << histFolder << identifier << nRegion << ".root";
+    if (retrieve_hists) {
+      std::cout << "Opening file " << oss.str() << std::endl;
+      TFile f(oss.str().c_str(), "read");
+
+      std::cout << "Retrieving histogram: " << histNames.at(nRegion) << " and "
+                << allEventsHistNames.at(nRegion);
+      TH1D* tmpAllEvts = static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str()));
+      TH1D* tmpSelEvts = static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str()));
+      std::cout << "..." << std::endl;
+      if (tmpAllEvts == NULL) {
+        std::cout << "All evts hist is null." << std::endl;
+      }
+      if (tmpSelEvts == NULL) {
+        std::cout << "Sel evts hist is null." << std::endl;
+      }
+      effHists.at(nRegion).Divide(tmpSelEvts, tmpAllEvts);
+      effErrors.at(nRegion).Divide(tmpSelEvts, tmpAllEvts);
+      std::cout << "Done" << std::endl;
+      f.Close();
+    } else {
+      TFile f(oss.str().c_str(), "new");
+
+      effHists.at(nRegion).Write();
+      allEventsHists.at(nRegion).Write();
+
+      f.Close();
+
+      effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
+                                   &(allEventsHists.at(nRegion)));
+      effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
+    }
+  }
 }
 
 void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
@@ -713,34 +803,8 @@ void getSingleMuDataEfficiency(int nentries, TChain* l1Chain, TChain* recoChain,
     }
   }
 
-  TFile f;
-  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-    std::ostringstream oss;
-    oss << histFolder << "singleMuDataEff_" << nRegion << ".root";
-    if (retrieve_hists) {
-      std::cout << "Opening file " << oss.str() << std::endl;
-      f.Open(oss.str().c_str(), "read");
+  calcEffAndErr(effHists, effErrors, allEventsHists, "singleMuDataEff_", histNames, allEventsHistNames, histFolder, retrieve_hists);
 
-      std::cout << "Retrieving histogram:" << histNames.at(nRegion) << " and "
-                << allEventsHistNames.at(nRegion) << std::endl;
-      effHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      std::cout << "..." << std::endl;
-      allEventsHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
-      std::cout << "Done" << std::endl;
-    } else {
-      f.Open(oss.str().c_str(), "new");
-
-      effHists.at(nRegion).Write();
-      allEventsHists.at(nRegion).Write();
-    }
-    f.Close();
-
-    effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHists.at(nRegion)));
-    effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
-  }
 }
 
 void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
@@ -807,7 +871,7 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
 
         int qual(0);
         for (int i = 0; i < l1_->nMuons; ++i) {
-          if (l1_->muonQual[i] > qual) {
+          if (l1_->muonQual[i] > qual && l1_->muonEt[i] > pTcut) {
             qual = l1_->muonQual[i];
           }
         }
@@ -821,29 +885,8 @@ void getSingleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
     }
   }
 
-  TFile f;
-  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-    std::ostringstream oss;
-    oss << histFolder << "singleMuMcEff_" << nRegion << ".root";
-    if (retrieve_hists) {
-      f.Open(oss.str().c_str(), "read");
+  calcEffAndErr(effHists, effErrors, allEventsHists, "singleMuMcEff_", histNames, allEventsHistNames, histFolder, retrieve_hists);
 
-      effHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      allEventsHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
-    } else {
-      f.Open(oss.str().c_str(), "new");
-
-      effHists.at(nRegion).Write();
-      allEventsHists.at(nRegion).Write();
-    }
-    f.Close();
-
-    effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHists.at(nRegion)));
-    effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
-  }
 }
 
 void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
@@ -904,56 +947,30 @@ void getDoubleMuMcEfficiency(int nentries, TChain* l1Chain, TChain* genChain,
           (abs(gen_->partEta[genMu2]) >= etaLows.at(nRegion)) &&
           (abs(gen_->partEta[genMu2]) < etaHighs.at(nRegion))) {
         allEventsHists.at(nRegion).Fill(gen_->partPt[genMu1]);
-        allEventsHists.at(nRegion).Fill(gen_->partPt[genMu2]);
 
         // TODO: DEBUG
         if (l1_->nMuons < 2) {
           continue;
         }
 
-        int qual1(0);
-        int qual2(0);
+        int pT1{0};
+        int pT2{0};
         for (int i = 0; i < l1_->nMuons; ++i) {
-          if (l1_->muonQual[i] > qual1) {
-            qual2 = qual1;
-            qual1 = l1_->muonQual[i];
-          } else if (l1_->muonQual[i] > qual2) {
-            qual2 = l1_->muonQual[i];
+          if (l1_->muonEt[i] > pT1 && l1_->muonEt[i] > pT1cut && l1_->muonQual[i] >= 8) {
+            pT2 = pT1;
+            pT1 = l1_->muonEt[i];
+          } else if (l1_->muonEt[i] > pT2 && l1_->muonEt[i] > pT2cut && l1_->muonQual[i] >= 8) {
+            pT2 = l1_->muonEt[i];
           }
-        }
-        if ((qual1 < 8) && (qual2 < 8)) {
-          continue;
         }
 
         effHists.at(nRegion).Fill(gen_->partPt[genMu1]);
-        effHists.at(nRegion).Fill(gen_->partPt[genMu2]);
       }
     }
   }
 
-  TFile f;
-  for (int nRegion = 0; nRegion < effHists.size(); ++nRegion) {
-    std::ostringstream oss;
-    oss << histFolder << "doubleMuMcEff_" << nRegion << ".root";
-    if (retrieve_hists) {
-      f.Open(oss.str().c_str(), "read");
+  calcEffAndErr(effHists, effErrors, allEventsHists, "doubleMuMcEff_", histNames, allEventsHistNames, histFolder, retrieve_hists);
 
-      effHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(histNames.at(nRegion).c_str())));
-      allEventsHists.at(nRegion) =
-          *(static_cast<TH1D*>(f.Get(allEventsHistNames.at(nRegion).c_str())));
-    } else {
-      f.Open(oss.str().c_str(), "new");
-
-      effHists.at(nRegion).Write();
-      allEventsHists.at(nRegion).Write();
-    }
-    f.Close();
-
-    effErrors.at(nRegion).Divide(&(effHists.at(nRegion)),
-                                 &(allEventsHists.at(nRegion)));
-    effHists.at(nRegion).Divide(&(allEventsHists.at(nRegion)));
-  }
 }
 
 bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_, int& mu1) {
@@ -971,11 +988,15 @@ bool findGenMuon(L1Analysis::L1AnalysisGeneratorDataFormat* gen_,
       mu1 = i;
     }
   }
+  if (gen_->partPt[mu2] > gen_->partPt[mu1]) {
+    int tmp {mu1};
+    mu1 = mu2;
+    mu2 = tmp;
+  }
   if (nGenMus != nMus) {
     std::cout << "[ERROR] Found " << nGenMus << " generated muons instead of "
               << nMus << ". Are you sure you're running on the correct dataset?"
               << std::endl;
-
     return false;
   }
   return true;
@@ -1126,6 +1147,7 @@ double matchL1toReco(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
   return sqrt(pow(upgrade_->muonEta[l1Mu] - reco_->eta[recoMu], 2) +
               pow(upgrade_->muonPhi[l1Mu] - reco_->phi[recoMu], 2));
 }
+
 bool findBestRecoMatch(L1Analysis::L1AnalysisL1UpgradeDataFormat* upgrade_,
                        L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
                        int& l1mu, const int pTcut, const int recoMu,
@@ -1190,10 +1212,8 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::vector<int> markers,
                     const std::vector<std::string>& histnames,
                     const std::string& type, const std::string& name) {
-  // TODO: cmstdr style!!
-
   TCanvas c;
-  TLegend l(0.25, 0.2, 0.45, 0.4);
+  TLegend l(0.75, 0.2, 0.55, 0.4);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
@@ -1223,10 +1243,9 @@ void DrawHistograms(std::vector<TH1D>& hists, const std::vector<int> colours,
                     const std::string& type,
                     std::vector<TGraphAsymmErrors>& errs,
                     const std::string& name) {
-  // TODO: cmstdr style!!
-
   TCanvas c;
-  TLegend l(0.25, 0.2, 0.45, 0.4);
+  TLegend l(0.75, 0.2, 0.55, 0.4);
+  l.SetTextSize(0.04);
 
   prepareHistograms(l, hists, colours, markers, histnames, type, name);
 
