@@ -30,13 +30,13 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
                 TChain* truthChain);
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
                   TChain* recoChain, const int pT1cut, const int pT2cut,
-                  TH1D* doubleMuGhostRateHist,
-                  TH1D* doubleMuGhostRateTrailingHist,
-                  TH1D* doubleMuGhostRateOpenHist,
-                  TH1D* doubleMuGhostRateOpenTrailingHist,
-                  TH1D* doubleMuRateHist, TH1D* doubleMuRateTrailingHist,
-                  TH1D* doubleMuRateOpenHist,
-                  TH1D* doubleMuRateOpenTrailingHist,
+                  TH1D& doubleMuGhostRateHist,
+                  TH1D& doubleMuGhostRateTrailingHist,
+                  TH1D& doubleMuGhostRateOpenHist,
+                  TH1D& doubleMuGhostRateOpenTrailingHist,
+                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+                  TH1D& doubleMuRateOpenHist,
+                  TH1D& doubleMuRateOpenTrailingHist,
                   bool retrieve_hists, TString folder, TString identifier);
 void calcRates(int nCollBunches, int nevents,
                TH1D& doubleMuGhostRateHist,
@@ -187,29 +187,29 @@ void compareDiMuRates(const char* file_list_baseline,
 
   getMuonRates(
       nCollBunches, baselineEntries, chainL1Baseline, chainRecoBaseline, mu1cut,
-      mu2cut, &doubleMuGhostRatesBaseline, &doubleMuGhostRatesTrailingBaseline,
-      &doubleMuGhostRatesOpenBaseline, &doubleMuGhostRatesOpenTrailingBaseline,
-      &doubleMuRatesBaseline, &doubleMuRatesTrailingBaseline,
-      &doubleMuRatesOpenBaseline, &doubleMuRatesOpenTrailingBaseline, 
+      mu2cut, doubleMuGhostRatesBaseline, doubleMuGhostRatesTrailingBaseline,
+      doubleMuGhostRatesOpenBaseline, doubleMuGhostRatesOpenTrailingBaseline,
+      doubleMuRatesBaseline, doubleMuRatesTrailingBaseline,
+      doubleMuRatesOpenBaseline, doubleMuRatesOpenTrailingBaseline, 
       retrieve_hists, histFolder, "Baseline");
 
   getMuonRates(
       nCollBunches, conservativeEntries, chainL1Conservative, chainRecoConservative,
-      mu1cut, mu2cut, &doubleMuGhostRatesConservative,
-      &doubleMuGhostRatesTrailingConservative,
-      &doubleMuGhostRatesOpenConservative,
-      &doubleMuGhostRatesOpenTrailingConservative, &doubleMuRatesConservative,
-      &doubleMuRatesTrailingConservative, &doubleMuRatesOpenConservative,
-      &doubleMuRatesOpenTrailingConservative, 
+      mu1cut, mu2cut, doubleMuGhostRatesConservative,
+      doubleMuGhostRatesTrailingConservative,
+      doubleMuGhostRatesOpenConservative,
+      doubleMuGhostRatesOpenTrailingConservative, doubleMuRatesConservative,
+      doubleMuRatesTrailingConservative, doubleMuRatesOpenConservative,
+      doubleMuRatesOpenTrailingConservative, 
       retrieve_hists, histFolder, "Conservative");
 
   getMuonRates(
       nCollBunches, aggressiveEntries, chainL1Aggressive, chainRecoAggressive,
-      mu1cut, mu2cut, &doubleMuGhostRatesAggressive,
-      &doubleMuGhostRatesTrailingAggressive, &doubleMuGhostRatesOpenAggressive,
-      &doubleMuGhostRatesOpenTrailingAggressive, &doubleMuRatesAggressive,
-      &doubleMuRatesTrailingAggressive, &doubleMuRatesOpenAggressive,
-      &doubleMuRatesOpenTrailingAggressive, 
+      mu1cut, mu2cut, doubleMuGhostRatesAggressive,
+      doubleMuGhostRatesTrailingAggressive, doubleMuGhostRatesOpenAggressive,
+      doubleMuGhostRatesOpenTrailingAggressive, doubleMuRatesAggressive,
+      doubleMuRatesTrailingAggressive, doubleMuRatesOpenAggressive,
+      doubleMuRatesOpenTrailingAggressive, 
       retrieve_hists, histFolder, "Aggressive");
 
   calcRates(
@@ -340,36 +340,37 @@ int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
 
 void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
                   TChain* recoChain, const int mu1cut, const int mu2cut,
-                  TH1D* doubleMuGhostRateHist,
-                  TH1D* doubleMuGhostRateTrailingHist,
-                  TH1D* doubleMuGhostRateOpenHist,
-                  TH1D* doubleMuGhostRateOpenTrailingHist,
-                  TH1D* doubleMuRateHist, TH1D* doubleMuRateTrailingHist,
-                  TH1D* doubleMuRateOpenHist,
-                  TH1D* doubleMuRateOpenTrailingHist, 
+                  TH1D& doubleMuGhostRateHist,
+                  TH1D& doubleMuGhostRateTrailingHist,
+                  TH1D& doubleMuGhostRateOpenHist,
+                  TH1D& doubleMuGhostRateOpenTrailingHist,
+                  TH1D& doubleMuRateHist, TH1D& doubleMuRateTrailingHist,
+                  TH1D& doubleMuRateOpenHist,
+                  TH1D& doubleMuRateOpenTrailingHist, 
                   bool retrieve_hists, TString folder, TString identifier) {
 
-  TFile f;
+  TFile *f;
   if (retrieve_hists) {
     std::cout << "Retrieving histograms.. " << std::endl;
-    f.Open(folder + identifier + "Hists.root", "read");
-    doubleMuGhostRateHist = static_cast<TH1D*>(f.Get("doubleMuGhostRates" + identifier));
-    // doubleMuGhostRateHist->SetDirectory(0);
-    doubleMuGhostRateTrailingHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesTrailing" + identifier));
+    f = TFile::Open(folder + identifier + "Hists.root", "read");
+    std::cout << "Opening file: " << folder + identifier + "Hists.root" << std::endl;
+    doubleMuGhostRateHist = *(static_cast<TH1D*>(f->Get("doubleMuGhostRates" + identifier)));
+    // doubleMuGhostRateHistTest->SetDirectory(0);
+    doubleMuGhostRateTrailingHist = *(static_cast<TH1D*>(f->Get("doubleMuGhostRatesTrailing" + identifier)));
     //doubleMuGhostRateTrailingHist->SetDirectory(0);
-    doubleMuGhostRateOpenHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesOpen" + identifier));
+    doubleMuGhostRateOpenHist = *(static_cast<TH1D*>(f->Get("doubleMuGhostRatesOpen" + identifier)));
     //->SetDirectory(0);
-    doubleMuGhostRateOpenTrailingHist = static_cast<TH1D*>(f.Get("doubleMuGhostRatesOpenTrailing" + identifier));
+    doubleMuGhostRateOpenTrailingHist = *(static_cast<TH1D*>(f->Get("doubleMuGhostRatesOpenTrailing" + identifier)));
     //->SetDirectory(0);
-    doubleMuRateHist = static_cast<TH1D*>(f.Get("doubleMuRates" + identifier));
+    doubleMuRateHist = *(static_cast<TH1D*>(f->Get("doubleMuRates" + identifier)));
     //->SetDirectory(0);
-    doubleMuRateTrailingHist = static_cast<TH1D*>(f.Get("doubleMuRatesTrailing" + identifier));
+    doubleMuRateTrailingHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesTrailing" + identifier)));
     //->SetDirectory(0);
-    doubleMuRateOpenHist = static_cast<TH1D*>(f.Get("doubleMuRatesOpen" + identifier));
+    doubleMuRateOpenHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesOpen" + identifier)));
     //->SetDirectory(0);
-    doubleMuRateOpenTrailingHist = static_cast<TH1D*>(f.Get("doubleMuRatesOpenTrailing" + identifier));
+    doubleMuRateOpenTrailingHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesOpenTrailing" + identifier)));
     //->SetDirectory(0);
-    f.Close();
+    f->Close();
     return;
   }
 
@@ -414,11 +415,11 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
     // Filling di muon rates
     if (mu1 != -1 && mu2 != -1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuRateHist->Fill(l1_->muonEta[mu1]);
-        doubleMuRateTrailingHist->Fill(l1_->muonEta[mu2]);
+        doubleMuRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuRateTrailingHist.Fill(l1_->muonEta[mu2]);
       }
-      doubleMuRateOpenHist->Fill(l1_->muonEta[mu1]);
-      doubleMuRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
+      doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
+      doubleMuRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
     }
 
     // Computing ghost rates
@@ -431,24 +432,24 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
 
     if (mu1 != -1 && mu2 != -1 && nRecoMus == 1) {
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuGhostRateHist->Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateTrailingHist->Fill(l1_->muonEta[mu2]);
+        doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateTrailingHist.Fill(l1_->muonEta[mu2]);
       }
-      doubleMuGhostRateOpenHist->Fill(l1_->muonEta[mu1]);
-      doubleMuGhostRateOpenTrailingHist->Fill(l1_->muonEta[mu2]);
+      doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
+      doubleMuGhostRateOpenTrailingHist.Fill(l1_->muonEta[mu2]);
     }
   }
 
-  f.Open(folder + identifier + "Hists.root", "new");
-  doubleMuGhostRateHist->Write();
-  doubleMuGhostRateTrailingHist->Write();
-  doubleMuGhostRateOpenHist->Write();
-  doubleMuGhostRateOpenTrailingHist->Write();
-  doubleMuRateHist->Write();
-  doubleMuRateTrailingHist->Write();
-  doubleMuRateOpenHist->Write();
-  doubleMuRateOpenTrailingHist->Write();
-  f.Close();
+  f->Open(folder + identifier + "Hists.root", "new");
+  doubleMuGhostRateHist.Write();
+  doubleMuGhostRateTrailingHist.Write();
+  doubleMuGhostRateOpenHist.Write();
+  doubleMuGhostRateOpenTrailingHist.Write();
+  doubleMuRateHist.Write();
+  doubleMuRateTrailingHist.Write();
+  doubleMuRateOpenHist.Write();
+  doubleMuRateOpenTrailingHist.Write();
+  f->Close();
 }
 
 void calcRates(int nCollBunches, int nevents,
