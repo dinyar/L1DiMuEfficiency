@@ -1,0 +1,12 @@
+== Scripts to calculate trigger performance at the uGMT level from MC
+
+You will require generated L1NTuples whose paths need to be placed in a file referenced from `runDiMuonEfficiencyNtuplizer.C` and `runDiMuonGhostingNtuplizer.C`.
+
+You can then run the pre-processing step with
+
+```
+root -x runDiMuonEfficiencyNtuplizer.C
+root -x runDiMuonGhostingNtuplizer.C
+```
+
+The L1Ntuples can be generated using the grid cfg files in `grid/`. The `cmsDriver.py` command to create the python fragment for cmsRun is at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TStage2Instructions.

@@ -19,24 +19,29 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
-// TODO: Make rate plots for uGMT inputs!
+// TODO: Allow to create same plots for different datasets (compare baseline, conservative, and aggressive tunings in one plot)
+// TODO: Allow to not draw unpack.
 
-void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
-               TString run = "XXX", int mu1cut = 11, int mu2cut = 4,
-               bool drawReEmu = false) {
+void diMuRates(const char* file_list_baseline = "file_list_275125", 
+               const char* file_list_conservative = "file_list_275125",
+               const char* file_list_aggressive = "file_list_275125",
+               TString folder = "tmp", TString run = "XXX", 
+               int mu1cut = 11, int mu2cut = 4,
+               bool drawReEmu = true, bool drawUnpack = false) {
   TString plotFolder = "plots/" + run + "/" + folder + "/";
 
   gStyle->SetOptStat(0);
 
-  std::vector<std::string> listNtuples;
+  std::vector<std::string> listNtuplesBaseline;
+  std::vector<std::string> listNtuplesConservative;
+  std::vector<std::string> listNtuplesAggressive;
 
   // OpenNtupleList
-  std::ifstream flist(fname);
+  std::ifstream flist(file_list_baseline);
   if (!flist) {
-    std::cout << "File " << fname << " is not found!" << std::endl;
+    std::cout << "File " << file_list_baseline << " is not found!" << std::endl;
     return;
   }
-
   while (!flist.eof()) {
     std::string str;
     getline(flist, str);
@@ -53,14 +58,12 @@ void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
   if (rf == 0) return;
   if (rf->IsOpen() == 0) return;
 
-  std::string unpackTreepath("l1UpgradeTree/L1UpgradeTree");
   std::string reEmuTreepath("l1UpgradeEmuTree/L1UpgradeTree");
   std::string recoTreepath("l1MuonRecoTree/Muon2RecoTree");
-  TTree* treeL1Unpack = (TTree*)rf->Get(unpackTreepath.c_str());
   TTree* treeL1reEmu = (TTree*)rf->Get(reEmuTreepath.c_str());
   TTree* treeReco = (TTree*)rf->Get(recoTreepath.c_str());
 
-  if (!treeL1reEmu || !treeL1Unpack) {
+  if (!treeL1reEmu) {
     std::cout << "L1Upgrade trees not found.. " << std::endl;
     return;
   }
@@ -70,30 +73,25 @@ void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
   }
 
   // OpenWithoutInit
-  TChain* l1UnpackChain = new TChain(unpackTreepath.c_str());
   TChain* l1reEmuChain = new TChain(reEmuTreepath.c_str());
   TChain* chainReco = new TChain(recoTreepath.c_str());
   for (unsigned int i = 0; i < listNtuples.size(); i++) {
     std::cout << " -- Adding " << listNtuples[i] << std::endl;
-    l1UnpackChain->Add(listNtuples[i].c_str());
     l1reEmuChain->Add(listNtuples[i].c_str());
     chainReco->Add(listNtuples[i].c_str());
   }
 
   // Init
   std::cout << "Estimate the number of entries ..." << std::endl;
-  int nentries = l1UnpackChain->GetEntries();
+  int nentries = l1reEmuChain->GetEntries();
   std::cout << nentries << std::endl;
   int nevents = nentries;
 
   // set branch addresses
-  L1Analysis::L1AnalysisL1UpgradeDataFormat* unpack_ =
-      new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisL1UpgradeDataFormat* reEmu_ =
       new L1Analysis::L1AnalysisL1UpgradeDataFormat();
   L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_ =
       new L1Analysis::L1AnalysisRecoMuon2DataFormat();
-  l1UnpackChain->SetBranchAddress("L1Upgrade", &unpack_);
   l1reEmuChain->SetBranchAddress("L1Upgrade", &reEmu_);
   chainReco->SetBranchAddress("Muon", &reco_);
 
@@ -143,95 +141,52 @@ void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
   TH1D* tfMuIdxAllUnpack = new TH1D("tfMuIdxAllUnpack", "", 110, 0, 109);
   TH1D* tfMuIdxAllReEmu = new TH1D("tfMuIdxAllReEmu", "", 110, 0, 109);
 
-  int unpackCounts(0);
   int reEmuCounts(0);
 
   for (Long64_t jentry = 0; jentry < nevents; jentry++) {
     if ((jentry % 1000) == 0)
       std::cout << "Done " << jentry << " events..." << std::endl;
 
-    l1UnpackChain->GetEntry(jentry);
     l1reEmuChain->GetEntry(jentry);
     chainReco->GetEntry(jentry);
 
     // get Mu rates
-    int mu1Unpack(-1);
-    int mu2Unpack(-1);
-    double mu1PtUnpack(0);
-    double mu2PtUnpack(0);
     int mu1ReEmu(-1);
     int mu2ReEmu(-1);
     double mu1PtReEmu(0);
     double mu2PtReEmu(0);
-    for (uint it = 0; it < unpack_->nMuons; ++it) {
-      if (unpack_->muonBx[it] != 0) {
+    for (uint it = 0; it < reEmu_->nMuons; ++it) {
+      if (reEmu_->muonBx[it] != 0) {
         continue;
       }
-      tfMuIdxAllUnpack->Fill(unpack_->muonTfMuonIdx[it]);
-
-      if (unpack_->muonQual[it] <= 4) {
+      tfMuIdxAllReEmu->Fill(reEmu_->muonTfMuonIdx[it]);
+      if (reEmu_->muonQual[it] <= 4) {
         continue;
       }
-      if (unpack_->muonEt[it] > mu1PtUnpack) {
-        mu2Unpack = mu1Unpack;
-        mu2PtUnpack = mu1PtUnpack;
-        mu1Unpack = it;
-        mu1PtUnpack = unpack_->muonEt[it];
-      } else if (unpack_->muonEt[it] > mu2PtUnpack) {
-        mu2Unpack = it;
-        mu2PtUnpack = unpack_->muonEt[it];
-      }
-    }
-    if (drawReEmu) {
-      for (uint it = 0; it < reEmu_->nMuons; ++it) {
-        if (reEmu_->muonBx[it] != 0) {
-          continue;
-        }
-        tfMuIdxAllReEmu->Fill(reEmu_->muonTfMuonIdx[it]);
-        if (reEmu_->muonQual[it] <= 4) {
-          continue;
-        }
-        if (reEmu_->muonEt[it] > mu1PtReEmu) {
-          mu2ReEmu = mu1ReEmu;
-          mu2PtReEmu = mu1PtReEmu;
-          mu1ReEmu = it;
-          mu1PtReEmu = reEmu_->muonEt[it];
-        } else if (reEmu_->muonEt[it] > mu2PtReEmu) {
-          mu2ReEmu = it;
-          mu2PtReEmu = reEmu_->muonEt[it];
-        }
+      if (reEmu_->muonEt[it] > mu1PtReEmu) {
+        mu2ReEmu = mu1ReEmu;
+        mu2PtReEmu = mu1PtReEmu;
+        mu1ReEmu = it;
+        mu1PtReEmu = reEmu_->muonEt[it];
+      } else if (reEmu_->muonEt[it] > mu2PtReEmu) {
+        mu2ReEmu = it;
+        mu2PtReEmu = reEmu_->muonEt[it];
       }
     }
     // Computing single muon rates
-    if (mu1Unpack != -1) {
-      singleMuRatesOpenUnpack->Fill(unpack_->muonEta[mu1Unpack]);
-    }
-    if (drawReEmu) {
-      if (mu1ReEmu != -1) {
-        singleMuRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-      }
+    if (mu1ReEmu != -1) {
+      singleMuRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
     }
 
     // Computing di muon rates
-    if (mu1Unpack != -1 && mu2Unpack != -1) {
-      if (mu1PtUnpack >= mu1cut && mu2PtUnpack >= mu2cut) {
-        muRatesUnpack->Fill(unpack_->muonEta[mu1Unpack]);
+    if (mu1ReEmu != -1 && mu2ReEmu != -1) {
+      if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
+        muRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
       }
-      muRatesOpenUnpack->Fill(unpack_->muonEta[mu1Unpack]);
-      muRatesOpenTrailingUnpack->Fill(unpack_->muonEta[mu2Unpack]);
-      tfMuIdxUnpack->Fill(unpack_->muonTfMuonIdx[mu1Unpack]);
-      ++unpackCounts;
-    }
-    if (drawReEmu) {
-      if (mu1ReEmu != -1 && mu2ReEmu != -1) {
-        if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
-          muRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-        }
-        muRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-        muRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
-        tfMuIdxReEmu->Fill(reEmu_->muonTfMuonIdx[mu1ReEmu]);
-        ++reEmuCounts;
-      }
+      muRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
+      muRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
+      tfMuIdxReEmu->Fill(reEmu_->muonTfMuonIdx[mu1ReEmu]);
+      ++reEmuCounts;
     }
 
     // Computing ghost rates
@@ -242,23 +197,13 @@ void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
       }
     }
 
-    if (mu1Unpack != -1 && mu2Unpack != -1 && nRecoMus == 1) {
-      if (mu1PtUnpack >= mu1cut && mu2PtUnpack >= mu2cut) {
-        muGhostRatesUnpack->Fill(unpack_->muonEta[mu1Unpack]);
+    if (mu1ReEmu != -1 && mu2ReEmu != -1 && nRecoMus == 1) {
+      if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
+        muGhostRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
       }
-      muGhostRatesOpenUnpack->Fill(unpack_->muonEta[mu1Unpack]);
-      muGhostRatesOpenTrailingUnpack->Fill(unpack_->muonEta[mu2Unpack]);
-      ++unpackCounts;
-    }
-    if (drawReEmu) {
-      if (mu1ReEmu != -1 && mu2ReEmu != -1 && nRecoMus == 1) {
-        if (mu1PtReEmu >= mu1cut && mu2PtReEmu >= mu2cut) {
-          muGhostRatesReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-        }
-        muGhostRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
-        muGhostRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
-        ++reEmuCounts;
-      }
+      muGhostRatesOpenReEmu->Fill(reEmu_->muonEta[mu1ReEmu]);
+      muGhostRatesOpenTrailingReEmu->Fill(reEmu_->muonEta[mu2ReEmu]);
+      ++reEmuCounts;
     }
   }
 
@@ -268,16 +213,10 @@ void diMuRates(const char* fname = "file_list_275125", TString folder = "tmp",
 
   std::cout << "###########################################" << std::endl;
   std::cout << "** Computed rates: **" << std::endl;
-  std::cout << "Unpacked rate: " << muRatesUnpack->GetEntries() * norm
-            << std::endl;
-  std::cout << "Unpacked open rate: " << muRatesOpenUnpack->GetEntries() * norm
-            << std::endl;
   std::cout << "ReEmulated rate: " << muRatesReEmu->GetEntries() * norm
             << std::endl;
   std::cout << "ReEmulated open rate: " << muRatesOpenReEmu->GetEntries() * norm
             << std::endl;
-  std::cout << "Unpacked SingleMuOpen rate: "
-            << singleMuRatesOpenUnpack->GetEntries() * norm << std::endl;
   std::cout << "ReEmulated SingleMuOpen rate: "
             << singleMuRatesOpenReEmu->GetEntries() * norm << std::endl;
   std::cout << "###########################################" << std::endl;

@@ -1,0 +1,24 @@
+## Tuning v1
+
+# BMTF:
+dEtaCoarse < 0.25
+dEtaFine < 0.1
+dPhi < 0.2
+
+# BOMTF:
+dEtaCoarse < 0.15
+dEtaFine < 0.15
+dPhi < 0.1
+
+# EMTF:
+dEta < 0.1
+dPhi < 0.1
+
+# EOMTF:
+dEta < 0.2
+dPhi < 0.1
+
+# OMTF:
+dEta < 0.2
+dPhi < 0.025
+
