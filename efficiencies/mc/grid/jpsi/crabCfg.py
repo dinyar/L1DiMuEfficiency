@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-requestName = 'L1Ntuple-JPsiToMuMu_Pt20to120_EtaPhiRestricted-tuning_v1'
+requestName = 'L1Ntuple-JPsiToMuMu_Pt20to120_EtaPhiRestricted-tuning_v6'
 dataset     = '/JPsiToMuMu_Pt20to120_EtaPhiRestricted-pythia8-gun/RunIISpring16DR80-NoPURAW_NZS_withHLT_80X_mcRun2_asymptotic_v14-v1/GEN-SIM-RAW'
 splitting   = 'FileBased'
 output      = '/store/user/dinyar/cancel_out_studies/'

@@ -2,8 +2,9 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-requestName = 'L1Ntuple-SingleMuMinusFlatPt3To70_EtaPhiRestricted-tuning_v5'
-dataset     = '/SingleMuMinusFlatPt3To70_EtaPhiRestricted/RunIISpring16DR80-NoPURAW_NZS_withHLT_80X_mcRun2_asymptotic_v14-v1/GEN-SIM-RAW'
+requestName = 'L1Ntuple-SingleMu_Pt1To1000_FlatRandomOneOverPt-baseline'
+dataset     = '/SingleMu_Pt1To1000_FlatRandomOneOverPt/RunIISpring16DR80-NoPURAW_NZS_withHLT_80X_mcRun2_asymptotic_v14-v1/GEN-SIM-RAW'
+# dataset     = '/SingleMuMinusFlatPt3To70_EtaPhiRestricted/RunIISpring16DR80-NoPURAW_NZS_withHLT_80X_mcRun2_asymptotic_v14-v1/GEN-SIM-RAW'
 splitting   = 'FileBased'
 output      = '/store/user/dinyar/cancel_out_studies/'
 

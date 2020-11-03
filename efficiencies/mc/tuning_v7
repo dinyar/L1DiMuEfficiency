@@ -1,0 +1,19 @@
+## Tuning v7 -- new conservative
+
+# BOMTF:
+dEtaCoarse < 0.2
+dEtaFine < 0.2
+dPhi < 0.1
+
+# EMTF:
+dEta < 0.1
+dPhi < 0.1
+
+# EOMTF:
+dEta < 0.25
+dPhi < 0.1
+
+# OMTF:
+dEta < 0.2
+dPhi < 0.1
+

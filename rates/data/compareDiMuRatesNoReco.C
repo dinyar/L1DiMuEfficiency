@@ -24,9 +24,6 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
-int nMuBinsPt{27};
-float ptBins[28];
-
 bool readFList(std::string fname, std::vector<std::string>& listNtuples,
                std::string l1Treepath, std::string recoTreepath);
 int setupTChain(const std::vector<std::string> listNtuples, TChain* l1Chain,
@@ -55,10 +52,8 @@ void calcRates(int nCollBunches, int nevents, TH1D& doubleMuGhostRateHist,
                TH1D& doubleMuRateOpenVsPtHist);
 void drawHistograms(TH1D& noCouHist, TH1D& baselineHist, TH1D& conservativeHist,
                     TH1D& aggressiveHist, TString filename, TString xAxisLabel,
-                    TString yAxisLabel,
                     TString descString, TString plotFolder, TString run,
-                    bool logy = false, bool pTplot = false,
-                    bool drawNoCOU = true, double maxY = -1);
+                    bool logy = false);
 
 void compareDiMuRates(
     const char* file_list_no_cou, const char* file_list_baseline,
@@ -143,23 +138,26 @@ void compareDiMuRates(
   }
 
   // mu bins
-  int nMuFewerBins = 10;
   int nMuBins = 25;
   float muLo = -2.5;
   float muHi = 2.5;
   float muBinWidth = (muHi - muLo) / nMuBins;
-  for (int i = 0; i < 14; ++i) {
+  int nMuBinsPt = 30;
+  float ptBins[nMuBinsPt + 1];
+  for (int i = 0; i < 21; ++i) {
     ptBins[i] = i;
   }
-  for (int i = 0; i < 9; ++i) {
-    ptBins[14 + i] = 14 + 2 * i;
-  }
   for (int i = 0; i < 5; ++i) {
-    ptBins[23 + i] = 34 + 4 * i;
+    ptBins[21 + i] = 21 + 2 * i;
   }
+  ptBins[26] = 32;
+  ptBins[27] = 36;
+  ptBins[28] = 40;
+  ptBins[29] = 45;
+  ptBins[30] = 50;
 
   // make histos
-  TH1D doubleMuGhostRatesNoCOU("doubleMuGhostRatesNoCOU", "", nMuFewerBins,
+  TH1D doubleMuGhostRatesNoCOU("doubleMuGhostRatesNoCOU", "", nMuBins,
                                muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesVsPtNoCOU("doubleMuGhostRatesVsPtNoCOU", "", nMuBinsPt,
                                    ptBins);
@@ -167,7 +165,7 @@ void compareDiMuRates(
                                    muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesOpenVsPtNoCOU("doubleMuGhostRatesOpenVsPtNoCOU", "",
                                        nMuBinsPt, ptBins);
-  TH1D doubleMuRatesNoCOU("doubleMuRatesNoCOU", "", nMuFewerBins, muLo - 0.1,
+  TH1D doubleMuRatesNoCOU("doubleMuRatesNoCOU", "", nMuBins, muLo - 0.1,
                           muHi + 0.1);
   TH1D doubleMuRatesVsPtNoCOU("doubleMuRatesVsPtNoCOU", "", nMuBinsPt, ptBins);
   TH1D doubleMuRatesOpenNoCOU("doubleMuRatesOpenNoCOU", "", nMuBins, muLo - 0.1,
@@ -175,7 +173,7 @@ void compareDiMuRates(
   TH1D doubleMuRatesOpenVsPtNoCOU("doubleMuRatesOpenVsPtNoCOU", "", nMuBinsPt,
                                   ptBins);
 
-  TH1D doubleMuGhostRatesBaseline("doubleMuGhostRatesBaseline", "", nMuFewerBins,
+  TH1D doubleMuGhostRatesBaseline("doubleMuGhostRatesBaseline", "", nMuBins,
                                   muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesVsPtBaseline("doubleMuGhostRatesVsPtBaseline", "",
                                       nMuBinsPt, ptBins);
@@ -183,7 +181,7 @@ void compareDiMuRates(
                                       nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesOpenVsPtBaseline("doubleMuGhostRatesOpenVsPtBaseline",
                                           "", nMuBinsPt, ptBins);
-  TH1D doubleMuRatesBaseline("doubleMuRatesBaseline", "", nMuFewerBins, muLo - 0.1,
+  TH1D doubleMuRatesBaseline("doubleMuRatesBaseline", "", nMuBins, muLo - 0.1,
                              muHi + 0.1);
   TH1D doubleMuRatesVsPtBaseline("doubleMuRatesVsPtBaseline", "", nMuBinsPt,
                                  ptBins);
@@ -193,14 +191,14 @@ void compareDiMuRates(
                                      nMuBinsPt, ptBins);
 
   TH1D doubleMuGhostRatesConservative("doubleMuGhostRatesConservative", "",
-                                      nMuFewerBins, muLo - 0.1, muHi + 0.1);
+                                      nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesVsPtConservative("doubleMuGhostRatesVsPtConservative",
                                           "", nMuBinsPt, ptBins);
   TH1D doubleMuGhostRatesOpenConservative("doubleMuGhostRatesOpenConservative",
                                           "", nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesOpenVsPtConservative(
       "doubleMuGhostRatesOpenVsPtConservative", "", nMuBinsPt, ptBins);
-  TH1D doubleMuRatesConservative("doubleMuRatesConservative", "", nMuFewerBins,
+  TH1D doubleMuRatesConservative("doubleMuRatesConservative", "", nMuBins,
                                  muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesVsPtConservative("doubleMuRatesVsPtConservative", "",
                                      nMuBinsPt, ptBins);
@@ -209,7 +207,7 @@ void compareDiMuRates(
   TH1D doubleMuRatesOpenVsPtConservative("doubleMuRatesOpenVsPtConservative",
                                          "", nMuBinsPt, ptBins);
 
-  TH1D doubleMuGhostRatesAggressive("doubleMuGhostRatesAggressive", "", nMuFewerBins,
+  TH1D doubleMuGhostRatesAggressive("doubleMuGhostRatesAggressive", "", nMuBins,
                                     muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesVsPtAggressive("doubleMuGhostRatesVsPtAggressive", "",
                                         nMuBinsPt, ptBins);
@@ -217,7 +215,7 @@ void compareDiMuRates(
                                         nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuGhostRatesOpenVsPtAggressive(
       "doubleMuGhostRatesOpenVsPtAggressive", "", nMuBinsPt, ptBins);
-  TH1D doubleMuRatesAggressive("doubleMuRatesAggressive", "", nMuFewerBins,
+  TH1D doubleMuRatesAggressive("doubleMuRatesAggressive", "", nMuBins,
                                muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesVsPtAggressive("doubleMuRatesVsPtAggressive", "", nMuBinsPt,
                                    ptBins);
@@ -296,51 +294,43 @@ void compareDiMuRates(
   drawHistograms(doubleMuRatesNoCOU, doubleMuRatesBaseline,
                  doubleMuRatesConservative, doubleMuRatesAggressive,
                  "doubleMuRatesDoubleMuonLeading", "#eta (leading #mu)",
-                 "Rate [kHz/bin]",
-                 oss.str().c_str(), plotFolder, run, false, false, false, 0.2);
+                 oss.str().c_str(), plotFolder, run);
   drawHistograms(doubleMuRatesVsPtNoCOU, doubleMuRatesVsPtBaseline,
                  doubleMuRatesVsPtConservative, doubleMuRatesVsPtAggressive,
-                 "doubleMuRatesDoubleMuonVsPt", "p_{T} threshold [GeV]",
-                 "Rate [kHz]",
-                 "Zero Bias, L1_DoubleMuX" , plotFolder, run, true, true, true, 700);
+                 "doubleMuRatesDoubleMuonVsPt", "p_{T} (leading #mu)",
+                 oss.str().c_str(), plotFolder, run, true);
   drawHistograms(doubleMuRatesOpenNoCOU, doubleMuRatesOpenBaseline,
                  doubleMuRatesOpenConservative, doubleMuRatesOpenAggressive,
                  "doubleMuOpenRatesDoubleMuonLeading", "#eta (leading #mu)",
-                 "Rate [kHz/bin]",
-                 "Zero Bias, L1_DoubleMu0", plotFolder, run, false, false,
-                 false);
+                 "Zero Bias, L1_DoubleMu0", plotFolder, run);
   drawHistograms(doubleMuRatesOpenVsPtNoCOU, doubleMuRatesOpenVsPtBaseline,
                  doubleMuRatesOpenVsPtConservative,
                  doubleMuRatesOpenVsPtAggressive,
                  "doubleMuOpenRatesDoubleMuonVsPt", "p_{T} (leading #mu)",
-                 "Rate [kHz/bin]",
-                 "Zero Bias, L1_DoubleMu0", plotFolder, run, true, true);
+                 "Zero Bias, L1_DoubleMu0", plotFolder, run, true);
 
   oss << ", ghost rate";
 
   drawHistograms(doubleMuGhostRatesNoCOU, doubleMuGhostRatesBaseline,
                  doubleMuGhostRatesConservative, doubleMuGhostRatesAggressive,
                  "ghostRatesDoubleMuonLeading", "#eta (leading #mu)",
-                 "Rate [kHz/bin]",
-                 oss.str().c_str(), plotFolder, run, false, false, false, 0.1);
+                 oss.str().c_str(), plotFolder, run);
   drawHistograms(doubleMuGhostRatesVsPtNoCOU, doubleMuGhostRatesVsPtBaseline,
                  doubleMuGhostRatesVsPtConservative,
                  doubleMuGhostRatesVsPtAggressive, "ghostRatesDoubleMuonVsPt",
-                 "p_{T} threshold [GeV]", "Rate [kHz]", 
-                 "Zero Bias, L1_DoubleMuX, ghost rate", plotFolder, run, true, true);
+                 "p_{T} (leading #mu)", oss.str().c_str(), plotFolder, run,
+                 true);
   drawHistograms(doubleMuGhostRatesOpenNoCOU, doubleMuGhostRatesOpenBaseline,
                  doubleMuGhostRatesOpenConservative,
                  doubleMuGhostRatesOpenAggressive,
                  "ghostRatesDoubleMuonOpenLeading", "#eta (leading #mu)",
-                 "Rate [kHz/bin]",
-                 "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run, false,
-                 false, false);
-  drawHistograms(
-      doubleMuGhostRatesOpenVsPtNoCOU, doubleMuGhostRatesOpenVsPtBaseline,
-      doubleMuGhostRatesOpenVsPtConservative,
-      doubleMuGhostRatesOpenVsPtAggressive, "ghostRatesDoubleMuonOpenVsPt",
-      "p_{T} (leading #mu)", "Rate [kHz/bin]",
-      "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run, true, true);
+                 "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run);
+  drawHistograms(doubleMuGhostRatesOpenVsPtNoCOU,
+                 doubleMuGhostRatesOpenVsPtBaseline,
+                 doubleMuGhostRatesOpenVsPtConservative,
+                 doubleMuGhostRatesOpenVsPtAggressive,
+                 "ghostRatesDoubleMuonOpenVsPt", "p_{T} (leading #mu)",
+                 "Zero Bias, L1_DoubleMu0, ghost rate", plotFolder, run, true);
 }
 
 bool readFList(std::string fname, std::vector<std::string>& listNtuples,
@@ -412,8 +402,7 @@ bool matchL1toReco(L1Analysis::L1AnalysisRecoMuon2DataFormat* reco_,
   bool matchedMu1{false};
   bool matchedMu2{false};
   for (int i = 0; i < reco_->nMuons; ++i) {
-    // if (reco_->isMediumMuon[i] && reco_->phiSt1[i] > -9999 && reco_->pt[i] >= 2) {
-    if (reco_->phiSt2[i] > -9999) {
+    if (reco_->isMediumMuon[i]) {
       if (!matchedMu1 && std::abs(reco_->phi[i] - mu1Phi) < matchingWindowPhi &&
           std::abs(reco_->eta[i] - mu1Eta) < matchingWindowEta) {
         matchedMu1 = true;
@@ -502,7 +491,7 @@ void getTfMuonRates(int nCollBunches, int nevents, TChain* tfChain,
   recoChain->SetBranchAddress("Muon", &reco_);
 
   for (Long64_t jentry = 0; jentry < nevents; ++jentry) {
-    if ((jentry % 300000) == 0)
+    if ((jentry % 1000) == 0)
       std::cout << "Done " << jentry << " TF events.. \n";
 
     // std::cout << "Getting TF entry.." << std::endl;
@@ -602,14 +591,10 @@ void getTfMuonRates(int nCollBunches, int nevents, TChain* tfChain,
     if (mu1 != -1 && mu2 != -1) {
       mu1Eta = tf1_->tfMuonHwEta[mu1] * 0.010875;
       mu2Eta = tf2_->tfMuonHwEta[mu2] * 0.010875;
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuRateVsPtHist.Fill(ptBins[i]);
-        }
-      }
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
         // std::cout << "mu1: " << mu1 << " mu2: " << mu2 << std::endl;
         doubleMuRateHist.Fill(mu1Eta);
+        doubleMuRateVsPtHist.Fill(mu1Pt);
       }
       //   std::cout << "mu1: " << mu1 << " mu2: " << mu2 << std::endl;
       doubleMuRateOpenHist.Fill(mu1Eta);
@@ -623,13 +608,9 @@ void getTfMuonRates(int nCollBunches, int nevents, TChain* tfChain,
     double mu2Phi{tf2_->tfMuonGlobalPhi[mu2] * 0.010908};
     if (mu1 != -1 && mu2 != -1 &&
         (!bestMatchL1toReco(reco_, mu1Eta, mu2Eta, mu1Phi, mu2Phi))) {
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuGhostRateVsPtHist.Fill(ptBins[i]);
-        }
-      }
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
         doubleMuGhostRateHist.Fill(mu1Eta);
+        doubleMuGhostRateVsPtHist.Fill(mu1Pt);
       }
       doubleMuGhostRateOpenHist.Fill(mu1Eta);
       doubleMuGhostRateOpenVsPtHist.Fill(mu1Pt);
@@ -705,7 +686,7 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
   recoChain->SetBranchAddress("Muon", &reco_);
 
   for (Long64_t jentry = 0; jentry < nevents; ++jentry) {
-    if ((jentry % 300000) == 0)
+    if ((jentry % 1000) == 0)
       std::cout << "Done " << jentry << " events..." << std::endl;
 
     l1Chain->GetEntry(jentry);
@@ -739,13 +720,9 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
 
     // Filling di muon rates
     if (mu1 != -1 && mu2 != -1) {
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuRateVsPtHist.Fill(ptBins[i]);
-        }
-      }
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
         doubleMuRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuRateVsPtHist.Fill(l1_->muonEt[mu1]);
       }
       doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
       doubleMuRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
@@ -755,13 +732,9 @@ void getMuonRates(int nCollBunches, int nevents, TChain* l1Chain,
     if (mu1 != -1 && mu2 != -1 &&
         (!bestMatchL1toReco(reco_, l1_->muonEta[mu1], l1_->muonEta[mu2],
                             l1_->muonPhi[mu1], l1_->muonPhi[mu2]))) {
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuGhostRateVsPtHist.Fill(ptBins[i]);
-        }
-      }
       if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
         doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateVsPtHist.Fill(l1_->muonEt[mu1]);
       }
       doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
       doubleMuGhostRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
@@ -823,22 +796,21 @@ void calcRates(int nCollBunches, int nevents, TH1D& doubleMuGhostRateHist,
   doubleMuGhostRateVsPtHist.Sumw2();
   doubleMuGhostRateOpenHist.Sumw2();
   doubleMuGhostRateOpenVsPtHist.Sumw2();
-  doubleMuRateHist.Scale(norm);
-  doubleMuRateVsPtHist.Scale(norm);
-  doubleMuRateOpenHist.Scale(norm);
-  doubleMuRateOpenVsPtHist.Scale(norm);
-  doubleMuGhostRateHist.Scale(norm);
-  doubleMuGhostRateVsPtHist.Scale(norm);
-  doubleMuGhostRateOpenHist.Scale(norm);
-  doubleMuGhostRateOpenVsPtHist.Scale(norm);
+  TF1* constant = new TF1("constant", "1", -5, 5);
+  doubleMuRateHist.Multiply(constant, norm);
+  doubleMuRateVsPtHist.Multiply(constant, norm);
+  doubleMuRateOpenHist.Multiply(constant, norm);
+  doubleMuRateOpenVsPtHist.Multiply(constant, norm);
+  doubleMuGhostRateHist.Multiply(constant, norm);
+  doubleMuGhostRateVsPtHist.Multiply(constant, norm);
+  doubleMuGhostRateOpenHist.Multiply(constant, norm);
+  doubleMuGhostRateOpenVsPtHist.Multiply(constant, norm);
 }
 
 void drawHistograms(TH1D& noCouHist, TH1D& baselineHist, TH1D& conservativeHist,
                     TH1D& aggressiveHist, TString filename, TString xAxisLabel,
-                    TString yAxisLabel,
                     TString descString, TString plotFolder, TString run,
-                    bool logy = false, bool pTplot = false,
-                    bool drawNoCOU = true, double maxY = -1) {
+                    bool logy = false) {
   TLatex n1;
   n1.SetNDC();
   n1.SetTextFont(52);
@@ -853,74 +825,55 @@ void drawHistograms(TH1D& noCouHist, TH1D& baselineHist, TH1D& conservativeHist,
   if (logy) {
     c1.SetLogy();
   }
-  if (pTplot && drawNoCOU) {
-    noCouHist.SetMinimum(0.002);
-  } else if (pTplot) {
-    aggressiveHist.SetMinimum(0.002);
-  }
   // c1.SetLeftMargin(0.18);
 
   //  muRatesOpenUnpack->SetLineWidth(2);
-  if (maxY > 0) {
-    noCouHist.SetMaximum(maxY);
-    aggressiveHist.SetMaximum(maxY);
-  }
 
   noCouHist.SetLineColor(kRed + 1);
   noCouHist.SetMarkerStyle(25);
   noCouHist.SetMarkerColor(kRed + 1);
-  if (drawNoCOU) {
-    noCouHist.Draw("ep");
-  }
+  noCouHist.Draw("E1HIST");
   noCouHist.GetXaxis()->SetTitle(xAxisLabel);
-  noCouHist.GetYaxis()->SetTitle(yAxisLabel);
+  noCouHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
   // noCouHist.GetYaxis()->SetTitleOffset(1.5);
 
   aggressiveHist.SetLineColor(kGreen + 2);
   aggressiveHist.SetMarkerStyle(32);
   aggressiveHist.SetMarkerColor(kGreen + 2);
-  aggressiveHist.Draw("same,ep");
+  aggressiveHist.Draw("same,E1HIST");
   aggressiveHist.GetXaxis()->SetTitle(xAxisLabel);
-  aggressiveHist.GetYaxis()->SetTitle(yAxisLabel);
-  // aggressiveHist.GetYaxis()->SetTitleOffset(1.4);
+  aggressiveHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
+  // aggressiveHist.GetYaxis()->SetTitleOffset(1.5);
 
   baselineHist.SetLineColor(kCyan + 1);
   baselineHist.SetMarkerStyle(26);
   baselineHist.SetMarkerColor(kCyan + 1);
-  baselineHist.Draw("same,ep");
-  // baselineHist.GetXaxis()->SetTitle(xAxisLabel);
-  // baselineHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
+  baselineHist.Draw("same,E1HIST");
+  baselineHist.GetXaxis()->SetTitle(xAxisLabel);
+  baselineHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
   // baselineHist.GetYaxis()->SetTitleOffset(1.5);
 
   conservativeHist.SetLineColor(kOrange + 7);
   conservativeHist.SetMarkerStyle(27);
   conservativeHist.SetMarkerColor(kOrange + 7);
-  conservativeHist.Draw("same,ep");
-  // conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
-  // conservativeHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
+  conservativeHist.Draw("same,E1HIST");
+  conservativeHist.GetXaxis()->SetTitle(xAxisLabel);
+  conservativeHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
   // conservativeHist.GetYaxis()->SetTitleOffset(1.5);
 
   gPad->Modified();
-  TLegend* leg1;
-  if (pTplot) {
-    leg1 = new TLegend(0.42, 0.72, 0.9, 0.92);
-    n1.DrawLatex(0.42, 0.68, "Runs " + run + ", #sqrt{s} = 13 TeV");
-    n2.DrawLatex(0.42, 0.63, descString);
-  } else {
-    leg1 = new TLegend(0.3, 0.72, 0.7, 0.92);
-    n1.DrawLatex(0.3, 0.68, "Runs " + run + ", #sqrt{s} = 13 TeV");
-    n2.DrawLatex(0.3, 0.63, descString);
-  }
-  leg1->SetFillColor(0);
-  if (drawNoCOU) {
-    leg1->AddEntry(&noCouHist, "No uGMT cancel-out", "lp");
-  }
-  leg1->AddEntry(&baselineHist, "Baseline tuning", "lp");
-  leg1->AddEntry(&conservativeHist, "Conservative tuning", "lp");
-  leg1->AddEntry(&aggressiveHist, "Aggressive tuning", "lp");
-  leg1->SetBorderSize(0);
-  leg1->SetFillStyle(0);
-  leg1->Draw();
+
+  TLegend leg1(0.3, 0.72, 0.7, 0.92);
+  leg1.SetFillColor(0);
+  leg1.AddEntry(&noCouHist, "No uGMT cancel-out", "lp");
+  leg1.AddEntry(&baselineHist, "Baseline tuning", "lp");
+  leg1.AddEntry(&conservativeHist, "Conservative tuning", "lp");
+  leg1.AddEntry(&aggressiveHist, "Aggressive tuning", "lp");
+  leg1.SetBorderSize(0);
+  leg1.SetFillStyle(0);
+  leg1.Draw();
+  n1.DrawLatex(0.3, 0.68, "Run " + run + ", #sqrt{s} = 13 TeV");
+  n2.DrawLatex(0.3, 0.63, descString);
 
   c1.SaveAs(plotFolder + filename + ".pdf");
   c1.SaveAs(plotFolder + filename + ".png");

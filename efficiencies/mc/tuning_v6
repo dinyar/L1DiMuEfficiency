@@ -1,0 +1,19 @@
+## Tuning v6 -- new aggressive
+
+# BOMTF:
+dEtaCoarse < 0.075
+dEtaFine < 0.075
+dPhi < 0.025
+
+# EMTF:
+dEta < 0.025
+dPhi < 0.025
+
+# EOMTF:
+dEta < 0.075
+dPhi < 0.025
+
+# OMTF:
+dEta < 0.025
+dPhi < 0.025
+

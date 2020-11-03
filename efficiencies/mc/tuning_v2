@@ -1,4 +1,4 @@
-## Tuning v1 -- conservative
+## Tuning v2 -- slightly conservative
 
 # BMTF:
 dEtaCoarse < 0.25
@@ -10,15 +10,14 @@ dEtaCoarse < 0.15
 dEtaFine < 0.15
 dPhi < 0.1
 
+# OMTF:
+dEta < 0.2   --> 0.1
+dPhi < 0.025
+
+# EOMTF:
+dEta < 0.2  --> 0.15
+dPhi < 0.1
+
 # EMTF:
 dEta < 0.1
 dPhi < 0.1
-
-# EOMTF:
-dEta < 0.2
-dPhi < 0.1
-
-# OMTF:
-dEta < 0.2
-dPhi < 0.025
-
