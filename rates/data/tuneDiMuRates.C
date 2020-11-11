@@ -102,7 +102,8 @@ void calcRates(int nCollBunches,
                TH1D& doubleMuRateVsPtHist,
                TH1D& doubleMuRateOpenHist,
                TH1D& doubleMuRateOpenVsPtHist,
-               std::string label);
+               std::string label,
+               bool forStack = false);
 void drawHistograms(TH1D& baselineHist,
                     TH1D& tunedHist,
                     TString filename,
@@ -382,7 +383,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtBaselineBMTF,
             doubleMuRatesOpenBaselineBMTF,
             doubleMuRatesOpenVsPtBaselineBMTF,
-            "baseline BMTF");
+            "baseline BMTF",
+            true);
 
   calcRates(nCollBunches,
             baselineEntries,
@@ -394,7 +396,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtBaselineOMTF,
             doubleMuRatesOpenBaselineOMTF,
             doubleMuRatesOpenVsPtBaselineOMTF,
-            "baseline OMTF");
+            "baseline OMTF",
+            true);
 
   calcRates(nCollBunches,
             baselineEntries,
@@ -406,7 +409,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtBaselineEMTF,
             doubleMuRatesOpenBaselineEMTF,
             doubleMuRatesOpenVsPtBaselineEMTF,
-            "baseline EMTF");
+            "baseline EMTF",
+            true);
 
   calcRates(nCollBunches,
             tunedEntries,
@@ -430,7 +434,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtTunedBMTF,
             doubleMuRatesOpenTunedBMTF,
             doubleMuRatesOpenVsPtTunedBMTF,
-            "tuned BMTF parameters");
+            "tuned BMTF parameters",
+            true);
 
   calcRates(nCollBunches,
             tunedEntries,
@@ -442,7 +447,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtTunedOMTF,
             doubleMuRatesOpenTunedOMTF,
             doubleMuRatesOpenVsPtTunedOMTF,
-            "tuned OMTF parameters");
+            "tuned OMTF parameters",
+            true);
 
   calcRates(nCollBunches,
             tunedEntries,
@@ -454,7 +460,8 @@ void tuneDiMuRates(const char* file_list_baseline,
             doubleMuRatesVsPtTunedEMTF,
             doubleMuRatesOpenTunedEMTF,
             doubleMuRatesOpenVsPtTunedEMTF,
-            "tuned EMTF parameters");
+            "tuned EMTF parameters",
+            true);
 
   std::ostringstream oss;
   oss << "ZeroBias, L1_DoubleMu_" << mu1cut << "_" << mu2cut;
@@ -1302,7 +1309,8 @@ void calcRates(int nCollBunches,
                TH1D& doubleMuRateVsPtHist,
                TH1D& doubleMuRateOpenHist,
                TH1D& doubleMuRateOpenVsPtHist,
-               std::string label) {
+               std::string label,
+               bool forStack = false) {
   // normalisation factor
   double norm = (11. * nCollBunches) / nevents;  // zb rate = n_colliding * 11 kHz
   std::cout << "Number of events examined: " << nevents << "\n";
@@ -1323,22 +1331,33 @@ void calcRates(int nCollBunches,
   std::cout << "###########################################"
             << "\n";
 
-  doubleMuRateHist.Sumw2();
-  doubleMuRateVsPtHist.Sumw2();
-  doubleMuRateOpenHist.Sumw2();
-  doubleMuRateOpenVsPtHist.Sumw2();
-  doubleMuGhostRateHist.Sumw2();
-  doubleMuGhostRateVsPtHist.Sumw2();
-  doubleMuGhostRateOpenHist.Sumw2();
-  doubleMuGhostRateOpenVsPtHist.Sumw2();
-  // doubleMuRateHist.Scale(norm);
-  // doubleMuRateVsPtHist.Scale(norm);
-  // doubleMuRateOpenHist.Scale(norm);
-  // doubleMuRateOpenVsPtHist.Scale(norm);
-  // doubleMuGhostRateHist.Scale(norm);
-  // doubleMuGhostRateVsPtHist.Scale(norm);
-  // doubleMuGhostRateOpenHist.Scale(norm);
-  // doubleMuGhostRateOpenVsPtHist.Scale(norm);
+  if (forStack) {
+    doubleMuRateHist.Scale(norm, "nosw2");
+    doubleMuRateVsPtHist.Scale(norm, "nosw2");
+    doubleMuRateOpenHist.Scale(norm, "nosw2");
+    doubleMuRateOpenVsPtHist.Scale(norm, "nosw2");
+    doubleMuGhostRateHist.Scale(norm, "nosw2");
+    doubleMuGhostRateVsPtHist.Scale(norm, "nosw2");
+    doubleMuGhostRateOpenHist.Scale(norm, "nosw2");
+    doubleMuGhostRateOpenVsPtHist.Scale(norm, "nosw2");
+  } else {
+    doubleMuRateHist.Sumw2();
+    doubleMuRateVsPtHist.Sumw2();
+    doubleMuRateOpenHist.Sumw2();
+    doubleMuRateOpenVsPtHist.Sumw2();
+    doubleMuGhostRateHist.Sumw2();
+    doubleMuGhostRateVsPtHist.Sumw2();
+    doubleMuGhostRateOpenHist.Sumw2();
+    doubleMuGhostRateOpenVsPtHist.Sumw2();
+    doubleMuRateHist.Scale(norm);
+    doubleMuRateVsPtHist.Scale(norm);
+    doubleMuRateOpenHist.Scale(norm);
+    doubleMuRateOpenVsPtHist.Scale(norm);
+    doubleMuGhostRateHist.Scale(norm);
+    doubleMuGhostRateVsPtHist.Scale(norm);
+    doubleMuGhostRateOpenHist.Scale(norm);
+    doubleMuGhostRateOpenVsPtHist.Scale(norm);
+  }
 }
 
 void drawHistograms(TH1D& baselineHist,
