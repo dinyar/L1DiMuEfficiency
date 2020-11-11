@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TEfficiency.h"
 #include "TLatex.h"
 #include "TLegend.h"
 #include "TMath.h"
@@ -25,7 +26,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
 
 int nMuBinsPt{27};
-float ptBins[28];
+double ptBins[28];
 
 bool readFList(std::string fname,
                std::vector<std::string>& listNtuples,
@@ -50,48 +51,50 @@ void getTfMuonRates(int nCollBunches,
                     bool update_hists,
                     TString folder,
                     TString identifier);
-void getMuonRates(int nCollBunches,
-                  int nevents,
-                  TChain* l1Chain,
-                  TChain* recoChain,
-                  const int mu1cut,
-                  const int mu2cut,
-                  TH1D& doubleMuGhostRateHist,
-                  TH1D& doubleMuGhostRateVsPtHist,
-                  TH1D& doubleMuGhostRateOpenHist,
-                  TH1D& doubleMuGhostRateOpenVsPtHist,
-                  TH1D& doubleMuRateHist,
-                  TH1D& doubleMuRateVsPtHist,
-                  TH1D& doubleMuRateOpenHist,
-                  TH1D& doubleMuRateOpenVsPtHist,
-                  TH1D& doubleMuGhostRateBMTFHist,
-                  TH1D& doubleMuGhostRateVsPtBMTFHist,
-                  TH1D& doubleMuGhostRateOpenBMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtBMTFHist,
-                  TH1D& doubleMuRateBMTFHist,
-                  TH1D& doubleMuRateVsPtBMTFHist,
-                  TH1D& doubleMuRateOpenBMTFHist,
-                  TH1D& doubleMuRateOpenVsPtBMTFHist,
-                  TH1D& doubleMuGhostRateOMTFHist,
-                  TH1D& doubleMuGhostRateVsPtOMTFHist,
-                  TH1D& doubleMuGhostRateOpenOMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtOMTFHist,
-                  TH1D& doubleMuRateOMTFHist,
-                  TH1D& doubleMuRateVsPtOMTFHist,
-                  TH1D& doubleMuRateOpenOMTFHist,
-                  TH1D& doubleMuRateOpenVsPtOMTFHist,
-                  TH1D& doubleMuGhostRateEMTFHist,
-                  TH1D& doubleMuGhostRateVsPtEMTFHist,
-                  TH1D& doubleMuGhostRateOpenEMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtEMTFHist,
-                  TH1D& doubleMuRateEMTFHist,
-                  TH1D& doubleMuRateVsPtEMTFHist,
-                  TH1D& doubleMuRateOpenEMTFHist,
-                  TH1D& doubleMuRateOpenVsPtEMTFHist,
-                  bool retrieve_hists,
-                  bool update_hists,
-                  TString folder,
-                  TString identifier);
+void makeMuonHists(int nCollBunches,
+                   int nevents,
+                   TChain* l1Chain,
+                   TChain* recoChain,
+                   const int mu1cut,
+                   const int mu2cut,
+                   TH1D& doubleMuGhostRateHist,
+                   TH1D& doubleMuGhostRateVsPtHist,
+                   TH1D& doubleMuGhostRateOpenHist,
+                   TH1D& doubleMuGhostRateOpenVsPtHist,
+                   TH1D& doubleMuRateHist,
+                   TH1D& doubleMuRateVsPtHist,
+                   TH1D& doubleMuRateOpenHist,
+                   TH1D& doubleMuRateOpenVsPtHist,
+                   TH1D& doubleMuGhostRateBMTFHist,
+                   TH1D& doubleMuGhostRateVsPtBMTFHist,
+                   TH1D& doubleMuGhostRateOpenBMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtBMTFHist,
+                   TH1D& doubleMuRateBMTFHist,
+                   TH1D& doubleMuRateVsPtBMTFHist,
+                   TH1D& doubleMuRateOpenBMTFHist,
+                   TH1D& doubleMuRateOpenVsPtBMTFHist,
+                   TH1D& doubleMuGhostRateOMTFHist,
+                   TH1D& doubleMuGhostRateVsPtOMTFHist,
+                   TH1D& doubleMuGhostRateOpenOMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtOMTFHist,
+                   TH1D& doubleMuRateOMTFHist,
+                   TH1D& doubleMuRateVsPtOMTFHist,
+                   TH1D& doubleMuRateOpenOMTFHist,
+                   TH1D& doubleMuRateOpenVsPtOMTFHist,
+                   TH1D& doubleMuGhostRateEMTFHist,
+                   TH1D& doubleMuGhostRateVsPtEMTFHist,
+                   TH1D& doubleMuGhostRateOpenEMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtEMTFHist,
+                   TH1D& doubleMuRateEMTFHist,
+                   TH1D& doubleMuRateVsPtEMTFHist,
+                   TH1D& doubleMuRateOpenEMTFHist,
+                   TH1D& doubleMuRateOpenVsPtEMTFHist,
+                   TEfficiency& doubleMuEff,
+                   TEfficiency& doubleMuEffVsPt,
+                   bool retrieve_hists,
+                   bool update_hists,
+                   TString folder,
+                   TString identifier);
 void calcRates(int nCollBunches,
                int nevents,
                TH1D& doubleMuGhostRateHist,
@@ -127,6 +130,15 @@ void drawStacks(TH1D& bmtfHist,
                 bool logy = false,
                 bool pTplot = false,
                 double maxY = -1);
+void drawEfficiency(TEfficiency& baselineHist,
+                    TEfficiency& tunedHist,
+                    TString filename,
+                    TString xAxisLabel,
+                    TString yAxisLabel,
+                    TString descString,
+                    TString plotFolder,
+                    TString run,
+                    bool pTplot = false);
 
 void tuneDiMuRates(const char* file_list_baseline,
                    const char* file_list_tuned,
@@ -275,91 +287,100 @@ void tuneDiMuRates(const char* file_list_baseline,
   TH1D doubleMuRatesOpenTunedEMTF("doubleMuRatesOpenTunedEMTF", "", nMuBins, muLo - 0.1, muHi + 0.1);
   TH1D doubleMuRatesOpenVsPtTunedEMTF("doubleMuRatesOpenVsPtTunedEMTF", "", nMuBinsPt, ptBins);
 
-  getMuonRates(nCollBunches,
-               baselineEntries,
-               chainL1Baseline,
-               chainRecoBaseline,
-               mu1cut,
-               mu2cut,
-               doubleMuGhostRatesBaseline,
-               doubleMuGhostRatesVsPtBaseline,
-               doubleMuGhostRatesOpenBaseline,
-               doubleMuGhostRatesOpenVsPtBaseline,
-               doubleMuRatesBaseline,
-               doubleMuRatesVsPtBaseline,
-               doubleMuRatesOpenBaseline,
-               doubleMuRatesOpenVsPtBaseline,
-               doubleMuGhostRatesBaselineBMTF,
-               doubleMuGhostRatesVsPtBaselineBMTF,
-               doubleMuGhostRatesOpenBaselineBMTF,
-               doubleMuGhostRatesOpenVsPtBaselineBMTF,
-               doubleMuRatesBaselineBMTF,
-               doubleMuRatesVsPtBaselineBMTF,
-               doubleMuRatesOpenBaselineBMTF,
-               doubleMuRatesOpenVsPtBaselineBMTF,
-               doubleMuGhostRatesBaselineOMTF,
-               doubleMuGhostRatesVsPtBaselineOMTF,
-               doubleMuGhostRatesOpenBaselineOMTF,
-               doubleMuGhostRatesOpenVsPtBaselineOMTF,
-               doubleMuRatesBaselineOMTF,
-               doubleMuRatesVsPtBaselineOMTF,
-               doubleMuRatesOpenBaselineOMTF,
-               doubleMuRatesOpenVsPtBaselineOMTF,
-               doubleMuGhostRatesBaselineEMTF,
-               doubleMuGhostRatesVsPtBaselineEMTF,
-               doubleMuGhostRatesOpenBaselineEMTF,
-               doubleMuGhostRatesOpenVsPtBaselineEMTF,
-               doubleMuRatesBaselineEMTF,
-               doubleMuRatesVsPtBaselineEMTF,
-               doubleMuRatesOpenBaselineEMTF,
-               doubleMuRatesOpenVsPtBaselineEMTF,
-               retrieve_hists,
-               update_hists,
-               histFolder,
-               "Baseline");
+  TEfficiency doubleMuEffBaseline("doubleMuEffBaseline", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TEfficiency doubleMuEffVsPtBaseline("doubleMuEffVsPtBaseline", "", nMuBinsPt, ptBins);
+  TEfficiency doubleMuEffTuned("doubleMuEffTuned", "", nMuBins, muLo - 0.1, muHi + 0.1);
+  TEfficiency doubleMuEffVsPtTuned("doubleMuEffVsPtTuned", "", nMuBinsPt, ptBins);
 
-  getMuonRates(nCollBunches,
-               tunedEntries,
-               chainL1Tuned,
-               chainRecoTuned,
-               mu1cut,
-               mu2cut,
-               doubleMuGhostRatesTuned,
-               doubleMuGhostRatesVsPtTuned,
-               doubleMuGhostRatesOpenTuned,
-               doubleMuGhostRatesOpenVsPtTuned,
-               doubleMuRatesTuned,
-               doubleMuRatesVsPtTuned,
-               doubleMuRatesOpenTuned,
-               doubleMuRatesOpenVsPtTuned,
-               doubleMuGhostRatesTunedBMTF,
-               doubleMuGhostRatesVsPtTunedBMTF,
-               doubleMuGhostRatesOpenTunedBMTF,
-               doubleMuGhostRatesOpenVsPtTunedBMTF,
-               doubleMuRatesTunedBMTF,
-               doubleMuRatesVsPtTunedBMTF,
-               doubleMuRatesOpenTunedBMTF,
-               doubleMuRatesOpenVsPtTunedBMTF,
-               doubleMuGhostRatesTunedOMTF,
-               doubleMuGhostRatesVsPtTunedOMTF,
-               doubleMuGhostRatesOpenTunedOMTF,
-               doubleMuGhostRatesOpenVsPtTunedOMTF,
-               doubleMuRatesTunedOMTF,
-               doubleMuRatesVsPtTunedOMTF,
-               doubleMuRatesOpenTunedOMTF,
-               doubleMuRatesOpenVsPtTunedOMTF,
-               doubleMuGhostRatesTunedEMTF,
-               doubleMuGhostRatesVsPtTunedEMTF,
-               doubleMuGhostRatesOpenTunedEMTF,
-               doubleMuGhostRatesOpenVsPtTunedEMTF,
-               doubleMuRatesTunedEMTF,
-               doubleMuRatesVsPtTunedEMTF,
-               doubleMuRatesOpenTunedEMTF,
-               doubleMuRatesOpenVsPtTunedEMTF,
-               retrieve_hists,
-               update_hists,
-               histFolder,
-               "Tuned");
+  makeMuonHists(nCollBunches,
+                baselineEntries,
+                chainL1Baseline,
+                chainRecoBaseline,
+                mu1cut,
+                mu2cut,
+                doubleMuGhostRatesBaseline,
+                doubleMuGhostRatesVsPtBaseline,
+                doubleMuGhostRatesOpenBaseline,
+                doubleMuGhostRatesOpenVsPtBaseline,
+                doubleMuRatesBaseline,
+                doubleMuRatesVsPtBaseline,
+                doubleMuRatesOpenBaseline,
+                doubleMuRatesOpenVsPtBaseline,
+                doubleMuGhostRatesBaselineBMTF,
+                doubleMuGhostRatesVsPtBaselineBMTF,
+                doubleMuGhostRatesOpenBaselineBMTF,
+                doubleMuGhostRatesOpenVsPtBaselineBMTF,
+                doubleMuRatesBaselineBMTF,
+                doubleMuRatesVsPtBaselineBMTF,
+                doubleMuRatesOpenBaselineBMTF,
+                doubleMuRatesOpenVsPtBaselineBMTF,
+                doubleMuGhostRatesBaselineOMTF,
+                doubleMuGhostRatesVsPtBaselineOMTF,
+                doubleMuGhostRatesOpenBaselineOMTF,
+                doubleMuGhostRatesOpenVsPtBaselineOMTF,
+                doubleMuRatesBaselineOMTF,
+                doubleMuRatesVsPtBaselineOMTF,
+                doubleMuRatesOpenBaselineOMTF,
+                doubleMuRatesOpenVsPtBaselineOMTF,
+                doubleMuGhostRatesBaselineEMTF,
+                doubleMuGhostRatesVsPtBaselineEMTF,
+                doubleMuGhostRatesOpenBaselineEMTF,
+                doubleMuGhostRatesOpenVsPtBaselineEMTF,
+                doubleMuRatesBaselineEMTF,
+                doubleMuRatesVsPtBaselineEMTF,
+                doubleMuRatesOpenBaselineEMTF,
+                doubleMuRatesOpenVsPtBaselineEMTF,
+                doubleMuEffBaseline,
+                doubleMuEffVsPtBaseline,
+                retrieve_hists,
+                update_hists,
+                histFolder,
+                "Baseline");
+
+  makeMuonHists(nCollBunches,
+                tunedEntries,
+                chainL1Tuned,
+                chainRecoTuned,
+                mu1cut,
+                mu2cut,
+                doubleMuGhostRatesTuned,
+                doubleMuGhostRatesVsPtTuned,
+                doubleMuGhostRatesOpenTuned,
+                doubleMuGhostRatesOpenVsPtTuned,
+                doubleMuRatesTuned,
+                doubleMuRatesVsPtTuned,
+                doubleMuRatesOpenTuned,
+                doubleMuRatesOpenVsPtTuned,
+                doubleMuGhostRatesTunedBMTF,
+                doubleMuGhostRatesVsPtTunedBMTF,
+                doubleMuGhostRatesOpenTunedBMTF,
+                doubleMuGhostRatesOpenVsPtTunedBMTF,
+                doubleMuRatesTunedBMTF,
+                doubleMuRatesVsPtTunedBMTF,
+                doubleMuRatesOpenTunedBMTF,
+                doubleMuRatesOpenVsPtTunedBMTF,
+                doubleMuGhostRatesTunedOMTF,
+                doubleMuGhostRatesVsPtTunedOMTF,
+                doubleMuGhostRatesOpenTunedOMTF,
+                doubleMuGhostRatesOpenVsPtTunedOMTF,
+                doubleMuRatesTunedOMTF,
+                doubleMuRatesVsPtTunedOMTF,
+                doubleMuRatesOpenTunedOMTF,
+                doubleMuRatesOpenVsPtTunedOMTF,
+                doubleMuGhostRatesTunedEMTF,
+                doubleMuGhostRatesVsPtTunedEMTF,
+                doubleMuGhostRatesOpenTunedEMTF,
+                doubleMuGhostRatesOpenVsPtTunedEMTF,
+                doubleMuRatesTunedEMTF,
+                doubleMuRatesVsPtTunedEMTF,
+                doubleMuRatesOpenTunedEMTF,
+                doubleMuRatesOpenVsPtTunedEMTF,
+                doubleMuEffTuned,
+                doubleMuEffVsPtTuned,
+                retrieve_hists,
+                update_hists,
+                histFolder,
+                "Tuned");
 
   calcRates(nCollBunches,
             baselineEntries,
@@ -605,6 +626,24 @@ void tuneDiMuRates(const char* file_list_baseline,
              true,
              true);
 
+  drawEfficiency(doubleMuEffBaseline,
+                 doubleMuEffTuned,
+                 "doubleMuEfficiency",
+                 "#eta (both #mu)",
+                 "Efficiency",
+                 "Zero Bias, L1_DoubleMu0",
+                 plotFolder,
+                 run);
+  drawEfficiency(doubleMuEffVsPtBaseline,
+                 doubleMuEffVsPtTuned,
+                 "doubleMuEfficiencyVsPt",
+                 "p_{T} (both #mu)",
+                 "Efficiency",
+                 "Zero Bias, L1_DoubleMu0",
+                 plotFolder,
+                 run,
+                 true);
+
   oss << ", ghost rate";
 
   drawHistograms(doubleMuGhostRatesBaseline,
@@ -840,6 +879,40 @@ bool bestMatchL1toReco(
   }
 }
 
+bool matchRecoToL1(
+    L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_, double mu1Eta, double mu2Eta, double mu1Phi, double mu2Phi) {
+  double matchingWindowEta{0.5};
+  double matchingWindowPhi{3.14159};
+  bool matchedMu1{false};
+  bool matchedMu2{false};
+  for (int i = 0; i < l1_->nMuons; ++i) {
+    if (l1_->muonBx[i] != 0) {
+      continue;
+    }
+    if (!matchedMu1 && std::abs(l1_->muonPhi[i] - mu1Phi) < matchingWindowPhi &&
+        std::abs(l1_->muonEta[i] - mu1Eta) < matchingWindowEta) {
+      matchedMu1 = true;
+    } else if (!matchedMu2 && std::abs(l1_->muonPhi[i] - mu2Phi) < matchingWindowPhi &&
+               std::abs(l1_->muonEta[i] - mu2Eta) < matchingWindowEta) {
+      matchedMu2 = true;
+    }
+  }
+  if (matchedMu1 && matchedMu2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool bestMatchRecoToL1(
+    L1Analysis::L1AnalysisL1UpgradeDataFormat* l1_, double mu1Eta, double mu2Eta, double mu1Phi, double mu2Phi) {
+  if (matchRecoToL1(l1_, mu1Eta, mu2Eta, mu1Phi, mu2Phi) || matchRecoToL1(l1_, mu2Eta, mu1Eta, mu2Phi, mu1Phi)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void getTfMuonRates(int nCollBunches,
                     int nevents,
                     TChain* tfChain,
@@ -1042,48 +1115,50 @@ void getTfMuonRates(int nCollBunches,
   std::cout << "Done writing." << std::endl;
 }
 
-void getMuonRates(int nCollBunches,
-                  int nevents,
-                  TChain* l1Chain,
-                  TChain* recoChain,
-                  const int mu1cut,
-                  const int mu2cut,
-                  TH1D& doubleMuGhostRateHist,
-                  TH1D& doubleMuGhostRateVsPtHist,
-                  TH1D& doubleMuGhostRateOpenHist,
-                  TH1D& doubleMuGhostRateOpenVsPtHist,
-                  TH1D& doubleMuRateHist,
-                  TH1D& doubleMuRateVsPtHist,
-                  TH1D& doubleMuRateOpenHist,
-                  TH1D& doubleMuRateOpenVsPtHist,
-                  TH1D& doubleMuGhostRateBMTFHist,
-                  TH1D& doubleMuGhostRateVsPtBMTFHist,
-                  TH1D& doubleMuGhostRateOpenBMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtBMTFHist,
-                  TH1D& doubleMuRateBMTFHist,
-                  TH1D& doubleMuRateVsPtBMTFHist,
-                  TH1D& doubleMuRateOpenBMTFHist,
-                  TH1D& doubleMuRateOpenVsPtBMTFHist,
-                  TH1D& doubleMuGhostRateOMTFHist,
-                  TH1D& doubleMuGhostRateVsPtOMTFHist,
-                  TH1D& doubleMuGhostRateOpenOMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtOMTFHist,
-                  TH1D& doubleMuRateOMTFHist,
-                  TH1D& doubleMuRateVsPtOMTFHist,
-                  TH1D& doubleMuRateOpenOMTFHist,
-                  TH1D& doubleMuRateOpenVsPtOMTFHist,
-                  TH1D& doubleMuGhostRateEMTFHist,
-                  TH1D& doubleMuGhostRateVsPtEMTFHist,
-                  TH1D& doubleMuGhostRateOpenEMTFHist,
-                  TH1D& doubleMuGhostRateOpenVsPtEMTFHist,
-                  TH1D& doubleMuRateEMTFHist,
-                  TH1D& doubleMuRateVsPtEMTFHist,
-                  TH1D& doubleMuRateOpenEMTFHist,
-                  TH1D& doubleMuRateOpenVsPtEMTFHist,
-                  bool retrieve_hists,
-                  bool update_hists,
-                  TString folder,
-                  TString identifier) {
+void makeMuonHists(int nCollBunches,
+                   int nevents,
+                   TChain* l1Chain,
+                   TChain* recoChain,
+                   const int mu1cut,
+                   const int mu2cut,
+                   TH1D& doubleMuGhostRateHist,
+                   TH1D& doubleMuGhostRateVsPtHist,
+                   TH1D& doubleMuGhostRateOpenHist,
+                   TH1D& doubleMuGhostRateOpenVsPtHist,
+                   TH1D& doubleMuRateHist,
+                   TH1D& doubleMuRateVsPtHist,
+                   TH1D& doubleMuRateOpenHist,
+                   TH1D& doubleMuRateOpenVsPtHist,
+                   TH1D& doubleMuGhostRateBMTFHist,
+                   TH1D& doubleMuGhostRateVsPtBMTFHist,
+                   TH1D& doubleMuGhostRateOpenBMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtBMTFHist,
+                   TH1D& doubleMuRateBMTFHist,
+                   TH1D& doubleMuRateVsPtBMTFHist,
+                   TH1D& doubleMuRateOpenBMTFHist,
+                   TH1D& doubleMuRateOpenVsPtBMTFHist,
+                   TH1D& doubleMuGhostRateOMTFHist,
+                   TH1D& doubleMuGhostRateVsPtOMTFHist,
+                   TH1D& doubleMuGhostRateOpenOMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtOMTFHist,
+                   TH1D& doubleMuRateOMTFHist,
+                   TH1D& doubleMuRateVsPtOMTFHist,
+                   TH1D& doubleMuRateOpenOMTFHist,
+                   TH1D& doubleMuRateOpenVsPtOMTFHist,
+                   TH1D& doubleMuGhostRateEMTFHist,
+                   TH1D& doubleMuGhostRateVsPtEMTFHist,
+                   TH1D& doubleMuGhostRateOpenEMTFHist,
+                   TH1D& doubleMuGhostRateOpenVsPtEMTFHist,
+                   TH1D& doubleMuRateEMTFHist,
+                   TH1D& doubleMuRateVsPtEMTFHist,
+                   TH1D& doubleMuRateOpenEMTFHist,
+                   TH1D& doubleMuRateOpenVsPtEMTFHist,
+                   TEfficiency& doubleMuEff,
+                   TEfficiency& doubleMuEffVsPt,
+                   bool retrieve_hists,
+                   bool update_hists,
+                   TString folder,
+                   TString identifier) {
   TFile* f;
   if (retrieve_hists || update_hists) {
     std::cout << "Retrieving histograms.. " << std::endl;
@@ -1124,6 +1199,8 @@ void getMuonRates(int nCollBunches,
     doubleMuRateVsPtEMTFHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesVsPt" + identifier + "EMTF")));
     doubleMuRateOpenEMTFHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesOpen" + identifier + "EMTF")));
     doubleMuRateOpenVsPtEMTFHist = *(static_cast<TH1D*>(f->Get("doubleMuRatesOpenVsPt" + identifier + "EMTF")));
+    doubleMuEff = *(static_cast<TEfficiency*>(f->Get("doubleMuEff" + identifier)));
+    doubleMuEffVsPt = *(static_cast<TEfficiency*>(f->Get("doubleMuEffVsPt" + identifier)));
     f->Close();
     if (retrieve_hists) {
       return;
@@ -1140,122 +1217,157 @@ void getMuonRates(int nCollBunches,
     if ((jentry % 300000) == 0)
       std::cout << "Done " << jentry << " events..." << std::endl;
 
-    l1Chain->GetEntry(jentry);
-    if (l1_->nMuons < 2) {
-      continue;
-    }
     recoChain->GetEntry(jentry);
-
-    // get Mu rates
-    int mu1(-1);
-    int mu2(-1);
-    double mu1Pt(0);
-    double mu2Pt(0);
-    for (uint it = 0; it < l1_->nMuons; ++it) {
-      if (l1_->muonBx[it] != 0) {
-        continue;
-      }
-      if (l1_->muonQual[it] < 8) {
-        continue;
-      }
-      if (l1_->muonEt[it] > mu1Pt) {
-        mu2 = mu1;
-        mu2Pt = mu1Pt;
-        mu1 = it;
-        mu1Pt = l1_->muonEt[it];
-      } else if (l1_->muonEt[it] > mu2Pt) {
-        mu2 = it;
-        mu2Pt = l1_->muonEt[it];
-      }
-    }
-
-    // Filling di muon rates
-    if (mu1 != -1 && mu2 != -1) {
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuRateVsPtHist.Fill(ptBins[i]);
-          if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
-              (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-            doubleMuRateVsPtEMTFHist.Fill(ptBins[i]);
-          } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
-                     (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-            doubleMuRateVsPtOMTFHist.Fill(ptBins[i]);
-          } else {
-            doubleMuRateVsPtBMTFHist.Fill(ptBins[i]);
+    l1Chain->GetEntry(jentry);
+    if (reco_->nMuons >= 2) {
+      int mu1(-1);
+      int mu2(-1);
+      double mu1Pt(0);
+      double mu2Pt(0);
+      for (int it = 0; it < reco_->nMuons; ++it) {
+        // Find two highest pT ones of these that have a valid station 2 coordinate
+        if (reco_->phiSt2[it] > -9999 && reco_->isTightMuon[it]) {
+          if (reco_->pt[it] > mu1Pt) {
+            mu2 = mu1;
+            mu2Pt = mu1Pt;
+            mu1 = it;
+            mu1Pt = reco_->pt[it];
+          } else if (reco_->pt[it] > mu2Pt) {
+            mu2 = it;
+            mu2Pt = reco_->pt[it];
           }
         }
       }
-      if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuRateHist.Fill(l1_->muonEta[mu1]);
-        if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
-            (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-          doubleMuRateEMTFHist.Fill(l1_->muonEta[mu1]);
-        } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
-                   (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-          doubleMuRateOMTFHist.Fill(l1_->muonEta[mu1]);
+      if (mu2 != -1) {  // If we found two usable reco muons
+        if (bestMatchRecoToL1(l1_, reco_->eta[mu1], reco_->eta[mu2], reco_->phi[mu1], reco_->phi[mu2])) {
+          // if (l1_->nMuons >= 2) {
+          // Fill success
+          doubleMuEff.Fill(true, reco_->eta[mu1]);
+          doubleMuEff.Fill(true, reco_->eta[mu2]);
+          doubleMuEffVsPt.Fill(true, reco_->pt[mu1]);
+          doubleMuEffVsPt.Fill(true, reco_->pt[mu2]);
         } else {
-          doubleMuRateBMTFHist.Fill(l1_->muonEta[mu1]);
+          // Fill failure
+          doubleMuEff.Fill(false, reco_->eta[mu1]);
+          doubleMuEff.Fill(false, reco_->eta[mu2]);
+          doubleMuEffVsPt.Fill(false, reco_->pt[mu1]);
+          doubleMuEffVsPt.Fill(false, reco_->pt[mu2]);
         }
-      }
-      doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
-      doubleMuRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
-      if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
-          (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-        doubleMuRateOpenEMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuRateOpenVsPtEMTFHist.Fill(l1_->muonEt[mu1]);
-      } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
-                 (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-        doubleMuRateOpenOMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuRateOpenVsPtOMTFHist.Fill(l1_->muonEt[mu1]);
-      } else {
-        doubleMuRateOpenBMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuRateOpenVsPtBMTFHist.Fill(l1_->muonEt[mu1]);
       }
     }
 
-    // Computing ghost rates
-    if (mu1 != -1 && mu2 != -1 &&
-        (!bestMatchL1toReco(reco_, l1_->muonEta[mu1], l1_->muonEta[mu2], l1_->muonPhi[mu1], l1_->muonPhi[mu2]))) {
-      for (int i = 0; i < nMuBinsPt; ++i) {
-        if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
-          doubleMuGhostRateVsPtHist.Fill(ptBins[i]);
-          if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
-              (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-            doubleMuGhostRateVsPtEMTFHist.Fill(ptBins[i]);
-          } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
-                     (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-            doubleMuGhostRateVsPtOMTFHist.Fill(ptBins[i]);
-          } else {
-            doubleMuGhostRateVsPtBMTFHist.Fill(ptBins[i]);
+    if (l1_->nMuons >= 2) {
+      // get Mu rates
+      int mu1(-1);
+      int mu2(-1);
+      double mu1Pt(0);
+      double mu2Pt(0);
+      for (uint it = 0; it < l1_->nMuons; ++it) {
+        if (l1_->muonBx[it] != 0) {
+          continue;
+        }
+        if (l1_->muonQual[it] < 8) {
+          continue;
+        }
+        if (l1_->muonEt[it] > mu1Pt) {
+          mu2 = mu1;
+          mu2Pt = mu1Pt;
+          mu1 = it;
+          mu1Pt = l1_->muonEt[it];
+        } else if (l1_->muonEt[it] > mu2Pt) {
+          mu2 = it;
+          mu2Pt = l1_->muonEt[it];
+        }
+      }
+
+      // Filling di muon rates
+      if (mu1 != -1 && mu2 != -1) {
+        for (int i = 0; i < nMuBinsPt; ++i) {
+          if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
+            doubleMuRateVsPtHist.Fill(ptBins[i]);
+            if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
+                (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
+              doubleMuRateVsPtEMTFHist.Fill(ptBins[i]);
+            } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
+                       (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
+              doubleMuRateVsPtOMTFHist.Fill(ptBins[i]);
+            } else {
+              doubleMuRateVsPtBMTFHist.Fill(ptBins[i]);
+            }
           }
         }
-      }
-      if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
-        doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
+        if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
+          doubleMuRateHist.Fill(l1_->muonEta[mu1]);
+          if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
+              (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
+            doubleMuRateEMTFHist.Fill(l1_->muonEta[mu1]);
+          } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
+                     (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
+            doubleMuRateOMTFHist.Fill(l1_->muonEta[mu1]);
+          } else {
+            doubleMuRateBMTFHist.Fill(l1_->muonEta[mu1]);
+          }
+        }
+        doubleMuRateOpenHist.Fill(l1_->muonEta[mu1]);
+        doubleMuRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
         if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
             (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-          doubleMuGhostRateEMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenEMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenVsPtEMTFHist.Fill(l1_->muonEt[mu1]);
         } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
                    (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-          doubleMuGhostRateOMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenOMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenVsPtOMTFHist.Fill(l1_->muonEt[mu1]);
         } else {
-          doubleMuGhostRateBMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenBMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuRateOpenVsPtBMTFHist.Fill(l1_->muonEt[mu1]);
         }
       }
-      doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
-      doubleMuGhostRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
-      if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
-          (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
-        // TODO: Fill correct TF histo!
-        doubleMuGhostRateOpenEMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateOpenVsPtEMTFHist.Fill(l1_->muonEt[mu1]);
-      } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
-                 (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
-        doubleMuGhostRateOpenOMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateOpenVsPtOMTFHist.Fill(l1_->muonEt[mu1]);
-      } else {
-        doubleMuGhostRateOpenBMTFHist.Fill(l1_->muonEta[mu1]);
-        doubleMuGhostRateOpenVsPtBMTFHist.Fill(l1_->muonEt[mu1]);
+
+      // Computing ghost rates
+      if (mu1 != -1 && mu2 != -1 &&
+          (!bestMatchL1toReco(reco_, l1_->muonEta[mu1], l1_->muonEta[mu2], l1_->muonPhi[mu1], l1_->muonPhi[mu2]))) {
+        for (int i = 0; i < nMuBinsPt; ++i) {
+          if (mu1Pt >= ptBins[i] && mu2Pt >= ptBins[i]) {
+            doubleMuGhostRateVsPtHist.Fill(ptBins[i]);
+            if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
+                (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
+              doubleMuGhostRateVsPtEMTFHist.Fill(ptBins[i]);
+            } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
+                       (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
+              doubleMuGhostRateVsPtOMTFHist.Fill(ptBins[i]);
+            } else {
+              doubleMuGhostRateVsPtBMTFHist.Fill(ptBins[i]);
+            }
+          }
+        }
+        if (mu1Pt >= mu1cut && mu2Pt >= mu2cut) {
+          doubleMuGhostRateHist.Fill(l1_->muonEta[mu1]);
+          if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
+              (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
+            doubleMuGhostRateEMTFHist.Fill(l1_->muonEta[mu1]);
+          } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
+                     (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
+            doubleMuGhostRateOMTFHist.Fill(l1_->muonEta[mu1]);
+          } else {
+            doubleMuGhostRateBMTFHist.Fill(l1_->muonEta[mu1]);
+          }
+        }
+        doubleMuGhostRateOpenHist.Fill(l1_->muonEta[mu1]);
+        doubleMuGhostRateOpenVsPtHist.Fill(l1_->muonEt[mu1]);
+        if ((l1_->muonTfMuonIdx[mu1] >= 0 && l1_->muonTfMuonIdx[mu1] <= 17) ||
+            (l1_->muonTfMuonIdx[mu1] >= 90 && l1_->muonTfMuonIdx[mu1] <= 107)) {
+          // TODO: Fill correct TF histo!
+          doubleMuGhostRateOpenEMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuGhostRateOpenVsPtEMTFHist.Fill(l1_->muonEt[mu1]);
+        } else if ((l1_->muonTfMuonIdx[mu1] >= 18 && l1_->muonTfMuonIdx[mu1] <= 35) ||
+                   (l1_->muonTfMuonIdx[mu1] >= 72 && l1_->muonTfMuonIdx[mu1] <= 89)) {
+          doubleMuGhostRateOpenOMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuGhostRateOpenVsPtOMTFHist.Fill(l1_->muonEt[mu1]);
+        } else {
+          doubleMuGhostRateOpenBMTFHist.Fill(l1_->muonEta[mu1]);
+          doubleMuGhostRateOpenVsPtBMTFHist.Fill(l1_->muonEt[mu1]);
+        }
       }
     }
   }
@@ -1294,6 +1406,8 @@ void getMuonRates(int nCollBunches,
   doubleMuRateVsPtEMTFHist.Write();
   doubleMuRateOpenEMTFHist.Write();
   doubleMuRateOpenVsPtEMTFHist.Write();
+  doubleMuEff.Write();
+  doubleMuEffVsPt.Write();
   std::cout << "Closing file." << std::endl;
   // f->Close();
   std::cout << "Done writing." << std::endl;
@@ -1508,6 +1622,72 @@ void drawStacks(TH1D& bmtfHist,
   leg1->AddEntry(&bmtfHist, "BMTF", "lp");
   leg1->AddEntry(&omtfHist, "OMTF", "lp");
   leg1->AddEntry(&emtfHist, "EMTF", "lp");
+  leg1->SetBorderSize(0);
+  leg1->SetFillStyle(0);
+  leg1->Draw();
+
+  c1.SaveAs(plotFolder + filename + ".pdf");
+  c1.SaveAs(plotFolder + filename + ".png");
+}
+
+void drawEfficiency(TEfficiency& baselineHist,
+                    TEfficiency& tunedHist,
+                    TString filename,
+                    TString xAxisLabel,
+                    TString yAxisLabel,
+                    TString descString,
+                    TString plotFolder,
+                    TString run,
+                    bool pTplot = false) {
+  TLatex n1;
+  n1.SetNDC();
+  n1.SetTextFont(52);
+  n1.SetTextSize(0.035);
+
+  TLatex n2;
+  n2.SetNDC();
+  n2.SetTextFont(52);
+  n2.SetTextSize(0.035);
+
+  TCanvas c1("c1", "", 525, 500);
+  // c1.SetLeftMargin(0.18);
+
+  //  muRatesOpenUnpack->SetLineWidth(2);
+
+  tunedHist.SetLineColor(kRed + 1);
+  tunedHist.SetMarkerStyle(25);
+  tunedHist.SetMarkerColor(kRed + 1);
+  tunedHist.Draw();
+  // tunedHist.GetXaxis()->SetTitle(xAxisLabel);
+  // tunedHist.GetYaxis()->SetTitle(yAxisLabel);
+  tunedHist.SetTitle(";" + xAxisLabel + ";" + yAxisLabel);
+  // tunedHist.GetYaxis()->SetTitleOffset(1.4);
+
+  baselineHist.SetLineColor(kCyan + 1);
+  baselineHist.SetMarkerStyle(26);
+  baselineHist.SetMarkerColor(kCyan + 1);
+  baselineHist.Draw("same,ep");
+  // baselineHist.GetXaxis()->SetTitle(xAxisLabel);
+  // baselineHist.GetYaxis()->SetTitle("Rate [kHz/bin]");
+  // baselineHist.GetYaxis()->SetTitleOffset(1.5);
+
+  gPad->Update();
+  tunedHist.GetPaintedGraph()->SetMinimum(0);
+  tunedHist.GetPaintedGraph()->SetMaximum(1.1);
+
+  TLegend* leg1;
+  if (pTplot) {
+    leg1 = new TLegend(0.42, 0.72, 0.9, 0.92);
+    n1.DrawLatex(0.42, 0.68, "Runs " + run + ", #sqrt{s} = 13 TeV");
+    n2.DrawLatex(0.42, 0.63, descString);
+  } else {
+    leg1 = new TLegend(0.3, 0.72, 0.7, 0.92);
+    n1.DrawLatex(0.3, 0.68, "Runs " + run + ", #sqrt{s} = 13 TeV");
+    n2.DrawLatex(0.3, 0.63, descString);
+  }
+  leg1->SetFillColor(0);
+  leg1->AddEntry(&baselineHist, "Baseline", "lp");
+  leg1->AddEntry(&tunedHist, "Tuned", "lp");
   leg1->SetBorderSize(0);
   leg1->SetFillStyle(0);
   leg1->Draw();

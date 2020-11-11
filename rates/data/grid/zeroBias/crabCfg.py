@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-requestName = 'L1Ntuple-Run2018D-320838-321012-ZeroBias-baselineTuning'
+requestName = 'L1Ntuple-Run2018D-320838-321479-ZeroBias-emtfTracks'
 dataset     = '/ZeroBias/Run2018D-PromptReco-v2/AOD'
 # splitting   = 'EventAwareLumiBased'
 splitting   = 'LumiBased'
@@ -25,12 +25,12 @@ config.Data.splitting = splitting
 config.Data.useParent = True
 config.Data.unitsPerJob = 15
 config.Data.outLFNDirBase = output
-config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-321221_13TeV_PromptReco_Collisions18_JSON_MuonPhys.txt'
+config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-321777_13TeV_PromptReco_Collisions18_JSON_MuonPhys.txt'
 # config.Data.runRange = '280017-280385' # 4. September to 9. September for G run.
 # config.Data.runRange = '279993-280017' # 3. September to 4. September (?)
 # config.Data.runRange = '279588-279991' # 25. August to 3. September
 # config.Data.runRange = '279588-279887' # 25. August to 3. September
-config.Data.runRange = '320838-321012' # 4. August to 8. August
+config.Data.runRange = '320838-321479' # 4. August to 20. August
 config.Data.ignoreLocality = True
 
 config.section_('Site')
