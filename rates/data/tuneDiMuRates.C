@@ -853,7 +853,7 @@ bool matchL1toReco(
   bool matchedMu2{false};
   for (int i = 0; i < reco_->nMuons; ++i) {
     // if (reco_->isMediumMuon[i] && reco_->phiSt1[i] > -9999 && reco_->pt[i] >= 2) {
-    if (reco_->phiSt2[i] > -9999) {
+    if (reco_->phiSt2[i] > -9999 && reco_->isTightMuon[i]) {
       if (!matchedMu1 && std::abs(reco_->phi[i] - mu1Phi) < matchingWindowPhi &&
           std::abs(reco_->eta[i] - mu1Eta) < matchingWindowEta) {
         matchedMu1 = true;
